@@ -1,7 +1,8 @@
 class Component {
 
-    constructor() {
+    constructor(entityID) {
         this.id = Component.CURR_ID++;
+        this.entityID = entityID;
     }
 
 }
