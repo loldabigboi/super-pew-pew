@@ -3,6 +3,7 @@ class System {
     constructor() {
         
         this.entities = {}  // stores components according to entity id
+        this.acceptedComponentTypes = [];
 
     }
 
