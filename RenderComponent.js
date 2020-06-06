@@ -1,8 +1,8 @@
 class RenderComponent extends Component {
     
-    constructor(xOffset, yOffset, offsetType, rotOffset, fillColor, strokeColor) {
+    constructor(entityID, xOffset, yOffset, offsetType, rotOffset, fillColor, strokeColor) {
 
-        super();
+        super(entityID);
 
         this.xOffset = xOffset;
         this.yOffset = yOffset;
