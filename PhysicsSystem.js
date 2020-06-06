@@ -9,6 +9,7 @@ class PhysicsSystem extends System {
         });
 
         this.addComponentCallback = (component) => {
+            super.addComponentCallback(component);
             this.world.addBody(component.body);
         }
 
