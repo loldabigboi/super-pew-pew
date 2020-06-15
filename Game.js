@@ -5,6 +5,10 @@ class Game {
 
         }
         this.currScene = Scene();
+
+        // test code
+        this.currScene.addSystem(new PhysicsSystem);
+        this.currScene.addSystem(new RenderSystem)
     }
 
     run() {
