@@ -11,7 +11,7 @@ class Scene {
 
     addSystem(system, _priority) {
 
-        const priority = _priority | Scene.PRIORITY.MODERATE;
+        const priority = _priority | 100;  //  default to v. low priority
 
         if (this.systems[priority] != undefined) {
             this.systems[priorty].push(system);
@@ -25,13 +25,4 @@ class Scene {
 
     }
         
-}
-Scene.PRIORITY = {
-    MAX = 0,
-    V_HI = 1,
-    HI = 2,
-    MED = 3,
-    LO = 4,
-    V_LO = 5,
-    MIN = 6
 }
