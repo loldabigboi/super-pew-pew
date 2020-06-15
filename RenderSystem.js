@@ -1,5 +1,3 @@
-const { Shape } = require("p2");
-
 class RenderSystem extends System {
 
     constructor() {
