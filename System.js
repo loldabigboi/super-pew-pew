@@ -1,23 +1,21 @@
 class System {
 
-    constructor(acceptedComponentTypes) {
+    constructor(requiredComponents) {
         
         this.entities = {}  // stores components according to entity id
-        this.acceptedComponentTypes = acceptedComponentTypes;
-        this.addComponentCallback = (component) => {this.entities[component.entityID].push(component);}
+        this.requiredComponents = requiredComponents;
 
     }
 
-    addComponents() {
+    addEntity(id, components) {
 
-        for (const component in arguments) {
-
-            if (!this.acceptedComponentTypes.includes(component.constructor.name)) {
-                throw Error("invalid component type");
+        for (const c of this.requiredComponents) {
+            if (!components.includes(c)) {
+                throw new Error("Required component '" + c.constructor.name + "' not included.");
             }
-            this.addComponentCallback(component);
-
         }
+
+        this.entites[id] = components;
 
     }
 
