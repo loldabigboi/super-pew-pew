@@ -27,11 +27,11 @@ class Scene {
         
 }
 Scene.PRIORITY = {
-    TOP = 0,
-    VERY_HIGH = 1,
-    HIGH = 2,
-    MODERATE = 3,
-    LOW = 4,
-    VERY_LOW = 5,
-    LOWEST = 6
+    MAX = 0,
+    V_HI = 1,
+    HI = 2,
+    MED = 3,
+    LO = 4,
+    V_LO = 5,
+    MIN = 6
 }
