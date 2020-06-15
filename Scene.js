@@ -21,6 +21,14 @@ class Scene {
 
     }
 
+    addEntity(id, components) {
+        for (const p of this.systems.keys()) {
+            for (const system of this.systems[p]) {
+                system.addEntity(id, components);
+            }
+        }
+    }
+
     update(dt) {
 
     }
