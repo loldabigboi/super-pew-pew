@@ -2,17 +2,19 @@ class PhysicsSystem extends System {
 
     constructor() {
         
-        super();
+        super(PhysicsComponent);
         
         this.world = new p2.World({
             gravity: [0, -9.82]
         });
 
-        this.addComponentCallback = (component) => {
-            super.addComponentCallback(component);
-            this.world.addBody(component.body);
-        }
+    }
 
+    addEntity(id, components) {
+
+        super(id, components);
+        this.world.addBody(components[PhysicsComponent].body);
+        
     }
 
     update(dt) {
