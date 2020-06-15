@@ -1,3 +1,5 @@
+const { Shape } = require("p2");
+
 class PhysicsComponent extends Component {
 
     constructor(entityID, mass, xPos, yPos, xVel, yVel, shapeObj) {
@@ -12,11 +14,11 @@ class PhysicsComponent extends Component {
         });
 
         let shape;
-        if (shapeObj.type === PhysicsComponent.CIRCLE) {
+        if (shapeObj.type === Shape.CIRCLE) {
             shape = new p2.Circle({
                 radius: shapeObj.radius
             })
-        } else if (shapeObj.type === PhysicsComponent.RECTANGLE) {
+        } else if (shapeObj.type === Shape.BOX) {
             shape = new p2.Box({
                 width: shapeObj.width,
                 height: shapeObj.height
@@ -30,6 +32,3 @@ class PhysicsComponent extends Component {
     }
 
 }
-
-PhysicsComponent.CIRCLE = 0;
-PhysicsComponent.RECTANGLE = 1;
