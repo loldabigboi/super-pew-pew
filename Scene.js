@@ -9,7 +9,9 @@ class Scene {
 
     }
 
-    addSystem(system, priority) {
+    addSystem(system, _priority) {
+
+        const priority = _priority | Scene.PRIORITY.MODERATE;
 
         if (this.systems[priority] != undefined) {
             this.systems[priorty].push(system);
