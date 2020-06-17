@@ -13,8 +13,9 @@ class PhysicsSystem extends System {
 
     addEntity(id, components) {
 
-        super.addEntity(id, components);
-        this.world.addBody(components[PhysicsComponent].body);
+        if (super.addEntity(id, components)) {
+            this.world.addBody(components[PhysicsComponent].body);
+        }
         
     }
 

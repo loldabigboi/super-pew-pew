@@ -24,9 +24,23 @@ class RenderSystem extends System {
             ctx.fillStyle = renderC.fillColor;
 
             if (c[TransformComponent] != undefined) {
+
                 const transformC = c[TransformComponent];
-                ctx.fillRect(transformC.x - transformC.offsetX, transformC.y - transformC.offsetY, 
-                                transformC.width, transformC.height);
+                const x = transformC.x,
+                      y = transformC.y;
+                
+                ctx.save();
+                ctx.translate(x, y);
+                ctx.rotate(transformC.angle);
+                ctx.translate(transformC.width * -transformC.posOffset[0], 
+                              transformC.height * -transformC.posOffset[1]);
+                
+                ctx.beginPath();
+                ctx.rect(0, 0, transformC.width, transformC.height);
+                ctx.fill();
+                ctx.stroke();
+                ctx.restore();
+            
             } else if (c[PhysicsComponent] != null) {
 
                 const physicsC = c[PhysicsComponent];
@@ -45,9 +59,9 @@ class RenderSystem extends System {
 
                     if (shape instanceof p2.Box) {
 
-                        ctx.fillRect(shapeX - w/2, shapeY - h/2, w, h);
                         ctx.beginPath();
                         ctx.rect(shapeX - w/2, shapeY - h/2, w, h);
+                        ctx.fill();
                         ctx.stroke();
 
                     } else if (shape instanceof p2.Circle) {

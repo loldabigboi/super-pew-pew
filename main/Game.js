@@ -21,13 +21,13 @@ class Game {
         this.currScene.addSystem(renderSystem, 2);
 
         let entityID, phyComp, renComp, componentsDict;
-        for (let i = 0; i < 10; i++) {  //  add obstacles
+        for (let i = 0; i < 50; i++) {  //  add obstacles
             entityID = Entity.GENERATE_ID();
             phyComp = new PhysicsComponent(entityID, {
                 mass: 1, 
-                position: [canvas.width/2, canvas.height/2],
-                angle: Math.PI / 9,
-                velocity: [50, 0]
+                position: [Math.random()*canvas.width, Math.random()*canvas.height/2],
+                angle: Math.random()*Math.PI*2,
+                velocity: [Math.random()*50, Math.random()*50]
             }, p2.Shape.BOX,
             {
                 width: 20,
@@ -78,7 +78,7 @@ class Game {
         // add player
         entityID = Entity.GENERATE_ID();
         phyComp = new PhysicsComponent(entityID, {
-            mass: 1, 
+            mass: 10000, 
             position: [canvas.width/2, canvas.height/2],
             fixedRotation: true,
             velocity: [50, 0]
@@ -88,7 +88,7 @@ class Game {
             height: 40
         });
 
-        renComp = new RenderComponent(entityID, 0, 0, null, null, 'lightpink', 'pink');
+        renComp = new RenderComponent(entityID, 0, 0, null, null, 'pink', 'purple');
         
         const callbackComponent = new LoopCallbackComponent(entityID, (componentsDict, dt) => {
 
@@ -104,7 +104,7 @@ class Game {
             }
 
             phyComp.body.velocity[0] = dx;
-            
+
             if (dy) {
                 phyComp.body.velocity[1] = dy;
             }
