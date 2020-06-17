@@ -32,7 +32,7 @@ class Game {
                 height: 40
             });
 
-            renComp = new RenderComponent(entityID, 0, 0, null, null, 'red', 'black');
+            renComp = new RenderComponent(entityID, 0, 0, null, null, 'white', 'blue');
             componentsDict = {};
             componentsDict[RenderComponent] = renComp;
             componentsDict[PhysicsComponent] = phyComp;
