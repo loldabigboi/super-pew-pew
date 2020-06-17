@@ -6,6 +6,7 @@ class Scene {
         this.systems = {
 
         }
+        this.entities = {};
 
     }
 
@@ -22,6 +23,7 @@ class Scene {
     }
 
     addEntity(id, components) {
+        this.entities[id] = components;
         for (const p of Object.keys(this.systems)) {
             for (const system of this.systems[p]) {
                 system.addEntity(id, components);
@@ -34,7 +36,7 @@ class Scene {
         for (const p of Object.keys(this.systems).sort()) {
             const systems = this.systems[p];
             for (const system of systems) {
-                system.update(dt);
+                system.update(dt, this.entities);
             }
         }
 
