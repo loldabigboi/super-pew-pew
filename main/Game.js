@@ -13,10 +13,12 @@ class Game {
         canvas.height = 600;
 
         const physicsSystem = new PhysicsSystem();
+        const loopSystem = new LoopCallbackSystem();
         const renderSystem = new RenderSystem();
 
-        this.currScene.addSystem(physicsSystem, 0);
-        this.currScene.addSystem(renderSystem, 1);
+        this.currScene.addSystem(loopSystem, 0);
+        this.currScene.addSystem(physicsSystem, 1);
+        this.currScene.addSystem(renderSystem, 2);
 
         let entityID, phyComp, renComp, componentsDict;
         for (let i = 0; i < 10; i++) {  //  add obstacles
@@ -87,9 +89,32 @@ class Game {
         });
 
         renComp = new RenderComponent(entityID, 0, 0, null, null, 'lightpink', 'pink');
+        
+        const callbackComponent = new LoopCallbackComponent(entityID, (componentsDict, dt) => {
+
+            let dx = 0, dy = 0;
+            if (InputManager.fromChar('a').down) {
+                dx = -25;
+            } else if (InputManager.fromChar('d').down) {
+                dx = 25;
+            }
+
+            if (InputManager.fromChar('w').down) {
+                dy = -25;
+            }
+
+            phyComp.body.velocity[0] = dx;
+            
+            if (dy) {
+                phyComp.body.velocity[1] = dy;
+            }
+
+        });
+        
         componentsDict = {};
         componentsDict[RenderComponent] = renComp;
         componentsDict[PhysicsComponent] = phyComp;
+        componentsDict[LoopCallbackComponent] = [callbackComponent];
 
         this.currScene.addEntity(entityID, componentsDict);
 

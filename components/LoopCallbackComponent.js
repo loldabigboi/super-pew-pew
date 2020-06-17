@@ -8,7 +8,7 @@ class LoopCallbackComponent extends Component {
     /**
      * 
      * @param {*} id 
-     * @param {*} callback Takes the dictionary of components for this entity as input.
+     * @param {*} callback Takes the dictionary of components for this entity and dt as input (components, dt).
      */
     constructor(id, callback) {
         super(id);

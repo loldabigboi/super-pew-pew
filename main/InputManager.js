@@ -31,9 +31,9 @@ class InputManager {
 
         const character = c.toLowerCase();
         if (character.match(/^[a-z]$/)) {
-            return character.charCodeAt(0) - 32;
+            return InputManager.key[character.charCodeAt(0) - 32];
         } else if (character.match(/^[0-9]$/)) {
-            return parseInt(character);
+            return InputManager.key[parseInt(character)];
         } else {
             throw new Error(`character '${character}' not alphanumerical.`);
         }
@@ -97,12 +97,12 @@ canvas.addEventListener('keydown', (e) => {
 
     InputManager.listeners.keyDown.forEach((listener) => listener.func(keyEntry, e));
 
-})
+});
 
 canvas.addEventListener('keypress', (e) => {  // keydown followed by keyup
 
     // dont need to handle setting keyEntry.down to false etc. as this will be done by the keyup listener 
-    
+
     const keyEntry = InputManager.key[e.keyCode];
     const now = Date.now();
     keyEntry.lastPressed = now;
@@ -110,7 +110,7 @@ canvas.addEventListener('keypress', (e) => {  // keydown followed by keyup
 
     InputManager.listeners.keyPress.forEach((listener) => listener.func(keyEntry, e));
 
-})
+});
 
 canvas.addEventListener('keyup', (e) => {
     
@@ -122,7 +122,7 @@ canvas.addEventListener('keyup', (e) => {
 
     InputManager.listeners.keyUp.forEach((listener) => listener.func(keyEntry, e));
 
-})
+});
 
 /* CANVAS MOUSE EVENT LISTENERS */
 canvas.addEventListener('mousemove', (e) => {
@@ -138,7 +138,7 @@ canvas.addEventListener('mousemove', (e) => {
 
     InputManager.listeners.mouseMove.forEach((listener) => listener.func(InputManager.mouse, e));
 
-})
+});
 
 canvas.addEventListener('mousedown', (e) => {
     const now = Date.now();
@@ -147,7 +147,7 @@ canvas.addEventListener('mousedown', (e) => {
 
     InputManager.listeners.mouseMove.forEach((listener) => listener.func(InputManager.mouse, e));
 
-})
+});
 
 canvas.addEventListener('mouseup', (e) => {
     const now = Date.now();
@@ -155,7 +155,7 @@ canvas.addEventListener('mouseup', (e) => {
     InputManager.mouse.lastUp = now;
 
     InputManager.listeners.mouseUp.forEach((listener) => listener.func(InputManager.mouse, e));
-})
+});
 
 canvas.addEventListener('click', (e) => {
     const now = Date.now();
@@ -163,4 +163,4 @@ canvas.addEventListener('click', (e) => {
     InputManager.mouse.lastDown = now;
     
     InputManager.listeners.mouseClick.forEach((listener) => listener.func(InputManager.mouse, e));
-})
+});
