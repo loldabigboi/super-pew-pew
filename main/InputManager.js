@@ -20,10 +20,11 @@ class InputManager {
     static listeners = {
         keyDown: [],
         keyUp: [],
-        keyTyped: [],
+        keyPress: [],
+        mouseMove: [],
         mouseDown: [],
         mouseUp: [],
-        mouseClicked: []
+        mouseClick: []
     }
 
     static fromChar(c) {
@@ -39,12 +40,17 @@ class InputManager {
 
     }
 
-    static keyDown(keyCode) {
-        return InputManager.key[keyCode].down;
-    }
-
-    static keyTyped(keyCode) {
-        return InputManager.key[keyCode].typed;
+    /**
+     * Adds a listener for a specific type of input event
+     * @param {string} type Input event type, e.g. keyDown, keyPress, mouseDown etc. (see InputManager)
+     * @param {number} id Id used to uniquely identify each listener to enable future removal (without need for preserving callback)
+     * @param {function} listenerFunc Called with two arguments: the relevant input object (InputManager.mouse/key[keycode]), and the event object itself
+     */
+    static addListener(type, id, listenerFunc) {
+        InputManager.listeners[type].push({
+            id: id,
+            func: listenerFunc
+        });
     }
 
 }
@@ -52,10 +58,10 @@ class InputManager {
 for (let keycode = 0; keycode < 256; keycode++) {
     InputManager.key[keycode] = {
         down: false,
-        typed: false,
+        pressed: false,
         lastDown: 0,
         lastUp: 0,
-        lastTyped: 0,
+        lastPressed: 0,
     }
 }
 
@@ -89,6 +95,8 @@ canvas.addEventListener('keydown', (e) => {
     keyEntry.down = true;
     keyEntry.lastDown = now;
 
+    InputManager.listeners.keyDown.forEach((listener) => listener.func(keyEntry, e));
+
 })
 
 canvas.addEventListener('keypress', (e) => {  // keydown followed by keyup
@@ -97,8 +105,10 @@ canvas.addEventListener('keypress', (e) => {  // keydown followed by keyup
     
     const keyEntry = InputManager.key[e.keyCode];
     const now = Date.now();
-    keyEntry.lastTyped = now;
-    keyEntry.typed = true;
+    keyEntry.lastPressed = now;
+    keyEntry.pressed = true;
+
+    InputManager.listeners.keyPress.forEach((listener) => listener.func(keyEntry, e));
 
 })
 
@@ -107,8 +117,10 @@ canvas.addEventListener('keyup', (e) => {
     const keyEntry = InputManager.key[e.keyCode];
     const now = Date.now();
     keyEntry.down = false;
-    keyEntry.typed = false;
+    keyEntry.pressed = false;
     keyEntry.lastReleased = now;
+
+    InputManager.listeners.keyUp.forEach((listener) => listener.func(keyEntry, e));
 
 })
 
@@ -124,22 +136,31 @@ canvas.addEventListener('mousemove', (e) => {
     InputManager.mouse.x = e.clientX - rect.left;
     InputManager.mouse.y = e.clientY - rect.top;
 
+    InputManager.listeners.mouseMove.forEach((listener) => listener.func(InputManager.mouse, e));
+
 })
 
 canvas.addEventListener('mousedown', (e) => {
     const now = Date.now();
     InputManager.mouse.down = true;
     InputManager.mouse.lastDown = now;
+
+    InputManager.listeners.mouseMove.forEach((listener) => listener.func(InputManager.mouse, e));
+
 })
 
 canvas.addEventListener('mouseup', (e) => {
     const now = Date.now();
     InputManager.mouse.down = false;
     InputManager.mouse.lastUp = now;
+
+    InputManager.listeners.mouseUp.forEach((listener) => listener.func(InputManager.mouse, e));
 })
 
 canvas.addEventListener('click', (e) => {
     const now = Date.now();
     InputManager.mouse.down = true;
     InputManager.mouse.lastDown = now;
+    
+    InputManager.listeners.mouseClick.forEach((listener) => listener.func(InputManager.mouse, e));
 })

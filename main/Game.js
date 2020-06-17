@@ -19,7 +19,7 @@ class Game {
         this.currScene.addSystem(renderSystem, 1);
 
         let entityID, phyComp, renComp, componentsDict;
-        for (let i = 0; i < 50; i++) {
+        for (let i = 0; i < 10; i++) {
             entityID = Entity.GENERATE_ID();
             phyComp = new PhysicsComponent(entityID, {
                 mass: 1, 
