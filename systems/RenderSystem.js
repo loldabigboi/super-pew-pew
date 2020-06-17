@@ -33,18 +33,36 @@ class RenderSystem extends System {
                 const body = physicsC.body;
                 const pos = body.interpolatedPosition;
                 const x = pos[0], y = pos[1];
+                ctx.translate(x, y);
+                ctx.rotate(body.angle);
                 for (const shape of body.shapes) {  //  render each shape individually
-                    const shapeX = x + shape.position[0], shapeY = y + shape.position[1];
+                    
+                    const shapeX = shape.position[0], shapeY = shape.position[1];
+                    const w = shape.width, h = shape.height;
+                    ctx.save();
+                    ctx.translate(shapeX, shapeY);
+                    ctx.rotate(shape.angle);
+
                     if (shape instanceof p2.Box) {
-                        ctx.fillRect(shapeX, shapeY, shape.width, shape.height);
+
+                        ctx.fillRect(shapeX - w/2, shapeY - h/2, w, h);
+                        ctx.beginPath();
+                        ctx.rect(shapeX - w/2, shapeY - h/2, w, h);
+                        ctx.stroke();
+
                     } else if (shape instanceof p2.Circle) {
+
                         ctx.beginPath();
                         ctx.arc(shapeX, shapeY, shape.radius, 0, 2*Math.PI, false);
                         ctx.fill();
                         ctx.stroke();
-                        ctx.closePath();
+
                     }
+                    ctx.restore();
+
                 }
+                ctx.rotate(-body.angle);  // reset context heading
+                ctx.translate(-x, -y);
 
             }
             
