@@ -78,7 +78,7 @@ class Game {
         // add player
         entityID = Entity.GENERATE_ID();
         phyComp = new PhysicsComponent(entityID, {
-            mass: 10000, 
+            mass: 100, 
             position: [canvas.width/2, canvas.height/2],
             fixedRotation: true,
             velocity: [50, 0]
