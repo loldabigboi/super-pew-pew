@@ -5,7 +5,9 @@ class TransformComponent extends Component {
         super(entityID);
 
         this.x = x;
+        this.prevX = x;
         this.y = y;
+        this.prevY = y;
         this.posOffset = posOffset;
         this.width = width;
         this.height = height;

@@ -79,7 +79,6 @@ class RenderSystem extends System {
                 ctx.translate(-x, -y);
 
             }
-            
 
         }
 

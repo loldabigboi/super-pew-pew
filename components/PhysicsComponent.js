@@ -20,7 +20,7 @@ class PhysicsComponent extends Component {
             default:
                 throw new Error("shape type not supported atm");                         
         }
-
+        this.shape = shape;
         this.body.addShape(shape);
 
     }
