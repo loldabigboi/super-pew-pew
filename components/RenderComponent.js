@@ -1,5 +1,5 @@
 class RenderComponent extends Component {
-    
+
     constructor(entityID, xOffset, yOffset, offsetType, rotOffset, fillColor, strokeColor) {
 
         super(entityID);

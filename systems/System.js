@@ -10,12 +10,13 @@ class System {
     addEntity(id, components) {
 
         for (const c of this.requiredComponents) {
-            if (!components.includes(c)) {
-                throw new Error("Required component '" + c.constructor.name + "' not included.");
+            if (!components[c]) {
+                console.log("Required component '" + c.name + "' not included for '" + this.constructor.name + "'.");
+                return;
             }
         }
 
-        this.entites[id] = components;
+        this.entities[id] = components;
 
     }
 

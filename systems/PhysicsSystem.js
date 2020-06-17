@@ -1,18 +1,19 @@
+
 class PhysicsSystem extends System {
 
     constructor() {
         
-        super(PhysicsComponent);
+        super([PhysicsComponent]);
         
         this.world = new p2.World({
-            gravity: [0, -9.82]
+            gravity: [0, 9.82]
         });
 
     }
 
     addEntity(id, components) {
 
-        super(id, components);
+        super.addEntity(id, components);
         this.world.addBody(components[PhysicsComponent].body);
         
     }
@@ -27,3 +28,4 @@ class PhysicsSystem extends System {
     }
 
 }
+    

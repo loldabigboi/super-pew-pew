@@ -7,3 +7,4 @@ class Component {
 
 }
 Component.CURR_ID = 0;
+
