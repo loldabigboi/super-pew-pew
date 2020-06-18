@@ -2,8 +2,13 @@ class Scene {
 
     constructor() {
 
-        // use dict to store systems so we can ahve 'layers' (certain systems run b4 other ones)
-        this.systems = {
+        // store systems by priority so we can have 'layers' (certain systems run b4 other ones)
+        this.priorityDict = {
+
+        }
+
+        // used to store systems by class, to make transmission of events more efficient
+        this.sytemsDict = {
 
         }
         this.entities = {};
@@ -14,18 +19,19 @@ class Scene {
 
         const priority = _priority | 100;  //  default to v. low priority
 
-        if (this.systems[priority] != undefined) {
-            this.systems[priorty].push(system);
+        this.sytemsDict[system.constructor] = system;
+        if (this.priorityDict[priority] != undefined) {
+            this.priorityDict[priorty].push(system);
         } else {  // init system array
-            this.systems[priority] = [system];
+            this.priorityDict[priority] = [system];
         }
 
     }
 
     addEntity(id, components) {
         this.entities[id] = components;
-        for (const p of Object.keys(this.systems)) {
-            for (const system of this.systems[p]) {
+        for (const p of Object.keys(this.priorityDict)) {
+            for (const system of this.priorityDict[p]) {
                 system.addEntity(id, components);
             }
         }
@@ -33,8 +39,8 @@ class Scene {
 
     update(dt) {
 
-        for (const p of Object.keys(this.systems).sort()) {
-            const systems = this.systems[p];
+        for (const p of Object.keys(this.priorityDict).sort()) {
+            const systems = this.priorityDict[p];
             for (const system of systems) {
                 system.update(dt, this.entities);
             }
