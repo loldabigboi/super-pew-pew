@@ -1,13 +1,11 @@
 class TransformComponent extends Component {
 
-    constructor(entityID, x, y, posOffset, width, height, angle) {
+    constructor(entityID, pos, posOffset, width, height, angle) {
 
         super(entityID);
 
-        this.x = x;
-        this.prevX = x;
-        this.y = y;
-        this.prevY = y;
+        this.pos = pos;
+        this.prevPos = pos.slice();
         this.posOffset = posOffset;
         this.width = width;
         this.height = height;

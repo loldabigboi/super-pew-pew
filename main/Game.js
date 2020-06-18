@@ -14,11 +14,13 @@ class Game {
 
         const physicsSystem = new PhysicsSystem();
         const loopSystem = new LoopCallbackSystem();
+        const trackingSystem = new TrackingSystem();
         const renderSystem = new RenderSystem();
 
         this.currScene.addSystem(loopSystem, 0);
         this.currScene.addSystem(physicsSystem, 1);
-        this.currScene.addSystem(renderSystem, 2);
+        this.currScene.addSystem(trackingSystem, 2);
+        this.currScene.addSystem(renderSystem, 3);
 
         let entityID, phyComp, renComp, componentsDict;
         for (let i = 0; i < 50; i++) {  //  add obstacles
@@ -90,7 +92,7 @@ class Game {
 
         renComp = new RenderComponent(entityID, 0, 0, null, null, 'pink', 'purple');
         
-        const callbackComponent = new LoopCallbackComponent(entityID, (componentsDict, dt) => {
+        let callbackComponent = new LoopCallbackComponent(entityID, (componentsDict, dt) => {
 
             let dx = 0, dy = 0;
             if (InputManager.fromChar('a').down) {
@@ -115,6 +117,26 @@ class Game {
         componentsDict[RenderComponent] = renComp;
         componentsDict[PhysicsComponent] = phyComp;
         componentsDict[LoopCallbackComponent] = [callbackComponent];
+
+        this.currScene.addEntity(entityID, componentsDict);
+
+        // add gun
+        const playerID = entityID;
+        entityID = Entity.GENERATE_ID();
+        renComp = new RenderComponent(entityID, 0, 0, null, null, 'red', 'red');
+        let transComp = new TransformComponent(entityID, [0, 0], TransformComponent.CENTER_LEFT, 25, 5, 0);
+        let trackComp = new TrackingComponent(entityID, playerID, TransformComponent.CENTER, [0, 0], 1);
+        callbackComponent = new LoopCallbackComponent(entityID, (components, dt) => {
+
+            const mousePos = [InputManager.mouse.x, InputManager.mouse.y];
+            const gunPos = transComp.pos;
+
+        });
+
+        componentsDict = {};
+        componentsDict[RenderComponent] = renComp;
+        componentsDict[TransformComponent] = transComp;
+        componentsDict[TrackingComponent] = trackComp;
 
         this.currScene.addEntity(entityID, componentsDict);
 

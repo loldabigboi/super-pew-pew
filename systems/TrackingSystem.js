@@ -17,22 +17,22 @@ class TrackingSystem extends System {
 
             if (trackC.scale && trackC.scale != 1) {  // if tracking should not be 1:1 ratio 
                 if (otherTransC) {
-                    transC.x += (otherTransC.x - otherTransC.prevX) * trackC.scale;
-                    transC.y += (otherTransC.y - otherTransC.prevY) * trackC.scale;
+                    transC.pos[0] += (otherTransC.pos[0] - otherTransC.prevPos[0]) * trackC.scale;
+                    transC.pos[1] += (otherTransC.pos[1] - otherTransC.prevPos[1]) * trackC.scale;
                 } else if (otherPhysicsC) {
-                    transC.x += (otherPhysicsC.body.position[0] - otherPhysicsC.body.previousPosition[0]) * trackC.scale;
-                    transC.y += (otherPhysicsC.body.position[1] - otherPhysicsC.body.previousPosition[1]) * trackC.scale;
+                    transC.pos[0] += (otherPhysicsC.body.position[0] - otherPhysicsC.body.previousPosition[0]) * trackC.scale;
+                    transC.pos[1] += (otherPhysicsC.body.position[1] - otherPhysicsC.body.previousPosition[1]) * trackC.scale;
                 } else {
                     throw new Error(`Entity(${trackC.trackingID}) does not have a Physics or Transform Component.`);
                 }
             } else {  // 1:1 tracking
                 
-                const otherOffsetX, otherOffsetY, otherX, otherY, otherWidth, otherHeight;
+                let otherOffsetX, otherOffsetY, otherX, otherY, otherWidth, otherHeight;
                 if (otherTransC) {  // entity has a transform component
                     otherOffsetX = otherTransC.offset[0];
                     otherOffsetY = otherTransC.offset[1];
-                    otherX = otherTransC.x;
-                    otherY = otherTransC.y;
+                    otherX = otherTransC.pos[0];
+                    otherY = otherTransC.pos[1];
                     otherWidth = otherTransC.width;
                     otherHeight = otherTransC.height;
                 } else if (otherPhysicsC) {  // entity has a physics component
@@ -42,7 +42,7 @@ class TrackingSystem extends System {
                     otherY = otherPhysicsC.body.position[1];
                     if (otherPhysicsC.shape instanceof p2.Box) {
                         otherWidth = otherPhysicsC.shape.width;
-                        otherHeight = otherPhysicsC.shape.width;
+                        otherHeight = otherPhysicsC.shape.height;
                     } else if (otherPhysicsC.shape instanceof p2.Circle) {
                         otherWidth = otherPhysicsC.shape.radius*2;
                         otherHeight = otherPhysicsC.shape.radius*2;
@@ -54,12 +54,11 @@ class TrackingSystem extends System {
                 const xRelOffset = trackC.relOffset[0] - otherOffsetX,
                       yRelOffset = trackC.relOffset[1] - otherOffsetY;
 
-                transC.prevX = transC.x;
-                transC.prevY = transC.y;
+                transC.prevPos = transC.pos.slice();
     
-                transC.x = otherX + otherWidth  * xRelOffset + trackC.absOffset[0],
-                transC.y = otherY + otherHeight * yRelOffset + trackC.absOffset[1];
- 
+                transC.pos[0] = otherX + otherWidth  * xRelOffset + trackC.absOffset[0],
+                transC.pos[1] = otherY + otherHeight * yRelOffset + trackC.absOffset[1];
+                
             }
             
         }

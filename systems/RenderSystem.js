@@ -26,8 +26,8 @@ class RenderSystem extends System {
             if (c[TransformComponent] != undefined) {
 
                 const transformC = c[TransformComponent];
-                const x = transformC.x,
-                      y = transformC.y;
+                const x = transformC.pos[0],
+                      y = transformC.pos[1];
                 
                 ctx.save();
                 ctx.translate(x, y);
