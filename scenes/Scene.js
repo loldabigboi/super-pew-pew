@@ -14,6 +14,9 @@ class Scene {
         // is passed to each system in case they need to access entities not in their system (e.g. for tracking system)
         this.entities = {};
 
+        // stores all events to be processed at the end of next update
+        this.eventQueue = [];
+
     }
 
     addSystem(system, _priority) {
@@ -22,7 +25,7 @@ class Scene {
 
         this.systemsDict[system.constructor] = system;
         if (this.priorityDict[priority] != undefined) {
-            this.priorityDict[priorty].push(system);
+            this.priorityDict[priority].push(system);
         } else {  // init system array
             this.priorityDict[priority] = [system];
         }
@@ -38,6 +41,10 @@ class Scene {
         }
     }
 
+    addEvent(event) {
+        this.eventQueue.push(event);
+    }
+
     update(dt) {
 
         for (const p of Object.keys(this.priorityDict).sort()) {
@@ -45,14 +52,18 @@ class Scene {
             for (const system of systems) {
                 // not every system has to return events
                 const events = system.update(dt, this.entities) || [];
-                for (const event of events) {
-                    if (!event.targetSystem) {  // event to be processed by scene
-                        if (event.type == Scene.ADD_ENTITY_EVENT) {  // might be moved in future if adding entities during system updates causes issues
-                            this.addEntity(event.obj.id, event.obj.components);
-                        }
-                    }
-                    this.systemsDict[event.targetSystem].receiveEvent(event);
+                this.eventQueue = this.eventQueue.concat(events);
+            }
+        }
+
+        for (let i = 0; i < this.eventQueue.length; i++) {
+            const event = this.eventQueue.shift();  // treat like a queue
+            if (!event.targetSystem) {  // event to be processed by scene
+                if (event.type == Scene.ADD_ENTITY_EVENT) {  // might be moved in future if adding entities during system updates causes issues
+                    this.addEntity(event.obj.id, event.obj.components);
                 }
+            } else {
+                this.systemsDict[event.targetSystem].receiveEvent(event);
             }
         }
 

@@ -10,81 +10,101 @@ class GameScene extends Scene {
 
         const physicsSystem = new PhysicsSystem();
         const loopSystem = new LoopCallbackSystem();
+        const projectileSystem = new ProjectileWeaponSystem();
         const trackingSystem = new TrackingSystem();
         const renderSystem = new RenderSystem();
 
         this.addSystem(loopSystem, 0);
         this.addSystem(physicsSystem, 1);
         this.addSystem(trackingSystem, 2);
+        this.addSystem(projectileSystem, 2);
         this.addSystem(renderSystem, 3);
 
-        let entityID, phyComp, renComp, componentsDict;
-        for (let i = 0; i < 50; i++) {  //  add obstacles
-            entityID = Entity.GENERATE_ID();
-            phyComp = new PhysicsComponent(entityID, {
-                mass: 1, 
-                position: [Math.random()*canvas.width, Math.random()*canvas.height/2],
-                angle: Math.random()*Math.PI*2,
-                velocity: [Math.random()*50, Math.random()*50]
-            }, p2.Shape.BOX,
-            {
-                width: 20,
-                height: 40
-            });
+        const obstacleMaterial = new p2.Material();
+        physicsSystem.world.addContactMaterial(new p2.ContactMaterial(BulletWeaponComponent.MATERIAL, obstacleMaterial, {
+            restitution : 1.0,
+            friction: 0,
+            stiffness : Number.MAX_VALUE // We need infinite stiffness to get exact restitution
+        }));
 
+        let entityID, shapeComp, phyComp, renComp, componentsDict;
+
+        const positionArray = [
+            [400, canvas.height-125],
+            [124, 325],
+            [canvas.width-124, 325],
+            [400, 175]
+        ];
+        const widthArray = [
+            400, 250, 250, 400
+        ];
+
+        for (let i = 0; i < 4; i++) {
+            entityID = Entity.GENERATE_ID();
+            shapeComp = new ShapeComponent(entityID, p2.Shape.BOX, {
+                width: widthArray[i],
+                height: 20
+            }, [0,0], [0,0], 0, obstacleMaterial)
+            phyComp = new PhysicsComponent(entityID,  {
+                mass: 0, 
+                position: positionArray[i],
+            }, [shapeComp]);
             renComp = new RenderComponent(entityID, 0, 0, null, null, 'white', 'blue');
             componentsDict = {};
+            componentsDict[ShapeComponent] = shapeComp;
             componentsDict[RenderComponent] = renComp;
             componentsDict[PhysicsComponent] = phyComp;
-
+    
             this.addEntity(entityID, componentsDict);
         }
+        
 
         // add planes to contain area
         entityID = Entity.GENERATE_ID();
-        phyComp = new PhysicsComponent(entityID, {}, p2.Shape.PLANE, {});
+        shapeComp = new ShapeComponent(entityID, p2.Shape.PLANE, {}, [0,0], [0,0], 0, obstacleMaterial)
+        phyComp = new PhysicsComponent(entityID, {}, [shapeComp]);
 
         componentsDict = {}
+        componentsDict[ShapeComponent] = shapeComp;
         componentsDict[PhysicsComponent] = phyComp;
-        console.log(phyComp);
         this.addEntity(entityID, componentsDict);
 
         entityID = Entity.GENERATE_ID();
-        phyComp = new PhysicsComponent(entityID, {angle: Math.PI/2, position: [canvas.width, 0]}, p2.Shape.PLANE, {});
+        shapeComp = new ShapeComponent(entityID, p2.Shape.PLANE, {}, [0,0], [0,0], 0, obstacleMaterial)
+        phyComp = new PhysicsComponent(entityID, {angle: Math.PI/2, position: [canvas.width, 0]}, [shapeComp]);
 
         componentsDict = {}
+        componentsDict[ShapeComponent] = shapeComp;
         componentsDict[PhysicsComponent] = phyComp;
-        console.log(phyComp);
         this.addEntity(entityID, componentsDict);
 
         entityID = Entity.GENERATE_ID();
-        phyComp = new PhysicsComponent(entityID, {angle: Math.PI, position: [0, canvas.height]}, p2.Shape.PLANE, {});
+        shapeComp = new ShapeComponent(entityID, p2.Shape.PLANE, {}, [0,0], [0,0], 0, obstacleMaterial)
+        phyComp = new PhysicsComponent(entityID, {angle: Math.PI, position: [0, canvas.height]}, [shapeComp]);
 
         componentsDict = {}
+        componentsDict[ShapeComponent] = shapeComp;
         componentsDict[PhysicsComponent] = phyComp;
-        console.log(phyComp);
         this.addEntity(entityID, componentsDict);
 
         entityID = Entity.GENERATE_ID();
-        phyComp = new PhysicsComponent(entityID, {angle: -Math.PI/2, position: [0, canvas.height]}, p2.Shape.PLANE, {});
+        shapeComp = new ShapeComponent(entityID, p2.Shape.PLANE, {}, [0,0], [0,0], 0, obstacleMaterial)
+        phyComp = new PhysicsComponent(entityID, {angle: -Math.PI/2, position: [0, 0]}, [shapeComp]);
 
         componentsDict = {}
+        componentsDict[ShapeComponent] = shapeComp;
         componentsDict[PhysicsComponent] = phyComp;
-        console.log(phyComp);
         this.addEntity(entityID, componentsDict);
 
         // add player
         entityID = Entity.GENERATE_ID();
+        shapeComp = new ShapeComponent(entityID, p2.Shape.BOX, {width: 20, height: 40}, [0,0], [0,0], 0)
         phyComp = new PhysicsComponent(entityID, {
             mass: 100, 
             position: [canvas.width/2, canvas.height/2],
             fixedRotation: true,
             velocity: [50, 0]
-        }, p2.Shape.BOX,
-        {
-            width: 20,
-            height: 40
-        });
+        }, [shapeComp]);
 
         renComp = new RenderComponent(entityID, 0, 0, null, null, 'pink', 'purple');
         
@@ -111,6 +131,7 @@ class GameScene extends Scene {
         
         componentsDict = {};
         componentsDict[RenderComponent] = renComp;
+        componentsDict[ShapeComponent] = shapeComp;
         componentsDict[PhysicsComponent] = phyComp;
         componentsDict[LoopCallbackComponent] = [callbackComponent];
 
@@ -120,21 +141,30 @@ class GameScene extends Scene {
         const playerID = entityID;
         entityID = Entity.GENERATE_ID();
         renComp = new RenderComponent(entityID, 0, 0, null, null, 'red', 'red');
-        let transComp = new TransformComponent(entityID, [0, 0], TransformComponent.CENTER_LEFT, 25, 5, 0);
-        let trackComp = new TrackingComponent(entityID, playerID, TransformComponent.CENTER, [0, 0], 1);
-        let projComp = ProjectileWeaponComponent.PISTOL(entityID);
+        shapeComp = new ShapeComponent(entityID, p2.Shape.BOX, {width: 20, height: 5}, [0, 0], ShapeComponent.CENTER_LEFT, 0);
+        let transComp = new TransformComponent(entityID, [0, 0], 0);
+        let trackComp = new TrackingComponent(entityID, playerID, ShapeComponent.CENTER, [0, 3], 1);
+        let wepComps = BulletWeaponComponent.PISTOL(entityID);
         callbackComponent = new LoopCallbackComponent(entityID, (components, dt) => {
 
             const mousePos = [InputManager.mouse.x, InputManager.mouse.y];
             const gunPos = transComp.pos;
+            const vec = [mousePos[0] - gunPos[0], mousePos[1] - gunPos[1]];
+            transComp.angle = Math.atan2(vec[1], vec[0]);
 
+        });
+
+        InputManager.addListener('click', InputManager.GENERATE_ID(), (mouse, event) => {
+            this.addEvent(new TransmittedEvent(null, entityID, ProjectileWeaponSystem, ProjectileWeaponSystem.FIRE_WEAPON_EVENT, {}));
         });
 
         componentsDict = {};
         componentsDict[RenderComponent] = renComp;
+        componentsDict[ShapeComponent] = shapeComp;
         componentsDict[TransformComponent] = transComp;
         componentsDict[TrackingComponent] = trackComp;
-        componentsDict[ProjectileWeaponComponent] = projComp;
+        componentsDict[LoopCallbackComponent] = [callbackComponent];
+        componentsDict = {...componentsDict, ...wepComps};
 
         this.addEntity(entityID, componentsDict);
 

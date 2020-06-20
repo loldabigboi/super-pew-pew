@@ -1,10 +1,20 @@
 class BulletWeaponComponent extends Component {
 
-    constructor(entityID, bulletRadius) {
+    constructor(entityID, size) {
 
         super(entityID);
-        this.bulletRadius = bulletRadius;
+        this.size = size;
 
     }
 
 }
+
+BulletWeaponComponent.PISTOL = function(entityID) {
+    const compDict = {};
+    compDict[WeaponComponent] = new WeaponComponent(entityID, 1, 100, true, 1);
+    compDict[ProjectileWeaponComponent] = new ProjectileWeaponComponent(entityID, 0, 150, 1, 1, 0, 0, BulletWeaponComponent.MATERIAL);
+    compDict[BulletWeaponComponent] = new BulletWeaponComponent(entityID, 6);
+    return compDict;
+}
+
+BulletWeaponComponent.MATERIAL = new p2.Material();

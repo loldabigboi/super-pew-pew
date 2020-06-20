@@ -21,7 +21,10 @@ class System {
 
     }
 
-    update(dt) {
+    receiveEvent(event) {
+    }
+
+    update(dt, entities) {
     }
 
 }
