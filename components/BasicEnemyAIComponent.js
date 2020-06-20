@@ -1,4 +1,4 @@
-class WalkingEnemyComponent extends Component {
+class BasicEnemyAIComponent extends Component {
 
     constructor(entityID, initVel) {
 
