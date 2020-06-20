@@ -70,7 +70,8 @@ class ProjectileWeaponSystem extends System {
                 } else {
                     throw new Error("Only BulletWeaponComponent is currently supported for projectile weapons");
                 }
-                const projShapeC = new ShapeComponent(entityID, p2.Shape.CIRCLE, shapeObj, [0, 0], [0, 0], 0, BulletWeaponComponent.MATERIAL);
+                const projShapeC = new ShapeComponent(entityID, p2.Shape.CIRCLE, shapeObj, [0, 0], [0, 0], 0, 
+                                                      ShapeComponent.GROUPS.PROJ, ShapeComponent.MASKS.PROJ, BulletWeaponComponent.MATERIAL);
                 componentsDict[ShapeComponent] = projShapeC;
                 componentsDict[PhysicsComponent] =  new PhysicsComponent(entityID, bodyObj, [projShapeC]);
                 componentsDict[RenderComponent] = new RenderComponent(entityID, 0, 0, 0, 0, 'black', 'yellow');

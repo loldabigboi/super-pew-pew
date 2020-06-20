@@ -1,6 +1,6 @@
 class ShapeComponent extends Component {
 
-    constructor(entityID, type, options, absOffset, propOffset, angle, material, body) {
+    constructor(entityID, type, options, absOffset, propOffset, angle, collisionGroup, collisionMask, material, body) {
 
         super(entityID);
         this.type = type;
@@ -30,7 +30,11 @@ class ShapeComponent extends Component {
             default:
                 throw new Error(`shape type ${type} not supported`);
         }
+
         this.shape.material = material;
+        this.shape.collisionGroup = collisionGroup;
+        this.shape.collisionMask = collisionMask;
+
         if (body) {
             this.body = body;
             body.addShape(this.shape, absOffset, angle);
@@ -40,7 +44,7 @@ class ShapeComponent extends Component {
 
 }
 
-ShapeComponent.TOP_LEFT      = [ 0   , 0   ];
+ShapeComponent.TOP_LEFT      = [ 0   , 0  ];
 ShapeComponent.TOP_CENTER    = [-0.5,  0  ];
 ShapeComponent.TOP_RIGHT     = [-1  ,  0  ];
 ShapeComponent.CENTER_LEFT   = [ 0  , -0.5];
@@ -49,3 +53,18 @@ ShapeComponent.CENTER_RIGHT  = [-1  , -0.5];
 ShapeComponent.BOTTOM_LEFT   = [ 0  , -1  ];
 ShapeComponent.BOTTOM_CENTER = [-0.5, -1  ];
 ShapeComponent.BOTTOM_RIGHT  = [-1  , -1  ];
+
+ShapeComponent.GROUPS = {
+    PLAYER: Math.pow(2, 0),
+    GROUND: Math.pow(2, 1),
+    ENEMY:  Math.pow(2, 2),
+    PROJ:   Math.pow(2, 3)
+}
+
+const g = ShapeComponent.GROUPS;
+ShapeComponent.MASKS = {
+    PLAYER: g.GROUND | g.ENEMY,
+    GROUND: g.PLAYER | g.ENEMY  | g.PROJ,
+    ENEMY:  g.PLAYER | g.GROUND | g.PROJ,
+    PROJ:   g.GROUND | g.ENEMY
+}

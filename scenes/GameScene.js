@@ -29,6 +29,9 @@ class GameScene extends Scene {
 
         let entityID, shapeComp, phyComp, renComp, componentsDict;
 
+        const groups = ShapeComponent.GROUPS;
+        const masks = ShapeComponent.MASKS;
+
         const positionArray = [
             [400, canvas.height-125],
             [124, 325],
@@ -44,7 +47,7 @@ class GameScene extends Scene {
             shapeComp = new ShapeComponent(entityID, p2.Shape.BOX, {
                 width: widthArray[i],
                 height: 20
-            }, [0,0], [0,0], 0, obstacleMaterial)
+            }, [0,0], [0,0], 0, groups.GROUND, masks.GROUND, obstacleMaterial)
             phyComp = new PhysicsComponent(entityID,  {
                 mass: 0, 
                 position: positionArray[i],
@@ -61,7 +64,7 @@ class GameScene extends Scene {
 
         // add planes to contain area
         entityID = Entity.GENERATE_ID();
-        shapeComp = new ShapeComponent(entityID, p2.Shape.PLANE, {}, [0,0], [0,0], 0, obstacleMaterial)
+        shapeComp = new ShapeComponent(entityID, p2.Shape.PLANE, {}, [0,0], [0,0], 0, groups.GROUND, masks.GROUND, obstacleMaterial)
         phyComp = new PhysicsComponent(entityID, {}, [shapeComp]);
 
         componentsDict = {}
@@ -70,7 +73,7 @@ class GameScene extends Scene {
         this.addEntity(entityID, componentsDict);
 
         entityID = Entity.GENERATE_ID();
-        shapeComp = new ShapeComponent(entityID, p2.Shape.PLANE, {}, [0,0], [0,0], 0, obstacleMaterial)
+        shapeComp = new ShapeComponent(entityID, p2.Shape.PLANE, {}, [0,0], [0,0], 0, groups.GROUND, masks.GROUND, obstacleMaterial)
         phyComp = new PhysicsComponent(entityID, {angle: Math.PI/2, position: [canvas.width, 0]}, [shapeComp]);
 
         componentsDict = {}
@@ -79,7 +82,7 @@ class GameScene extends Scene {
         this.addEntity(entityID, componentsDict);
 
         entityID = Entity.GENERATE_ID();
-        shapeComp = new ShapeComponent(entityID, p2.Shape.PLANE, {}, [0,0], [0,0], 0, obstacleMaterial)
+        shapeComp = new ShapeComponent(entityID, p2.Shape.PLANE, {}, [0,0], [0,0], 0, groups.GROUND, masks.GROUND, obstacleMaterial)
         phyComp = new PhysicsComponent(entityID, {angle: Math.PI, position: [0, canvas.height]}, [shapeComp]);
 
         componentsDict = {}
@@ -88,7 +91,7 @@ class GameScene extends Scene {
         this.addEntity(entityID, componentsDict);
 
         entityID = Entity.GENERATE_ID();
-        shapeComp = new ShapeComponent(entityID, p2.Shape.PLANE, {}, [0,0], [0,0], 0, obstacleMaterial)
+        shapeComp = new ShapeComponent(entityID, p2.Shape.PLANE, {}, [0,0], [0,0], 0, groups.GROUND, masks.GROUND, obstacleMaterial)
         phyComp = new PhysicsComponent(entityID, {angle: -Math.PI/2, position: [0, 0]}, [shapeComp]);
 
         componentsDict = {}
@@ -98,7 +101,7 @@ class GameScene extends Scene {
 
         // add player
         entityID = Entity.GENERATE_ID();
-        shapeComp = new ShapeComponent(entityID, p2.Shape.BOX, {width: 20, height: 40}, [0,0], [0,0], 0)
+        shapeComp = new ShapeComponent(entityID, p2.Shape.BOX, {width: 20, height: 40}, [0,0], [0,0], 0, groups.PLAYER, masks.PLAYER)
         phyComp = new PhysicsComponent(entityID, {
             mass: 100, 
             position: [canvas.width/2, canvas.height/2],
