@@ -11,6 +11,14 @@ class PhysicsSystem extends System {
 
     }
 
+    receiveEvent(event) {
+
+        if (event.type === PhysicsSystem.ADD_LISTENER_EVENT) {
+            this.world.on(event.obj.type, event.obj.listener);
+        }
+
+    }
+
     addEntity(id, components) {
 
         if (super.addEntity(id, components)) {
@@ -29,4 +37,6 @@ class PhysicsSystem extends System {
     }
 
 }
+
+PhysicsSystem.ADD_LISTENER_EVENT = "add_listener";
     

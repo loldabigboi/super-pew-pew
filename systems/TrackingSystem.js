@@ -1,7 +1,7 @@
 class TrackingSystem extends System {
 
     constructor() {
-        super([TrackingComponent, TransformComponent]);
+        super([TrackingComponent]);
     }
 
     update(dt, entities) {
@@ -11,17 +11,20 @@ class TrackingSystem extends System {
             const c = this.entities[entityID];
             const trackC = c[TrackingComponent];
             const transC = c[TransformComponent];
+            const physC = c[PhysicsComponent];
             const otherC = entities[trackC.trackingID];
             const otherShapeC = otherC[ShapeComponent];
             const otherTransC = otherC[TransformComponent];
 
+            const position = transC ? transC.position : physC.body.interpolatedPosition;
+
             if (trackC.scale && trackC.scale != 1) {  // if tracking should not be 1:1 ratio 
                 if (otherTransC) {
-                    transC.pos[0] += (otherTransC.pos[0] - otherTransC.prevPos[0]) * trackC.scale;
-                    transC.pos[1] += (otherTransC.pos[1] - otherTransC.prevPos[1]) * trackC.scale;
+                    position[0] += (otherTransC.pos[0] - otherTransC.prevPos[0]) * trackC.scale;
+                    position[1] += (otherTransC.pos[1] - otherTransC.prevPos[1]) * trackC.scale;
                 } else if (otherPhysicsC) {
-                    transC.pos[0] += (otherShapeC.body.position[0] - otherPhysicsC.body.previousPosition[0]) * trackC.scale;
-                    transC.pos[1] += (otherShapeC.body.position[1] - otherPhysicsC.body.previousPosition[1]) * trackC.scale;
+                    position[0] += (otherShapeC.body.position[0] - otherPhysicsC.body.previousPosition[0]) * trackC.scale;
+                    position[1] += (otherShapeC.body.position[1] - otherPhysicsC.body.previousPosition[1]) * trackC.scale;
                 } else {
                     throw new Error(`Entity(${trackC.trackingID}) does not have a Physics or Transform Component.`);
                 }
@@ -72,11 +75,15 @@ class TrackingSystem extends System {
                 }
                 const xRelOffset = trackC.relOffset[0] - otherOffsetX,
                       yRelOffset = trackC.relOffset[1] - otherOffsetY;
-
-                transC.prevPos = transC.pos.slice();
                 
-                transC.pos[0] = otherX + otherWidth  * xRelOffset + trackC.absOffset[0];
-                transC.pos[1] = otherY + otherHeight * yRelOffset + trackC.absOffset[1];
+                if (transC) {
+                    transC.prevPosition = transC.position.slice();
+                } else if (physC) {
+                    physC.body.previousPosition = physC.body.position.slice();
+                }
+                
+                position[0] = otherX + otherWidth  * xRelOffset + trackC.absOffset[0];
+                position[1] = otherY + otherHeight * yRelOffset + trackC.absOffset[1];
                 
             }
             

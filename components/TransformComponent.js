@@ -4,8 +4,8 @@ class TransformComponent extends Component {
 
         super(entityID);
 
-        this.pos = pos;
-        this.prevPos = pos.slice();
+        this.position = pos;
+        this.prevPosition = pos.slice();
         this.angle = angle;
 
     }

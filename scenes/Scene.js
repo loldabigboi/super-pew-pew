@@ -33,16 +33,28 @@ class Scene {
     }
 
     addEntity(id, components) {
+        if (!components) {  // object passed in place of id
+            components = id.components;
+            id = id.id;
+        }
         this.entities[id] = components;
         for (const p of Object.keys(this.priorityDict)) {
             for (const system of this.priorityDict[p]) {
-                system.addEntity(id, components);
+                // system might need to send events when an entity is added
+                const events = system.addEntity(id, components);
+                if (events) {
+                    this.addEvent(events);
+                }
             }
         }
     }
 
     addEvent(event) {
-        this.eventQueue.push(event);
+        if (event instanceof Array) {
+            this.eventQueue = this.eventQueue.concat(event);
+        } else {
+            this.eventQueue.push(event);
+        }
     }
 
     update(dt) {

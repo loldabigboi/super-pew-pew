@@ -16,13 +16,15 @@ class ProjectileWeaponSystem extends System {
         const entityEvents = [];
         for (const request of this.fireRequests) {
 
+            console.log(this.entities);
+
             let c = this.entities[request.recipientID];
             let transC = c[TransformComponent];
             let weapC = c[WeaponComponent];
             let shapeC = c[ShapeComponent];
             let projWeapC = c[ProjectileWeaponComponent];
             
-            let startingPos = transC.pos;
+            let startingPos = transC.position;
 
             if (shapeC) {
                 
@@ -39,8 +41,8 @@ class ProjectileWeaponSystem extends System {
                 newRelStartingPos[0] = Math.cos(transC.angle)*relStartingPos[0] - Math.sin(transC.angle)*relStartingPos[1];
                 newRelStartingPos[1] = Math.sin(transC.angle)*relStartingPos[0] + Math.cos(transC.angle)*relStartingPos[1];
                             
-                startingPos = [ transC.pos[0] + newRelStartingPos[0],
-                                transC.pos[1] + newRelStartingPos[1] ];
+                startingPos = [ transC.position[0] + newRelStartingPos[0],
+                                transC.position[1] + newRelStartingPos[1] ];
             }
 
             
@@ -74,7 +76,7 @@ class ProjectileWeaponSystem extends System {
                                                       ShapeComponent.GROUPS.PROJ, ShapeComponent.MASKS.PROJ, BulletWeaponComponent.MATERIAL);
                 componentsDict[ShapeComponent] = projShapeC;
                 componentsDict[PhysicsComponent] =  new PhysicsComponent(entityID, bodyObj, [projShapeC]);
-                componentsDict[RenderComponent] = new RenderComponent(entityID, 0, 0, 0, 0, 'black', 'yellow');
+                componentsDict[RenderComponent] = new RenderComponent(entityID, 'black', 'black');
 
                 entityEvents.push(new TransmittedEvent(entityID, null, null, Scene.ADD_ENTITY_EVENT, {
                     id: entityID,

@@ -1,9 +1,9 @@
 class BasicEnemyAIComponent extends Component {
 
-    constructor(entityID, initVel) {
+    constructor(entityID, speed) {
 
         super(entityID);
-        this.initVel = initVel;
+        this.speed = speed;
 
     }
 

@@ -30,8 +30,8 @@ class RenderSystem extends System {
             let x, y;
             let xOffset, yOffset;
             if (transformC) {
-                x = transformC.pos[0],
-                y = transformC.pos[1];
+                x = transformC.position[0],
+                y = transformC.position[1];
 
                 xOffset = shapeC.absOffset[0];
                 yOffset = shapeC.absOffset[1];
