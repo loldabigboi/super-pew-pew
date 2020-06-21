@@ -35,7 +35,8 @@ class ProjectileWeaponSystem extends System {
                                        shape.height/2 * (1 - shapeC.propOffset[1]) ];
                 } else if (shapeC.type === p2.Shape.CIRCLE) {
                     relStartingPos = [ shape.radius * (1 - shapeC.propOffset[0]),
-                                       shape.radius/2 * (1 - shapeC.propOffset[1]) ];                }
+                                       shape.radius/2 * (1 - shapeC.propOffset[1]) ];
+                }
 
                 let newRelStartingPos = [];
                 newRelStartingPos[0] = Math.cos(transC.angle)*relStartingPos[0] - Math.sin(transC.angle)*relStartingPos[1];
@@ -47,11 +48,11 @@ class ProjectileWeaponSystem extends System {
 
             
 
-            for (let i = 0; i < weapC.count; i++) {
+            for (let i = 0; i < weapC.attCount; i++) {
                 const componentsDict = {};
                 const entityID = Entity.GENERATE_ID();
 
-                const vel = [projWeapC.speed, 0];
+                const vel = [projWeapC.pSpeed, 0];
                 const newAngle = transC.angle + Math.random() * projWeapC.angleVariance;
                 const newVel = [];
                 newVel[0] = Math.cos(newAngle)*vel[0] - Math.sin(newAngle)*vel[1];
@@ -59,11 +60,11 @@ class ProjectileWeaponSystem extends System {
 
                 const bodyObj = {
                     mass: 1, 
-                    gravityScale: projWeapC.gravityScale,
+                    gravityScale: projWeapC.pGravityScale,
                     position: startingPos,
                     fixedRotation: false,
                     velocity: newVel,
-                    damping: projWeapC.friction
+                    damping: projWeapC.pDamping
                 }
 
                 let shapeObj = {};
@@ -74,6 +75,7 @@ class ProjectileWeaponSystem extends System {
                 }
                 const projShapeC = new ShapeComponent(entityID, p2.Shape.CIRCLE, shapeObj, [0, 0], [0, 0], 0, 
                                                       ShapeComponent.GROUPS.PROJ, ShapeComponent.MASKS.PROJ, BulletWeaponComponent.MATERIAL);
+                const projC = new ProjectileComponent(entityID, projWeapC.pMaxBounces, projWeapC.pPenetrationDepth, projWeapC.pLifetime, weapC.damage);
                 componentsDict[ShapeComponent] = projShapeC;
                 componentsDict[PhysicsComponent] =  new PhysicsComponent(entityID, bodyObj, [projShapeC]);
                 componentsDict[RenderComponent] = new RenderComponent(entityID, 'black', 'black');

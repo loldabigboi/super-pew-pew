@@ -40,6 +40,8 @@ class GameScene extends Scene {
             relaxation: 10, //  get rid of residual bouncing effect
         }));
 
+        // for some reason had to employ a hack by access the contact equations directly from the
+        // narrow phase, as simply setting the enabled flag wasn't working :/
         physicsSystem.world.on('preSolve', (evt) => {
 
             const newEqs = [];
@@ -70,16 +72,6 @@ class GameScene extends Scene {
 
         });
 
-        // physicsSystem.world.on('beginContact', (evt) => {
-
-        //     const groups = ShapeComponent.GROUPS;
-
-        //     if (evt.shapeA.collisionGroup == groups.ENEMY && evt.shapeB.collisionGroup == groups.PROJ) {
-        //         console.log('caught');
-        //     }
-
-        // })
-
         this.createBorders();
         this.createPlatforms();
         this.createPlayer();
@@ -102,7 +94,7 @@ class GameScene extends Scene {
         let entityID = Entity.GENERATE_ID();
         let shapeComp = new ShapeComponent(entityID, p2.Shape.BOX, {width: w, height: h}, [0,0], [0,0], 0, groups.GROUND, masks.GROUND, GameScene.OBSTACLE_MATERIAL)
         let phyComp = new PhysicsComponent(entityID, {position: [w/2, h/2]}, [shapeComp]);
-        let renComp = new RenderComponent(entityID, 'white', 'blue');
+        let renComp = new RenderComponent(entityID, 'white', 'blue', GameScene.GROUND_LAYER);
 
         let componentsDict = {}
         componentsDict[ShapeComponent] = shapeComp;
@@ -113,7 +105,7 @@ class GameScene extends Scene {
         entityID = Entity.GENERATE_ID();
         shapeComp = new ShapeComponent(entityID, p2.Shape.BOX, {width: w, height: h}, [0,0], [0,0], 0, groups.GROUND, masks.GROUND, GameScene.OBSTACLE_MATERIAL)
         phyComp = new PhysicsComponent(entityID, {position: [canvas.width - w/2, h/2]}, [shapeComp]);
-        renComp = new RenderComponent(entityID, 'white', 'blue');
+        renComp = new RenderComponent(entityID, 'white', 'blue', GameScene.GROUND_LAYER);
 
         componentsDict = {}
         componentsDict[ShapeComponent] = shapeComp;
@@ -128,7 +120,7 @@ class GameScene extends Scene {
         entityID = Entity.GENERATE_ID();
         shapeComp = new ShapeComponent(entityID, p2.Shape.BOX, {width: w, height: h}, [0,0], [0,0], 0, groups.GROUND, masks.GROUND, GameScene.OBSTACLE_MATERIAL)
         phyComp = new PhysicsComponent(entityID, {position: [w/2-1, h/2-1]}, [shapeComp]);
-        renComp = new RenderComponent(entityID, 'white', 'blue');
+        renComp = new RenderComponent(entityID, 'white', 'blue', GameScene.GROUND_LAYER);
 
         componentsDict = {}
         componentsDict[ShapeComponent] = shapeComp;
@@ -138,8 +130,8 @@ class GameScene extends Scene {
 
         entityID = Entity.GENERATE_ID();
         shapeComp = new ShapeComponent(entityID, p2.Shape.BOX, {width: w, height: h}, [0,0], [0,0], 0, groups.GROUND, masks.GROUND, GameScene.OBSTACLE_MATERIAL)
-         phyComp = new PhysicsComponent(entityID, {position: [canvas.width - w/2+1, h/2-1]}, [shapeComp]);
-        renComp = new RenderComponent(entityID, 'white', 'blue');
+        phyComp = new PhysicsComponent(entityID, {position: [canvas.width - w/2+1, h/2-1]}, [shapeComp]);
+        renComp = new RenderComponent(entityID, 'white', 'blue', GameScene.GROUND_LAYER);
 
         componentsDict = {}
         componentsDict[ShapeComponent] = shapeComp;
@@ -150,7 +142,7 @@ class GameScene extends Scene {
         entityID = Entity.GENERATE_ID();
         shapeComp = new ShapeComponent(entityID, p2.Shape.BOX, {width: w, height: h}, [0,0], [0,0], 0, groups.GROUND, masks.GROUND, GameScene.OBSTACLE_MATERIAL)
         phyComp = new PhysicsComponent(entityID, {position: [w/2-1, canvas.height - h/2+1]}, [shapeComp]);
-        renComp = new RenderComponent(entityID, 'white', 'blue');
+        renComp = new RenderComponent(entityID, 'white', 'blue', GameScene.GROUND_LAYER);
 
         componentsDict = {}
         componentsDict[ShapeComponent] = shapeComp;
@@ -161,7 +153,7 @@ class GameScene extends Scene {
         entityID = Entity.GENERATE_ID();
         shapeComp = new ShapeComponent(entityID, p2.Shape.BOX, {width: w, height: h}, [0,0], [0,0], 0, groups.GROUND, masks.GROUND, GameScene.OBSTACLE_MATERIAL)
         phyComp = new PhysicsComponent(entityID, {position: [canvas.width - w/2+1, canvas.height - h/2+1]}, [shapeComp]);
-        renComp = new RenderComponent(entityID, 'white', 'blue');
+        renComp = new RenderComponent(entityID, 'white', 'blue', GameScene.GROUND_LAYER);
 
         componentsDict = {}
         componentsDict[ShapeComponent] = shapeComp;
@@ -199,7 +191,7 @@ class GameScene extends Scene {
                 mass: 0, 
                 position: positionArray[i],
             }, [shapeComp]);
-            const renComp = new RenderComponent(entityID, 'white', 'blue');
+            const renComp = new RenderComponent(entityID, 'white', 'blue', GameScene.GROUND_LAYER);
             const componentsDict = {};
             componentsDict[ShapeComponent] = shapeComp;
             componentsDict[RenderComponent] = renComp;
@@ -228,7 +220,7 @@ class GameScene extends Scene {
         }, [shapeComp]);
         let jumpComp = new JumpComponent(entityID, [60, 60, 60]);
 
-        let renComp = new RenderComponent(entityID, 'pink', 'purple');
+        let renComp = new RenderComponent(entityID, 'pink', 'purple', GameScene.PLAYER_LAYER);
         
         let callbackComponent = new LoopCallbackComponent(entityID, ((phyComp) => (componentsDict, dt) => {
 
@@ -264,7 +256,7 @@ class GameScene extends Scene {
 
         // add gun
         entityID = Entity.GENERATE_ID();
-        renComp = new RenderComponent(entityID, 'red', 'red');
+        renComp = new RenderComponent(entityID, 'red', 'red', GameScene.WEAPON_LAYER);
         shapeComp = new ShapeComponent(entityID, p2.Shape.BOX, {width: 20, height: 5}, [0, 0], ShapeComponent.CENTER_LEFT, 0);
         let transComp = new TransformComponent(entityID, [0, 0], 0);
         let trackComp = new TrackingComponent(entityID, this.playerID, ShapeComponent.CENTER, [0, 3], 1);
@@ -296,3 +288,10 @@ class GameScene extends Scene {
 
 GameScene.CHARACTER_MATERIAL = new p2.Material();
 GameScene.OBSTACLE_MATERIAL = new p2.Material();
+
+GameScene.BACKGROUND_LAYER = 0;
+GameScene.GROUND_LAYER = 1;
+GameScene.PROJ_LAYER = 2;
+GameScene.PLAYER_LAYER = 3;
+GameScene.WEAPON_LAYER = 4;
+GameScene.ENEMY_LAYER = 5;

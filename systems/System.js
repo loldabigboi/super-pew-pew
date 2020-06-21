@@ -11,7 +11,7 @@ class System {
 
         for (const c of this.requiredComponents) {
             if (!components[c]) {
-                console.log("Required component '" + c.name + "' not included for '" + this.constructor.name + "'.");
+                //console.log("Required component '" + c.name + "' not included for '" + this.constructor.name + "'.");
                 return false;  // entity not added
             }
         }

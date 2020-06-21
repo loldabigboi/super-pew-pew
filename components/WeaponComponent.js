@@ -1,9 +1,9 @@
 class WeaponComponent extends Component {
 
-    constructor(entityID, count, useDelay, semiAuto, damage) {
+    constructor(entityID, attCount, useDelay, semiAuto, damage) {
         super(entityID);
 
-        this.count = count;
+        this.attCount = attCount;  // attacks per use (e.g. bullets per fire, like a shotgun will have 8 or something)
         this.lastUsed = 0;
         this.useDelay = useDelay;
         this.semiAuto = semiAuto;
