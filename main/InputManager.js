@@ -42,7 +42,7 @@ class InputManager {
 
     /**
      * Adds a listener for a specific type of input event
-     * @param {string} type Input event type, e.g. keyDown, keyPress, mouseDown etc. (see InputManager)
+     * @param {string} type Input event type, e.g. keydown, keypress, mousedown etc. (see InputManager)
      * @param {number} id Id used to uniquely identify each listener to enable future removal (without need for preserving callback)
      * @param {function} listenerFunc Called with two arguments: the relevant input object (InputManager.mouse/key[keycode]), and the event object itself
      */

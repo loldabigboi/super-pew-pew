@@ -75,9 +75,9 @@ class ProjectileWeaponSystem extends System {
                 }
                 const projShapeC = new ShapeComponent(entityID, p2.Shape.CIRCLE, shapeObj, [0, 0], [0, 0], 0, 
                                                       ShapeComponent.GROUPS.PROJ, ShapeComponent.MASKS.PROJ, BulletWeaponComponent.MATERIAL);
-                const projC = new ProjectileComponent(entityID, projWeapC.pMaxBounces, projWeapC.pPenetrationDepth, projWeapC.pLifetime, weapC.damage);
                 componentsDict[ShapeComponent] = projShapeC;
                 componentsDict[PhysicsComponent] =  new PhysicsComponent(entityID, bodyObj, [projShapeC]);
+                componentsDict[ProjectileComponent] = new ProjectileComponent(entityID, projWeapC.pMaxBounces, projWeapC.pPenetrationDepth, projWeapC.pLifetime, weapC.damage);;
                 componentsDict[RenderComponent] = new RenderComponent(entityID, 'black', 'black');
 
                 entityEvents.push(new TransmittedEvent(entityID, null, null, Scene.ADD_ENTITY_EVENT, {

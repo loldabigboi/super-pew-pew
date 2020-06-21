@@ -21,6 +21,10 @@ class System {
 
     }
 
+    deleteEntity(id) {
+        delete this.entities[id];
+    }
+
     receiveEvent(event) {
     }
 

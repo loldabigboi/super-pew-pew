@@ -30,6 +30,16 @@ class RenderSystem extends System {
 
     }
 
+    foreDeleteEntity(id) {
+        this.deleteEntity(id);
+    }
+
+    deleteEntity(id) {
+        const c = this.entities[id];
+        super.deleteEntity(id);
+        delete this.layers[c[RenderComponent].layer][id];
+    }
+
     update() {
 
         const canvas = document.getElementsByTagName('canvas')[0];

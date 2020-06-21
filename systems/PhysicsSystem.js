@@ -27,6 +27,11 @@ class PhysicsSystem extends System {
         
     }
 
+    deleteEntity(id) {
+        this.world.removeBody(this.entities[id][PhysicsComponent].body);
+        super.deleteEntity(id);
+    }
+
     update(dt) {
 
         const fixedTimeStep = 1 / 60;

@@ -44,6 +44,14 @@ class BasicEnemyAISystem extends System {
 
     }
 
+    deleteEntity(id) {
+
+        super.deleteEntity(id);
+        delete this.lastDirection[id];
+        delete this.wasColliding[id];
+
+    }
+
     update(dt, entities) {
 
         for (const id of Object.keys(this.entities)) {

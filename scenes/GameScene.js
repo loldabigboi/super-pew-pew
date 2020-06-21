@@ -12,7 +12,8 @@ class GameScene extends Scene {
         const loopSystem = new LoopCallbackSystem();
         const enemyAISystem = new BasicEnemyAISystem(this);
         const jumpSystem = new JumpSystem(physicsSystem.world);
-        const projectileSystem = new ProjectileWeaponSystem();
+        const projectileSystem = new ProjectileSystem(physicsSystem.world);
+        const projectileWeaponSystem = new ProjectileWeaponSystem();
         const trackingSystem = new TrackingSystem();
         const renderSystem = new RenderSystem();
 
@@ -20,8 +21,9 @@ class GameScene extends Scene {
         this.addSystem(physicsSystem, 1);
         this.addSystem(enemyAISystem, 1);
         this.addSystem(trackingSystem, 2);
-        this.addSystem(jumpSystem, 2);
         this.addSystem(projectileSystem, 2);
+        this.addSystem(jumpSystem, 2);
+        this.addSystem(projectileWeaponSystem, 2);
         this.addSystem(renderSystem, 3);
 
         physicsSystem.world.addContactMaterial(new p2.ContactMaterial(BulletWeaponComponent.MATERIAL, GameScene.OBSTACLE_MATERIAL, {

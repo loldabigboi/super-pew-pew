@@ -38,15 +38,18 @@ class Scene {
             id = id.id;
         }
         this.entities[id] = components;
-        for (const p of Object.keys(this.priorityDict)) {
-            for (const system of this.priorityDict[p]) {
-                // system might need to send events when an entity is added
-                const events = system.addEntity(id, components);
-                if (events) {
-                    this.addEvent(events);
-                }
-            }
+        for (const system of Object.values(this.systemsDict)) {
+            system.addEntity(id, components);
         }
+    }
+
+    deleteEntity(id) {
+
+        for (const system of Object.values(this.systemsDict)) {
+            const events = system.deleteEntity(id) || [];
+            this.eventQueue = this.eventQueue.concat(events);
+        }
+
     }
 
     addEvent(event) {
@@ -68,19 +71,30 @@ class Scene {
             }
         }
 
+        const deleteEvents = [];
         for (let i = 0; i < this.eventQueue.length; i++) {
             const event = this.eventQueue.shift();  // treat like a queue
             if (!event.targetSystem) {  // event to be processed by scene
-                if (event.type == Scene.ADD_ENTITY_EVENT) {  // might be moved in future if adding entities during system updates causes issues
+                if (event.type == Scene.ADD_ENTITY_EVENT) {
                     this.addEntity(event.obj.id, event.obj.components);
+                } else if (event.type == Scene.DELETE_ENTITY_EVENT) {
+                    deleteEvents.push(event);  // do delete events last to prevent bugs
                 }
             } else {
                 this.systemsDict[event.targetSystem].receiveEvent(event);
             }
         }
 
+        deleteEvents.forEach((event) => {
+            this.deleteEntity(event.obj.id);
+        })
+
+        // for some reason this stops a double deletion bug happening, so yea >_>
+        this.eventQueue = [];
+
     }
         
 }
 Scene.ADD_ENTITY_EVENT = "add_entity";
+Scene.DELETE_ENTITY_EVENT = "delete_entity";
 
