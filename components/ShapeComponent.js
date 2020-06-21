@@ -63,12 +63,9 @@ ShapeComponent.GROUPS = {
 
 const g = ShapeComponent.GROUPS;
 ShapeComponent.MASKS = {
-    PLAYER: g.GROUND,
-    PLAYER_IMPACT: g.ENEMY,
+    PLAYER: g.ENEMY | g.GROUND,
     GROUND: g.PLAYER | g.ENEMY  | g.PROJ,
-    ENEMY:  g.GROUND,
-    ENEMY_IMPACT: g.PLAYER,
-    PROJ:   g.GROUND,
-    PROJ_IMPACT: g.ENEMY,
+    ENEMY:  g.PLAYER | g.PROJ | g.GROUND,
+    PROJ:   g.ENEMY | g.GROUND,
 
 }

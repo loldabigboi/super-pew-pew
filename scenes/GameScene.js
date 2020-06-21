@@ -11,6 +11,7 @@ class GameScene extends Scene {
         const physicsSystem = new PhysicsSystem();
         const loopSystem = new LoopCallbackSystem();
         const enemyAISystem = new BasicEnemyAISystem(this);
+        const jumpSystem = new JumpSystem(physicsSystem.world);
         const projectileSystem = new ProjectileWeaponSystem();
         const trackingSystem = new TrackingSystem();
         const renderSystem = new RenderSystem();
@@ -19,6 +20,7 @@ class GameScene extends Scene {
         this.addSystem(physicsSystem, 1);
         this.addSystem(enemyAISystem, 1);
         this.addSystem(trackingSystem, 2);
+        this.addSystem(jumpSystem, 2);
         this.addSystem(projectileSystem, 2);
         this.addSystem(renderSystem, 3);
 
@@ -31,14 +33,52 @@ class GameScene extends Scene {
             restitution : 0,
             friction: 0,
             relaxation: 10,  //  get rid of residual bouncing effect
-            stiffness : Number.MAX_VALUE // We need infinite stiffness to get exact restitution
         }));
         physicsSystem.world.addContactMaterial(new p2.ContactMaterial(GameScene.CHARACTER_MATERIAL, GameScene.CHARACTER_MATERIAL, {
             restitution : 0,
             friction: 0,
             relaxation: 10, //  get rid of residual bouncing effect
-            stiffness: Number.MAX_VALUE // We need infinite stiffness to get exact restitution
         }));
+
+        physicsSystem.world.on('preSolve', (evt) => {
+
+            const newEqs = [];
+            for (const eq of physicsSystem.world.narrowphase.contactEquations) {
+                
+                const groups = ShapeComponent.GROUPS;
+
+                let enemyShape, otherShape;
+                if (eq.shapeA.collisionGroup == groups.ENEMY) {
+                    enemyShape = eq.shapeA;
+                    otherShape = eq.shapeB;
+                } else if (eq.shapeB.collisionGroup == groups.ENEMY) {
+                    enemyShape = eq.shapeB;
+                    otherShape = eq.shapeA;
+                } else {
+                    newEqs.push(eq);
+                    continue;
+                }
+                
+                if (otherShape.collisionGroup == groups.GROUND ||
+                    (!otherShape.collisionGroup == groups.PLAYER &&
+                    !otherShape.collisionGroup == groups.PROJ)) {
+                    newEqs.push(eq);
+                }
+
+            }
+            physicsSystem.world.narrowphase.contactEquations = newEqs;
+
+        });
+
+        // physicsSystem.world.on('beginContact', (evt) => {
+
+        //     const groups = ShapeComponent.GROUPS;
+
+        //     if (evt.shapeA.collisionGroup == groups.ENEMY && evt.shapeB.collisionGroup == groups.PROJ) {
+        //         console.log('caught');
+        //     }
+
+        // })
 
         this.createBorders();
         this.createPlatforms();
@@ -184,8 +224,9 @@ class GameScene extends Scene {
             mass: 100, 
             position: [canvas.width/2, canvas.height/2],
             fixedRotation: true,
-            velocity: [50, 0]
+            gravityScale: 2
         }, [shapeComp]);
+        let jumpComp = new JumpComponent(entityID, [60, 60, 60]);
 
         let renComp = new RenderComponent(entityID, 'pink', 'purple');
         
@@ -198,10 +239,6 @@ class GameScene extends Scene {
                 dx = 25;
             }
 
-            if (InputManager.fromChar('w').down) {
-                dy = -25;
-            }
-
             phyComp.body.velocity[0] = dx;
 
             if (dy) {
@@ -209,28 +246,19 @@ class GameScene extends Scene {
             }
 
         })(phyComp));
+
+        InputManager.addListener('keydown', 0, (key, event) => {
+            if (key.code === InputManager.fromChar('w').code) {
+                this.addEvent(new TransmittedEvent(this.playerID, this.playerID, JumpSystem, JumpSystem.JUMP_REQUEST));
+            }
+        })
         
         let componentsDict = {};
         componentsDict[RenderComponent] = renComp;
         componentsDict[ShapeComponent] = shapeComp;
         componentsDict[PhysicsComponent] = phyComp;
+        componentsDict[JumpComponent] = jumpComp;
         componentsDict[LoopCallbackComponent] = [callbackComponent];
-
-        this.addEntity(entityID, componentsDict);
-
-        // add entity to track player for impact event detection with enemies
-        entityID = Entity.GENERATE_ID();
-        shapeComp = new ShapeComponent(entityID, p2.Shape.BOX, {width: shapeComp.shape.width, height: shapeComp.shape.height}, 
-            [0,0], [0,0], 0, groups.PLAYER, masks.PLAYER_IMPACT);
-        phyComp = new PhysicsComponent(entityID, {collisionResponse: false}, [shapeComp]);
-        //renComp = new RenderComponent(entityID, 'blue', 'blue');
-        let trackComp = new TrackingComponent(entityID, this.playerID, ShapeComponent.CENTER, [0, 0], 1);
-        
-        componentsDict = {};
-        componentsDict[RenderComponent] = renComp;
-        componentsDict[ShapeComponent] = shapeComp;
-        componentsDict[PhysicsComponent] = phyComp;
-        componentsDict[TrackingComponent] = trackComp;
 
         this.addEntity(entityID, componentsDict);
 
@@ -239,7 +267,7 @@ class GameScene extends Scene {
         renComp = new RenderComponent(entityID, 'red', 'red');
         shapeComp = new ShapeComponent(entityID, p2.Shape.BOX, {width: 20, height: 5}, [0, 0], ShapeComponent.CENTER_LEFT, 0);
         let transComp = new TransformComponent(entityID, [0, 0], 0);
-        trackComp = new TrackingComponent(entityID, this.playerID, ShapeComponent.CENTER, [0, 3], 1);
+        let trackComp = new TrackingComponent(entityID, this.playerID, ShapeComponent.CENTER, [0, 3], 1);
         let wepComps = BulletWeaponComponent.PISTOL(entityID);
         callbackComponent = new LoopCallbackComponent(entityID, ((transComp) => (dt, components) => {
             const mousePos = [InputManager.mouse.x, InputManager.mouse.y];

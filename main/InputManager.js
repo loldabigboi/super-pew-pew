@@ -59,6 +59,7 @@ InputManager.GENERATE_ID = () => InputManager.CURRENT_ID++;
 
 for (let keycode = 0; keycode < 256; keycode++) {
     InputManager.key[keycode] = {
+        code: keycode,
         down: false,
         pressed: false,
         lastDown: 0,

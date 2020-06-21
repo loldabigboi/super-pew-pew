@@ -5,6 +5,8 @@ class PhysicsComponent extends Component {
         super(entityID);
 
         this.body = new p2.Body(bodyOptions);
+        this.body.id = entityID;
+        
         this.shapeComps = shapeComps;
         shapeComps.forEach((shapeComp) => {
             shapeComp.body = this.body;
