@@ -5,7 +5,7 @@ class GameScene extends Scene {
         super();
 
         const canvas = document.getElementsByTagName("canvas")[0];
-        canvas.width = 800;
+        canvas.width = 1000;
         canvas.height = 600;
 
         const physicsSystem = new PhysicsSystem();
@@ -14,6 +14,7 @@ class GameScene extends Scene {
         const teleportSystem = new TeleporterSystem(physicsSystem.world);
         const jumpSystem = new JumpSystem(physicsSystem.world);
         const lifetimeSystem = new LifetimeSystem();
+        const fatalSystem = new FatalDependencySystem();
         const contactSystem = new ContactDamageSystem(physicsSystem.world);
         const projectileSystem = new ProjectileSystem(physicsSystem.world);
         const projectileWeaponSystem = new ProjectileWeaponSystem();
@@ -31,6 +32,7 @@ class GameScene extends Scene {
         this.addSystem(contactSystem, 2);
         this.addSystem(projectileWeaponSystem, 2);
         this.addSystem(renderSystem, 3);
+        this.addSystem(fatalSystem, 4);
 
         physicsSystem.world.addContactMaterial(new p2.ContactMaterial(ProjectileWeaponComponent.BULLET_MATERIAL, GameScene.OBSTACLE_MATERIAL, {
             restitution : 1.0,
@@ -80,13 +82,62 @@ class GameScene extends Scene {
 
         });
 
+        this.platformIDs = [];
+
         this.createBorders();
         this.createTeleporters();
         this.createPlatforms();
         this.createPlayer();
 
-        // add enemy
-        this.addEntity(BasicEnemyFactory.createEnemy(25, 40, 1, GameScene.CHARACTER_MATERIAL));
+        InputManager.addListener('keydown', (key, evt) => {
+            if (key.code === InputManager.fromChar('r').code && !this.entities[this.playerID]) {
+                this.createPlayer();
+            }
+        })
+
+        this.lastSpawn = 0;
+        this.spawnDir = 1;
+        this.currSpawnDelay = 0;
+        this.currentSpawnRotation = this.getSpawnRotation();
+        this.spawnI = 0;
+
+    }
+
+    getSpawnRotation() {
+        return GameScene.SpawnRotations[Math.floor(Math.random()*GameScene.SpawnRotations.length)]
+    }
+
+    update(dt) {
+
+        const now = Date.now();
+        if (now - this.lastSpawn > this.currSpawnDelay) {
+            this.lastSpawn = now;
+
+            const type = this.currentSpawnRotation.spawnTypes[this.spawnI];
+            this.currSpawnDelay = this.currentSpawnRotation.spawnDelays[this.spawnI];
+
+            const entityID = Entity.GENERATE_ID();
+            let c;
+            if (type == GameScene.EnemyTypes.REGULAR) {
+                c = BasicEnemyFactory.createEnemy(entityID, [canvas.width/2, 0], 25*this.spawnDir, 40, 2, 1);
+            } else if (type == GameScene.EnemyTypes.BIG) {
+                c = BasicEnemyFactory.createEnemy(entityID, [canvas.width/2, 0], 25*this.spawnDir, 60, 8, 3);
+            } else {
+                throw new Error();
+            }
+
+            this.addEntity(entityID, c); 
+
+            this.spawnI++;
+
+            if (this.spawnI >= this.currentSpawnRotation.spawnTypes.length) {
+                this.spawnDir = Math.random < 0.5 ? -1 : 1;
+                this.spawnI = 0;
+                this.currentSpawnRotation = this.getSpawnRotation();
+            }
+
+        }
+        super.update(dt);
 
     }
 
@@ -210,10 +261,10 @@ class GameScene extends Scene {
               masks = ShapeComponent.MASKS;
 
         const positionArray = [
-            [400, canvas.height-125],
+            [canvas.width/2, canvas.height-125],
             [124, 325],
             [canvas.width-124, 325],
-            [400, 175]
+            [canvas.width/2, 175]
         ];
         const widthArray = [
             400, 250, 250, 400
@@ -234,6 +285,8 @@ class GameScene extends Scene {
             componentsDict[ShapeComponent] = shapeComp;
             componentsDict[RenderComponent] = renComp;
             componentsDict[PhysicsComponent] = phyComp;
+
+            this.platformIDs.push(entityID);
     
             this.addEntity(entityID, componentsDict);
         }
@@ -248,17 +301,18 @@ class GameScene extends Scene {
         let entityID = Entity.GENERATE_ID();
         this.playerID = entityID;
 
-        let shapeComp = new ShapeComponent(entityID, p2.Shape.BOX, {width: 20, height: 40}, [0,0], [0,0], 0, 
+        const shapeComp = new ShapeComponent(entityID, p2.Shape.BOX, {width: 30, height: 30}, [0,0], [0,0], 0, 
             groups.PLAYER, masks.PLAYER, GameScene.CHARACTER_MATERIAL)
-        let phyComp = new PhysicsComponent(entityID, {
+            const phyComp = new PhysicsComponent(entityID, {
             mass: 100, 
             position: [canvas.width/2, canvas.height/2],
             fixedRotation: true,
             gravityScale: 2
         }, [shapeComp]);
-        let jumpComp = new JumpComponent(entityID, [60, 60, 60]);
+        const healthComp = new HealthComponent(entityID, 1, Callbacks.DELETE_ENTITY);
+        const jumpComp = new JumpComponent(entityID, [60, 60, 60]);
 
-        let renComp = new RenderComponent(entityID, 'pink', 'purple', GameScene.PLAYER_LAYER);
+        const renComp = new RenderComponent(entityID, 'blue', 'blue', GameScene.PLAYER_LAYER);
         
         let callbackComponent = new LoopCallbackComponent(entityID, ((phyComp) => (componentsDict, dt) => {
 
@@ -276,36 +330,84 @@ class GameScene extends Scene {
             }
 
         })(phyComp));
-
-        InputManager.addListener('keydown', 0, (key, event) => {
-            if (key.code === InputManager.fromChar('w').code) {
-                this.addEvent(new TransmittedEvent(this.playerID, this.playerID, JumpSystem, JumpSystem.JUMP_REQUEST));
-            }
-        })
         
         let componentsDict = {};
         componentsDict[RenderComponent] = renComp;
         componentsDict[ShapeComponent] = shapeComp;
         componentsDict[PhysicsComponent] = phyComp;
         componentsDict[JumpComponent] = jumpComp;
+        componentsDict[HealthComponent] = healthComp;
         componentsDict[LoopCallbackComponent] = [callbackComponent];
 
         this.addEntity(entityID, componentsDict);
 
+        const jumpListener = (key, event) => {
+            if (key.code === InputManager.fromChar('w').code) {
+                this.addEvent(new TransmittedEvent(this.playerID, this.playerID, JumpSystem, JumpSystem.JUMP_REQUEST));
+            }
+        };
+        InputManager.addListener('keydown', jumpListener);
+        this.addDeletionCallback(this.playerID, () => {
+            InputManager.removeListener('keydown', jumpListener);
+        })
+
         // add gun
         entityID = Entity.GENERATE_ID();
         componentsDict = WeaponFactory.createPistol(entityID, this.playerID);
-        
-        InputManager.addListener('click', InputManager.GENERATE_ID(), (mouse, event) => {
-            this.addEvent(new TransmittedEvent(null, entityID, ProjectileWeaponSystem, ProjectileWeaponSystem.FIRE_WEAPON_EVENT, {}));
-        });
 
+        callbackComponent = new LoopCallbackComponent(entityID, (dt, components) => {
+            const mousePos = [InputManager.mouse.x, InputManager.mouse.y];
+            const gunPos = componentsDict[TransformComponent].position;
+            const vec = [mousePos[0] - gunPos[0], mousePos[1] - gunPos[1]];
+            componentsDict[TransformComponent].angle = Math.atan2(vec[1], vec[0]);
+        });
+        componentsDict[LoopCallbackComponent] = [callbackComponent];
+        
         this.addEntity(entityID, componentsDict);
+
+        const fireListener = (mouse, event) => {
+            this.addEvent(new TransmittedEvent(null, entityID, ProjectileWeaponSystem, ProjectileWeaponSystem.FIRE_WEAPON_EVENT, {}));
+        }
+        InputManager.addListener('mousedown', fireListener);
+        //InputManager.addListener('mouseup', fireListener);
+        const gunID = entityID;
+        this.addDeletionCallback(gunID, (id, scene) => {
+            InputManager.removeListener('mousedown', fireListener);
+            InputManager.removeListener('mouseup', fireListener);
+        });
         
 
     }
 
 }
+
+GameScene.SpawnRotation = class {
+    
+    constructor(spawnTypes, spawnDelays) {
+        this.spawnTypes = spawnTypes;
+        this.spawnDelays = spawnDelays;
+    }
+
+}
+
+GameScene.EnemyTypes = {
+    REGULAR: 0,
+    BIG: 1
+}
+
+const reg = GameScene.EnemyTypes.REGULAR,
+      big = GameScene.EnemyTypes.BIG;
+GameScene.SpawnRotations = [
+    new GameScene.SpawnRotation([reg], [1000]),
+    new GameScene.SpawnRotation([reg, reg, reg], [500, 500, 3500]),
+    new GameScene.SpawnRotation([big], [2500]),
+    new GameScene.SpawnRotation([reg, big, reg], [500, 500, 5000]),
+    new GameScene.SpawnRotation([big, big], [1000, 5000]),
+    // 5: new GameScene.SpawnRotation([reg], [], 50),
+    // 6: new GameScene.SpawnRotation([reg], [], 50),
+    // 7: new GameScene.SpawnRotation([reg], [], 50),
+    // 8: new GameScene.SpawnRotation([reg], [], 50)
+]
 
 GameScene.CHARACTER_MATERIAL = new p2.Material();
 GameScene.OBSTACLE_MATERIAL = new p2.Material();

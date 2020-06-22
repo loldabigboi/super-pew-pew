@@ -14,14 +14,20 @@ class Scene {
         // is passed to each system in case they need to access entities not in their system (e.g. for tracking system)
         this.entities = {};
 
-        // stores all events to be processed at the end of next update
-        this.eventQueue = [];
+        // stores all events to be processed at the end of next update (excl. deletion events as these are handled differently)
+        this.mainEventQueue = [];
+
+        // stores all entities to be deleted after next systems update
+        this.deletionQueue = [];  
+
+        // callbacks for when an entity is deleted
+        this.deletionCallbacks = {};
 
     }
 
     addSystem(system, _priority) {
 
-        const priority = _priority | 100;  //  default to v. low priority
+        const priority = _priority || 100;  //  default to v. low priority
 
         this.systemsDict[system.constructor] = system;
         if (this.priorityDict[priority] != undefined) {
@@ -38,6 +44,7 @@ class Scene {
             id = id.id;
         }
         this.entities[id] = components;
+        this.deletionCallbacks[id] = [];
         for (const system of Object.values(this.systemsDict)) {
             system.addEntity(id, components);
         }
@@ -45,19 +52,30 @@ class Scene {
 
     deleteEntity(id) {
 
-        for (const system of Object.values(this.systemsDict)) {
-            const events = system.deleteEntity(id) || [];
-            this.eventQueue = this.eventQueue.concat(events);
+        if (!this.entities[id]) {
+            return;  // duplicate deletion calls can sometimes happen
         }
+
+        for (const system of Object.values(this.systemsDict)) {
+            system.deleteEntity(id, this);
+        }
+        this.deletionCallbacks[id].forEach((fn) => {
+            fn(id, this);
+        });
+        this.deletionCallbacks[id] = undefined;
+        delete this.entities[id];
 
     }
 
+    addDeletionCallback(id, callback) {
+        this.deletionCallbacks[id].push(callback);
+    }
+
     addEvent(event) {
-        if (event instanceof Array) {
-            this.eventQueue = this.eventQueue.concat(event);
+        if (event.type == Scene.DELETE_ENTITY_EVENT) {
+            this.deletionQueue.push(event.obj.id);
         } else {
-            this.eventQueue.push(event);
-            console.log(this.eventQueue);
+            this.mainEventQueue.push(event);
         }
     }
 
@@ -68,28 +86,28 @@ class Scene {
             for (const system of systems) {
                 // not every system has to return events
                 const events = system.update(dt, this.entities, this) || [];
-                this.eventQueue = this.eventQueue.concat(events);
+                
+                for (const event of events) {
+                    this.addEvent(event);
+                }
             }
         }
 
-        const deleteEvents = [];
-        while (this.eventQueue.length > 0) {
-            const event = this.eventQueue.shift();  // treat like a queue
+        while (this.mainEventQueue.length > 0) {
+            const event = this.mainEventQueue.shift();  // treat like a queue
             if (!event.targetSystem) {  // event to be processed by scene
                 if (event.type == Scene.ADD_ENTITY_EVENT) {
                     this.addEntity(event.obj.id, event.obj.components);
-                } else if (event.type == Scene.DELETE_ENTITY_EVENT) {  
-                    deleteEvents.push(event);  // do delete events last to prevent bugs
                 }
             } else {
                 this.systemsDict[event.targetSystem].receiveEvent(event);
             }
-        }
-        
+        }  
 
-        deleteEvents.forEach((event) => {
-            this.deleteEntity(event.obj.id);
-        })
+        while (this.deletionQueue.length > 0) {
+            const id = this.deletionQueue.shift();  // treat like a queue
+            this.deleteEntity(id);
+        }
 
     }
         

@@ -17,8 +17,8 @@ class ContactDamageSystem extends System {
             }
 
             this.collisions.push({
-                damageBody: damageBody,
-                otherBody: otherBody
+                damageID: damageBody.id,
+                otherID: otherBody.id
             });
 
         });
@@ -33,64 +33,72 @@ class ContactDamageSystem extends System {
             this.entities[entityID][ContactDamageComponent].hasDamaged = {};
         }
 
-        const now = Date.now();
 
         for (const collision of this.collisions) {
             
-            const entityID = collision.damageBody.id,
-                  otherID = collision.otherBody.id;
-
-            const c = this.entities[entityID],
-                  otherC = entities[otherID];
-
-            const dmgC = c[ContactDamageComponent];
-            const healthC = otherC[HealthComponent];
-
-            if (healthC) {
-                const prevDamagedObj = prevDamaged[entityID][otherID];
-                let tick = false;
-                if (!dmgC.damageableIDs || dmgC.damageableIDs.includes(otherID)) {
-                    if (prevDamagedObj) {
-                        const last = prevDamagedObj.time;
-                        if (prevDamagedObj.tickInterval == Infinity) {  // only hits upon first contact
-    
-                            tick = true;
-                            dmgC.hasDamaged[otherID] = {
-                                time: now,
-                                ticks: 1
-                            }
-    
-                        } else if (now - last > dmgC.tickInterval) {
-    
-                            tick = true;
-                            dmgC.hasDamaged[otherID] = {
-                                time: now,
-                                ticks: prevDamagedObj.ticks++
-                            }
-    
-                        } else {
-                            dmgC.hasDamaged[otherID] = prevDamagedObj;
-                        }
-                    } else {
-                        tick = true;
-                        dmgC.hasDamaged[otherID] = {
-                            time: Date.now(),
-                            ticks: 1
-                        } 
-                    }
-                } 
-
-                if (tick) {
-                    healthC.currHealth -= dmgC.damage;
-                    if (healthC.currHealth <= 0) {
-                        healthC.onDeath(otherID, scene);
-                    }
-                }
-
+            this.resolveCollision(collision.damageID, collision.otherID, prevDamaged, entities, scene);
+            if (this.entities[collision.otherID]) {  // if both entities have contact damage then we also need to check the reverse, as only one collision is generated per pair of entities
+                this.resolveCollision(collision.otherID, collision.damageID, prevDamaged, entities, scene);
             }
 
         }
         this.collisions = [];
+
+    }
+
+    resolveCollision(damageID, otherID, prevDamaged, entities, scene) {
+
+        const now = Date.now();
+
+        const c = this.entities[damageID],
+              otherC = entities[otherID];
+
+        const dmgC = c[ContactDamageComponent];
+        const healthC = otherC[HealthComponent];
+        const healthShape = otherC[ShapeComponent];
+
+        if (healthC) {
+            const prevDamagedObj = prevDamaged[damageID][otherID];
+            let tick = false;
+            if ((!dmgC.damageableIDs || dmgC.damageableIDs.includes(otherID)) && (dmgC.mask & healthShape.shape.collisionGroup)) {
+                if (prevDamagedObj) {
+                    const last = prevDamagedObj.time;
+                    if (dmgC.tickInterval == Infinity) {  // only hits upon first contact
+
+                        tick = true;
+                        dmgC.hasDamaged[otherID] = {
+                            time: now,
+                            ticks: 1
+                        }
+
+                    } else if (now - last > dmgC.tickInterval) {
+
+                        tick = true;
+                        dmgC.hasDamaged[otherID] = {
+                            time: now,
+                            ticks: prevDamagedObj.ticks++
+                        }
+
+                    } else {
+                        dmgC.hasDamaged[otherID] = prevDamagedObj;
+                    }
+                } else {
+                    tick = true;
+                    dmgC.hasDamaged[otherID] = {
+                        time: Date.now(),
+                        ticks: 1
+                    } 
+                }
+            } 
+
+            if (tick) {
+                healthC.currHealth -= dmgC.damage;
+                if (healthC.currHealth <= 0) {
+                    healthC.onDeath(otherID, scene);
+                }
+            }
+
+        }
 
     }
 

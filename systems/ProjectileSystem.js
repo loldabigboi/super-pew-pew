@@ -20,8 +20,6 @@ class ProjectileSystem extends System {
 
             if (otherShape.collisionGroup == ShapeComponent.GROUPS.GROUND) {
                 this.entities[projShape.body.id][ProjectileComponent].currBounces++;
-            } else if (otherShape.collisionGroup == ShapeComponent.GROUPS.ENEMY) {
-                this.entities[projShape.body.id][ProjectileComponent].currPenetrationDepth++;
             }
 
         });
@@ -36,7 +34,7 @@ class ProjectileSystem extends System {
             const c = this.entities[entityID];
             const projC = c[ProjectileComponent];
             const physC = c[PhysicsComponent];
-            if (projC.currBounces >= projC.maxBounces || projC.currPenetrationDepth >= projC.maxPenetrationDepth) {
+            if (projC.currBounces >= projC.maxBounces) {
                 physC.body.interpolatedPosition = physC.body.previousPosition.slice();
                 deletionEvents.push(new TransmittedEvent(null, null, null, GameScene.DELETE_ENTITY_EVENT, {id: entityID}));
             }

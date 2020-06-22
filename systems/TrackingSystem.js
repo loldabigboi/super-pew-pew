@@ -4,6 +4,20 @@ class TrackingSystem extends System {
         super([TrackingComponent]);
     }
 
+    deleteEntity(id, scene) {
+
+        super.deleteEntity(id);
+        for (const entityID of Object.keys(this.entities)) {
+
+            const c = this.entities[entityID];
+            if (c[TrackingComponent].trackingID === id) {
+                c[TrackingComponent].onTrackDeletion(entityID, scene);
+            }
+
+        }
+
+    }
+
     update(dt, entities) {
 
         for (const entityID of Object.keys(this.entities)) {
@@ -12,6 +26,7 @@ class TrackingSystem extends System {
             const trackC = c[TrackingComponent];
             const transC = c[TransformComponent];
             const physC = c[PhysicsComponent];
+            //console.log(trackC.trackingID)
             const otherC = entities[trackC.trackingID];
             const otherShapeC = otherC[ShapeComponent];
             const otherTransC = otherC[TransformComponent];

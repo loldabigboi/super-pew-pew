@@ -3,24 +3,51 @@ class ProjectileWeaponSystem extends System {
     constructor() {
         super([TransformComponent, WeaponComponent, ProjectileWeaponComponent]);
         this.fireRequests = [];  // requests to fire a weapon
+        this.isFiring = {};  // stores whether the given weapon entity is currently firing or not
     }
 
+    /**
+     * For semi-auto weapons, this requests a single fire. For automatic, this toggles shooting on/off.
+     * @param {*} event 
+     */
     receiveEvent(event) {
         if (event.type === ProjectileWeaponSystem.FIRE_WEAPON_EVENT) {
-            this.fireRequests.push(event);
+            this.isFiring[event.recipientID] = !this.isFiring[event.recipientID];
         }   
+    }
+
+    addEntity(id, components) {
+        super.addEntity(id, components);
+        this.isFiring[id] = false;
+    }
+
+    deleteEntity(id) {
+        super.deleteEntity(id);
+        this.isFiring[id] = undefined;
     }
 
     update(dt, entities) {
 
         const entityEvents = [];
-        for (const request of this.fireRequests) {
 
-            let c = this.entities[request.recipientID];
+        const now = Date.now();
+        for (const entityID of Object.keys(this.entities)) {
+
+            if (!this.isFiring[entityID]) {
+                continue;
+            }
+
+            let c = this.entities[entityID];
             let transC = c[TransformComponent];
             let weapC = c[WeaponComponent];
             let shapeC = c[ShapeComponent];
             let projWeapC = c[ProjectileWeaponComponent];
+
+            if (!(now - weapC.lastUsed > weapC.useCooldown)) {
+                continue;
+            } else {
+                weapC.lastUsed = now;
+            }
             
             let startingPos = transC.position;
 
@@ -75,9 +102,10 @@ class ProjectileWeaponSystem extends System {
                                                       ShapeComponent.GROUPS.PROJ, ShapeComponent.MASKS.PROJ, projWeapC.pMaterial);
                 componentsDict[ShapeComponent] = projShapeC;
                 componentsDict[PhysicsComponent] =  new PhysicsComponent(entityID, bodyObj, [projShapeC]);
-                componentsDict[LifetimeComponent] = new LifetimeComponent(entityID, projWeapC.pLifetime, LifetimeComponent.DELETE_CALLBACK);
-                componentsDict[ContactDamageComponent] = new ContactDamageComponent(entityID, weapC.damage, Infinity);
-                componentsDict[ProjectileComponent] = new ProjectileComponent(entityID, projWeapC.pMaxBounces, projWeapC.pPenetrationDepth);
+                componentsDict[LifetimeComponent] = new LifetimeComponent(entityID, projWeapC.pLifetime, Callbacks.DELETE_ENTITY);
+                componentsDict[ContactDamageComponent] = new ContactDamageComponent(entityID, weapC.damage, Infinity, undefined, -1);
+                componentsDict[ProjectileComponent] = new ProjectileComponent(entityID, projWeapC.pMaxBounces);
+                componentsDict[HealthComponent] = new HealthComponent(entityID, projWeapC.pPenetrationDepth, Callbacks.DELETE_ENTITY);
                 componentsDict[RenderComponent] = new RenderComponent(entityID, 'black', 'black');
 
                 entityEvents.push(new TransmittedEvent(entityID, null, null, Scene.ADD_ENTITY_EVENT, {
@@ -87,9 +115,12 @@ class ProjectileWeaponSystem extends System {
 
             }
 
+            if (weapC.semiAuto) {  // semi automatic weapons must request every time they wish to fire
+                this.isFiring[entityID] = false;
+            }
+
         }
 
-        this.fireRequests = [];  // reset fire requests list
         return entityEvents; 
 
     }

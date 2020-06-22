@@ -28,7 +28,9 @@ class PhysicsSystem extends System {
     }
 
     deleteEntity(id) {
-        this.world.removeBody(this.entities[id][PhysicsComponent].body);
+        if (this.entities[id]) {
+            this.world.removeBody(this.entities[id][PhysicsComponent].body);
+        }
         super.deleteEntity(id);
     }
 

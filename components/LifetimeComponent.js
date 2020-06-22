@@ -10,8 +10,3 @@ class LifetimeComponent extends Component {
     }
 
 }
-
-LifetimeComponent.DELETE_CALLBACK = (id, scene) => {
-    console.log(id);
-    scene.addEvent(new TransmittedEvent(null,null,null,Scene.DELETE_ENTITY_EVENT,{id: id}));
-}

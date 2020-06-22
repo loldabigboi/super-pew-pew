@@ -5,7 +5,7 @@ class HealthComponent extends Component {
         super(entityID);
         this.maxHealth = maxHealth;
         this.currHealth = maxHealth;
-        this.onDeath = onDeathCallback;
+        this.onDeath = onDeathCallback || Callbacks.DELETE_ENTITY;
 
     }
 
