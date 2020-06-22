@@ -10,9 +10,11 @@ class GameScene extends Scene {
 
         const physicsSystem = new PhysicsSystem();
         const loopSystem = new LoopCallbackSystem();
-        const enemyAISystem = new BasicEnemyAISystem(this);
+        const enemyAISystem = new BasicEnemyAISystem(physicsSystem.world);
         const teleportSystem = new TeleporterSystem(physicsSystem.world);
         const jumpSystem = new JumpSystem(physicsSystem.world);
+        const lifetimeSystem = new LifetimeSystem();
+        const contactSystem = new ContactDamageSystem(physicsSystem.world);
         const projectileSystem = new ProjectileSystem(physicsSystem.world);
         const projectileWeaponSystem = new ProjectileWeaponSystem();
         const trackingSystem = new TrackingSystem();
@@ -25,10 +27,12 @@ class GameScene extends Scene {
         this.addSystem(projectileSystem, 2);
         this.addSystem(jumpSystem, 2);
         this.addSystem(teleportSystem, 2);
+        this.addSystem(lifetimeSystem, 2);
+        this.addSystem(contactSystem, 2);
         this.addSystem(projectileWeaponSystem, 2);
         this.addSystem(renderSystem, 3);
 
-        physicsSystem.world.addContactMaterial(new p2.ContactMaterial(BulletWeaponComponent.MATERIAL, GameScene.OBSTACLE_MATERIAL, {
+        physicsSystem.world.addContactMaterial(new p2.ContactMaterial(ProjectileWeaponComponent.BULLET_MATERIAL, GameScene.OBSTACLE_MATERIAL, {
             restitution : 1.0,
             friction: 0,
             stiffness : Number.MAX_VALUE // We need infinite stiffness to get exact restitution
@@ -171,7 +175,30 @@ class GameScene extends Scene {
 
     createTeleporters() {
 
-        
+        const canvas = document.getElementsByTagName("canvas")[0];
+
+        const groups = ShapeComponent.GROUPS,
+              masks = ShapeComponent.MASKS;
+
+        const entityID = Entity.GENERATE_ID();
+        const shapeComp = new ShapeComponent(entityID, p2.Shape.BOX, {
+            width: 300,
+            height: 50
+        }, [0,0], [0,0], 0, groups.TELE, masks.GROUND)
+        const phyComp = new PhysicsComponent(entityID,  {
+            mass: 0,
+            collisionResponse: false, 
+            position: [canvas.width/2, canvas.height + 100],
+        }, [shapeComp]);
+        const renComp = new RenderComponent(entityID, 'white', 'blue', GameScene.GROUND_LAYER);
+        const teleComp = new TeleporterComponent(entityID, [canvas.width/2, 0]);
+        const componentsDict = {};
+        componentsDict[ShapeComponent] = shapeComp;
+        componentsDict[RenderComponent] = renComp;
+        componentsDict[TeleporterComponent] = teleComp;
+        componentsDict[PhysicsComponent] = phyComp;
+
+        this.addEntity(entityID, componentsDict);
 
     }
 
@@ -267,31 +294,14 @@ class GameScene extends Scene {
 
         // add gun
         entityID = Entity.GENERATE_ID();
-        renComp = new RenderComponent(entityID, 'red', 'red', GameScene.WEAPON_LAYER);
-        shapeComp = new ShapeComponent(entityID, p2.Shape.BOX, {width: 20, height: 5}, [0, 0], ShapeComponent.CENTER_LEFT, 0);
-        let transComp = new TransformComponent(entityID, [0, 0], 0);
-        let trackComp = new TrackingComponent(entityID, this.playerID, ShapeComponent.CENTER, [0, 3], 1);
-        let wepComps = BulletWeaponComponent.PISTOL(entityID);
-        callbackComponent = new LoopCallbackComponent(entityID, ((transComp) => (dt, components) => {
-            const mousePos = [InputManager.mouse.x, InputManager.mouse.y];
-            const gunPos = transComp.position;
-            const vec = [mousePos[0] - gunPos[0], mousePos[1] - gunPos[1]];
-            transComp.angle = Math.atan2(vec[1], vec[0]);
-        })(transComp));
-
+        componentsDict = WeaponFactory.createPistol(entityID, this.playerID);
+        
         InputManager.addListener('click', InputManager.GENERATE_ID(), (mouse, event) => {
             this.addEvent(new TransmittedEvent(null, entityID, ProjectileWeaponSystem, ProjectileWeaponSystem.FIRE_WEAPON_EVENT, {}));
         });
 
-        componentsDict = {};
-        componentsDict[RenderComponent] = renComp;
-        componentsDict[ShapeComponent] = shapeComp;
-        componentsDict[TransformComponent] = transComp;
-        componentsDict[TrackingComponent] = trackComp;
-        componentsDict[LoopCallbackComponent] = [callbackComponent];
-        componentsDict = {...componentsDict, ...wepComps};
-
         this.addEntity(entityID, componentsDict);
+        
 
     }
 

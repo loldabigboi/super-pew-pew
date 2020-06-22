@@ -57,6 +57,7 @@ class Scene {
             this.eventQueue = this.eventQueue.concat(event);
         } else {
             this.eventQueue.push(event);
+            console.log(this.eventQueue);
         }
     }
 
@@ -66,31 +67,29 @@ class Scene {
             const systems = this.priorityDict[p];
             for (const system of systems) {
                 // not every system has to return events
-                const events = system.update(dt, this.entities) || [];
+                const events = system.update(dt, this.entities, this) || [];
                 this.eventQueue = this.eventQueue.concat(events);
             }
         }
 
         const deleteEvents = [];
-        for (let i = 0; i < this.eventQueue.length; i++) {
+        while (this.eventQueue.length > 0) {
             const event = this.eventQueue.shift();  // treat like a queue
             if (!event.targetSystem) {  // event to be processed by scene
                 if (event.type == Scene.ADD_ENTITY_EVENT) {
                     this.addEntity(event.obj.id, event.obj.components);
-                } else if (event.type == Scene.DELETE_ENTITY_EVENT) {
+                } else if (event.type == Scene.DELETE_ENTITY_EVENT) {  
                     deleteEvents.push(event);  // do delete events last to prevent bugs
                 }
             } else {
                 this.systemsDict[event.targetSystem].receiveEvent(event);
             }
         }
+        
 
         deleteEvents.forEach((event) => {
             this.deleteEntity(event.obj.id);
         })
-
-        // for some reason this stops a double deletion bug happening, so yea >_>
-        this.eventQueue = [];
 
     }
         

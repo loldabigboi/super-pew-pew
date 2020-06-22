@@ -14,3 +14,5 @@ class ProjectileWeaponComponent extends Component {
     }
 
 }
+
+ProjectileWeaponComponent.BULLET_MATERIAL = new p2.Material();
