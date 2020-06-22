@@ -1,15 +1,8 @@
 class Game {
 
     constructor() {
-        this.scenes = {
-
-        }
-        this.currScene = new GameScene();
-
-        // hard-coded test
-
-        
-
+        this.scenes = {}
+        this.currScene = new GameScene();       
     }
 
     run(last) {
@@ -18,9 +11,8 @@ class Game {
         let dt = (now - last) / 100;
         this.currScene.update(dt);
 
-        const thisRef = this;
         window.requestAnimationFrame(() => {
-            thisRef.run(now);
+            this.run(now);
         })
         
     }

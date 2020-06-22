@@ -2,7 +2,7 @@ class BasicEnemyAISystem extends System {
 
     constructor(scene) {
         super([BasicEnemyAIComponent, PhysicsComponent]);
-        this.lastDirection = {};  // stores the last direction of the enemy body, either at spawn or after last horiz. collision
+        this.lastVel = {};  // stores the last x velocity of the enemy body
         this.wasColliding = {};  // stores whether the enemy was colliding with a wall the previous update
         scene.addEvent(new TransmittedEvent(null, null, PhysicsSystem, PhysicsSystem.ADD_LISTENER_EVENT, {
             type: 'impact',
@@ -11,10 +11,10 @@ class BasicEnemyAISystem extends System {
                       bodyB = evt.bodyB;
 
                 let enemyBody, otherBody;
-                if (this.lastDirection[bodyA.id]) {
+                if (this.lastVel[bodyA.id]) {
                     enemyBody = bodyA;
                     otherBody = bodyB;
-                } else if (this.lastDirection[bodyB.id]) {
+                } else if (this.lastVel[bodyB.id]) {
                     enemyBody = bodyB;
                     otherBody = bodyA;
                 } else {
@@ -27,8 +27,7 @@ class BasicEnemyAISystem extends System {
                         this.wasColliding[enemyBody.id] = true;
                         // reset speed to initial speed but reverse direction
                         const c = this.entities[enemyBody.id];
-                        enemyBody.velocity[0] = c[BasicEnemyAIComponent].speed * -this.lastDirection[enemyBody.id];
-                        this.lastDirection[enemyBody.id] *= -1;
+                        enemyBody.velocity[0] = -this.lastVel[enemyBody.id];
                     }
 
                 }
@@ -39,7 +38,7 @@ class BasicEnemyAISystem extends System {
     addEntity(id, components) {
 
         if (super.addEntity(id, components)) {
-            this.lastDirection[id] = Math.sign(components[PhysicsComponent].body.velocity[0]);
+            this.lastVel[id] = components[PhysicsComponent].body.velocity[0];
         }
 
     }
@@ -47,7 +46,7 @@ class BasicEnemyAISystem extends System {
     deleteEntity(id) {
 
         super.deleteEntity(id);
-        delete this.lastDirection[id];
+        delete this.lastVel[id];
         delete this.wasColliding[id];
 
     }
@@ -55,6 +54,7 @@ class BasicEnemyAISystem extends System {
     update(dt, entities) {
 
         for (const id of Object.keys(this.entities)) {
+            this.lastVel[id] = this.entities[id][PhysicsComponent].body.velocity[0];
             this.wasColliding[id] = false;
         }
 

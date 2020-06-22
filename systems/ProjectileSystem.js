@@ -28,13 +28,6 @@ class ProjectileSystem extends System {
 
     }
 
-    deleteEntity(id) {
-        console.log(id);
-        console.log(Object.keys(this.entities));
-        super.deleteEntity(id);
-        console.log(Object.keys(this.entities));
-    }
-
     update(dt, entities) {
 
         let deletionEvents = [];

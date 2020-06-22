@@ -11,6 +11,7 @@ class GameScene extends Scene {
         const physicsSystem = new PhysicsSystem();
         const loopSystem = new LoopCallbackSystem();
         const enemyAISystem = new BasicEnemyAISystem(this);
+        const teleportSystem = new TeleporterSystem(physicsSystem.world);
         const jumpSystem = new JumpSystem(physicsSystem.world);
         const projectileSystem = new ProjectileSystem(physicsSystem.world);
         const projectileWeaponSystem = new ProjectileWeaponSystem();
@@ -23,6 +24,7 @@ class GameScene extends Scene {
         this.addSystem(trackingSystem, 2);
         this.addSystem(projectileSystem, 2);
         this.addSystem(jumpSystem, 2);
+        this.addSystem(teleportSystem, 2);
         this.addSystem(projectileWeaponSystem, 2);
         this.addSystem(renderSystem, 3);
 
@@ -75,6 +77,7 @@ class GameScene extends Scene {
         });
 
         this.createBorders();
+        this.createTeleporters();
         this.createPlatforms();
         this.createPlayer();
 
@@ -163,6 +166,12 @@ class GameScene extends Scene {
         componentsDict[RenderComponent] = renComp;
         this.addEntity(entityID, componentsDict);
 
+
+    }
+
+    createTeleporters() {
+
+        
 
     }
 

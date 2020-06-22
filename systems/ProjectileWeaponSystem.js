@@ -16,8 +16,6 @@ class ProjectileWeaponSystem extends System {
         const entityEvents = [];
         for (const request of this.fireRequests) {
 
-            console.log(this.entities);
-
             let c = this.entities[request.recipientID];
             let transC = c[TransformComponent];
             let weapC = c[WeaponComponent];
