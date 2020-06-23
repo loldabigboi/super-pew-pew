@@ -9,7 +9,7 @@ class BasicEnemyFactory {
         const shapeComp = new ShapeComponent(entityID, p2.Shape.BOX, {width: size, height: size}, [0,0], [0,0], 0, 
             ShapeComponent.GROUPS.ENEMY, ShapeComponent.MASKS.ENEMY, 0, GameScene.CHARACTER_MATERIAL);
         const phyComp = new PhysicsComponent(entityID, {mass: 1, gravityScale: gravityScale, velocity: [speed, 0], position: position, damping: 0, fixedRotation: true}, [shapeComp]);
-        const healthComp = new HealthComponent(entityID, health, Callbacks.DELETE_ENTITY);
+        const healthComp = new HealthComponent(entityID, health);
         const contactComp = new ContactDamageComponent(entityID, 1, Infinity, undefined, -1);
         const componentsDict = {};
         componentsDict[RenderComponent] = renComp;

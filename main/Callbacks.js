@@ -1,5 +1,5 @@
 class Callbacks{}
 
-Callbacks.DELETE_ENTITY = (id, scene) => {
-    scene.addEvent(new TransmittedEvent(null, id, null, Scene.DELETE_ENTITY_EVENT));
+Callbacks.DELETE_ENTITY = (obj) => {
+    obj.scene.addEvent(new TransmittedEvent(null, obj.id, null, Scene.DELETE_ENTITY_EVENT));
 }

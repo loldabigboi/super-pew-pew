@@ -26,22 +26,21 @@ class ProjectileSystem extends System {
 
     }
 
-    update(dt, entities) {
-
-        let deletionEvents = [];
+    update(dt, entities, scene) {
+        
         for (const entityID of Object.keys(this.entities)) {
 
             const c = this.entities[entityID];
             const projC = c[ProjectileComponent];
             const physC = c[PhysicsComponent];
             if (projC.currBounces >= projC.maxBounces) {
-                physC.body.interpolatedPosition = physC.body.previousPosition.slice();
-                deletionEvents.push(new TransmittedEvent(null, entityID, null, GameScene.DELETE_ENTITY_EVENT));
+                projC.onDeath({
+                    id: entityID,
+                    scene: scene
+                })
             }
 
         }
-
-        return deletionEvents;
 
     }
 

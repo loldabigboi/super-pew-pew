@@ -1,8 +1,12 @@
 class Game {
 
     constructor() {
+        const canvas = document.getElementsByTagName("canvas")[0];
+        canvas.width = 1000;
+        canvas.height = 600;
+
         this.scenes = {}
-        this.currScene = new GameScene();       
+        this.currScene = new GameScene();   
     }
 
     run(last) {

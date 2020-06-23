@@ -1,11 +1,11 @@
 class LifetimeComponent extends Component {
 
-    constructor(entityID, lifetime, onDeathCallback) {
+    constructor(entityID, lifetime, onDeath) {
 
         super(entityID);
         this.lifetime = lifetime;
         this.spawnTime = Date.now();
-        this.onDeath = onDeathCallback;
+        this.onDeath = onDeath || Callbacks.DELETE_ENTITY;
 
     }
 

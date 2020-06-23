@@ -12,7 +12,10 @@ class LifetimeSystem extends System {
             const c = this.entities[entityID];
             const lifeC = c[LifetimeComponent];
             if (now - lifeC.spawnTime > lifeC.lifetime) {
-                lifeC.onDeath(entityID, scene);
+                lifeC.onDeath({
+                    id: entityID, 
+                    scene: scene
+                });
             }
 
         }

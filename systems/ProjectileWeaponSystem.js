@@ -74,8 +74,7 @@ class ProjectileWeaponSystem extends System {
                 const vel = [projWeapC.pSpeed - projWeapC.pSpeedVariance/2 + projWeapC.pSpeedVariance*Math.random(), 0];
                 const newAngle = transC.angle + Math.random() * projWeapC.angleVariance - projWeapC.angleVariance/2;
                 const newVel = [];
-                newVel[0] = Math.cos(newAngle)*vel[0] - Math.sin(newAngle)*vel[1];
-                newVel[1] = Math.sin(newAngle)*vel[0] + Math.cos(newAngle)*vel[1];
+                p2.vec2.rotate(newVel, vel, newAngle);
 
                 const bodyObj = {
                     mass: 1, 
@@ -86,20 +85,15 @@ class ProjectileWeaponSystem extends System {
                     damping: projWeapC.pDamping
                 }
 
-                let shapeObj = {};
-                if (c[BulletWeaponComponent]) {
-                    shapeObj.radius = c[BulletWeaponComponent].size
-                } else {
-                    throw new Error("Only BulletWeaponComponent is currently supported for projectile weapons");
-                }
-                const projShapeC = new ShapeComponent(entityID, p2.Shape.CIRCLE, shapeObj, [0, 0], [0, 0], 0, 
+                const projShapeC = new ShapeComponent(entityID, projWeapC.pShapeType, projWeapC.pShapeObj, [0, 0], [0, 0], 0, 
                                                       ShapeComponent.GROUPS.PROJ, ShapeComponent.MASKS.PROJ, groups.ENEMY, projWeapC.pMaterial);
                 componentsDict[ShapeComponent] = projShapeC;
                 componentsDict[PhysicsComponent] =  new PhysicsComponent(entityID, bodyObj, [projShapeC]);
-                componentsDict[LifetimeComponent] = new LifetimeComponent(entityID, projWeapC.pLifetime, Callbacks.DELETE_ENTITY);
+                componentsDict[LifetimeComponent] = new LifetimeComponent(entityID, projWeapC.pLifetime, projWeapC.pCallbacks.onDeath);
                 componentsDict[ContactDamageComponent] = new ContactDamageComponent(entityID, weapC.damage, Infinity, undefined, -1);
-                componentsDict[ProjectileComponent] = new ProjectileComponent(entityID, projWeapC.pMaxBounces);
-                componentsDict[HealthComponent] = new HealthComponent(entityID, projWeapC.pPenetrationDepth, Callbacks.DELETE_ENTITY);
+                componentsDict[ProjectileComponent] = new ProjectileComponent(entityID, projWeapC.pMaxBounces, projWeapC.pCallbacks.onCreation, projWeapC.pCallbacks.onBounce,
+                    projWeapC.pCallbacks.onDeath);
+                componentsDict[HealthComponent] = new HealthComponent(entityID, projWeapC.pPenetrationDepth, projWeapC.pCallbacks.onHit, projWeapC.pCallbacks.onDeath);
                 componentsDict[RenderComponent] = new RenderComponent(entityID, 'black', 'black');
 
                 entityEvents.push(new TransmittedEvent(null, entityID, null, Scene.ADD_ENTITY_EVENT, {

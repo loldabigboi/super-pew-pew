@@ -1,6 +1,6 @@
 class ProjectileWeaponComponent extends Component {
 
-    constructor(entityID, angleVariance, pSpeed, pSpeedVariance, pMaxBounces, pPenetrationDepth, pLifetime, pGravityScale, pDamping, pMaterial) {
+    constructor(entityID, angleVariance, pSpeed, pSpeedVariance, pMaxBounces, pPenetrationDepth, pLifetime, pGravityScale, pDamping, pShapeType, pShapeObj, pMaterial, pCallbacks) {
         super(entityID);
 
         this.angleVariance = angleVariance;
@@ -11,10 +11,14 @@ class ProjectileWeaponComponent extends Component {
         this.pLifetime = pLifetime;
         this.pGravityScale = pGravityScale;  // 0 for no grav, 1 for norm. grav
         this.pDamping = pDamping;  // air friction co-efficient
+        this.pShapeType = pShapeType;
+        this.pShapeObj = pShapeObj;
         this.pMaterial = pMaterial;
+        this.pCallbacks = pCallbacks || {};
         
     }
 
 }
 
-ProjectileWeaponComponent.BULLET_MATERIAL = new p2.Material();
+ProjectileWeaponComponent.LOSSLESS_BOUNCE_MATERIAL = new p2.Material();
+ProjectileWeaponComponent.LOSS_BOUNCE_MATERIAL = new p2.Material();

@@ -4,10 +4,6 @@ class GameScene extends Scene {
 
         super();
 
-        const canvas = document.getElementsByTagName("canvas")[0];
-        canvas.width = 1000;
-        canvas.height = 600;
-
         const physicsSystem = new PhysicsSystem();
         const loopSystem = new LoopCallbackSystem();
         const enemyAISystem = new BasicEnemyAISystem(physicsSystem.world);
@@ -34,8 +30,13 @@ class GameScene extends Scene {
         this.addSystem(renderSystem, 3);
         this.addSystem(fatalSystem, 4);
 
-        physicsSystem.world.addContactMaterial(new p2.ContactMaterial(ProjectileWeaponComponent.BULLET_MATERIAL, GameScene.OBSTACLE_MATERIAL, {
+        physicsSystem.world.addContactMaterial(new p2.ContactMaterial(ProjectileWeaponComponent.LOSSLESS_BOUNCE_MATERIAL, GameScene.OBSTACLE_MATERIAL, {
             restitution : 1.0,
+            friction: 0,
+            stiffness : Number.MAX_VALUE // We need infinite stiffness to get exact restitution
+        }));
+        physicsSystem.world.addContactMaterial(new p2.ContactMaterial(ProjectileWeaponComponent.LOSS_BOUNCE_MATERIAL, GameScene.OBSTACLE_MATERIAL, {
+            restitution : 0.8,
             friction: 0,
             stiffness : Number.MAX_VALUE // We need infinite stiffness to get exact restitution
         }));
@@ -50,38 +51,6 @@ class GameScene extends Scene {
             relaxation: 10, //  get rid of residual bouncing effect
         }));
 
-        // for some reason had to employ a hack by access the contact equations directly from the
-        // narrow phase, as simply setting the enabled flag wasn't working :/
-        physicsSystem.world.on('preSolve', (evt) => {
-
-            const newEqs = [];
-            for (const eq of physicsSystem.world.narrowphase.contactEquations) {
-                
-                const groups = ShapeComponent.GROUPS;
-
-                let enemyShape, otherShape;
-                if (eq.shapeA.collisionGroup == groups.ENEMY) {
-                    enemyShape = eq.shapeA;
-                    otherShape = eq.shapeB;
-                } else if (eq.shapeB.collisionGroup == groups.ENEMY) {
-                    enemyShape = eq.shapeB;
-                    otherShape = eq.shapeA;
-                } else {
-                    newEqs.push(eq);
-                    continue;
-                }
-                
-                if (otherShape.collisionGroup == groups.GROUND ||
-                    (!otherShape.collisionGroup == groups.PLAYER &&
-                    !otherShape.collisionGroup == groups.PROJ)) {
-                    newEqs.push(eq);
-                }
-
-            }
-            physicsSystem.world.narrowphase.contactEquations = newEqs;
-
-        });
-
         this.platformIDs = [];
         this.score = 0;
 
@@ -95,7 +64,9 @@ class GameScene extends Scene {
             WeaponFactory.createPistol(Entity.GENERATE_ID(), this.playerID),
             WeaponFactory.createMachineGun(Entity.GENERATE_ID(), this.playerID),
             WeaponFactory.createMinigun(Entity.GENERATE_ID(), this.playerID), 
-            WeaponFactory.createShotgun(Entity.GENERATE_ID(), this.playerID)  
+            WeaponFactory.createShotgun(Entity.GENERATE_ID(), this.playerID),
+            WeaponFactory.createRocketLauncher(Entity.GENERATE_ID(), this.playerID),
+            WeaponFactory.createGrenadeLauncher(Entity.GENERATE_ID(), this.playerID),
         ];
 
         // equip gun
@@ -187,7 +158,7 @@ class GameScene extends Scene {
         this.addEntity(entityID, compDict);
 
         // add boxes to contain bottom and top with hole in middle
-        w = canvas.width/2 - 39;
+        w = canvas.width/2 - 59;
         h = 8;
 
         entityID = Entity.GENERATE_ID();
@@ -274,7 +245,7 @@ class GameScene extends Scene {
         const renComp = new RenderComponent(entityID, 'gold', 'gold', GameScene.WEAPON_LAYER);
         const componentsDict = {};
         componentsDict[ShapeComponent] = shapeComp;
-        componentsDict[HealthComponent] = new HealthComponent(entityID, 1, () => this.pickupWeaponCrate());
+        componentsDict[HealthComponent] = new HealthComponent(entityID, 1, undefined, () => this.pickupWeaponCrate());
         componentsDict[RenderComponent] = renComp;
         componentsDict[PhysicsComponent] = phyComp;
 
@@ -408,9 +379,9 @@ const reg = GameScene.EnemyTypes.REGULAR,
       big = GameScene.EnemyTypes.BIG;
 GameScene.SpawnRotations = [
     new GameScene.SpawnRotation([reg], [1000]),
-    new GameScene.SpawnRotation([reg, reg, reg], [500, 500, 3500]),
+    new GameScene.SpawnRotation([reg, reg, reg], [300, 300, 3500]),
     new GameScene.SpawnRotation([big], [2500]),
-    new GameScene.SpawnRotation([reg, big, reg], [500, 500, 5000]),
+    new GameScene.SpawnRotation([reg, big, reg], [300, 300, 5000]),
     new GameScene.SpawnRotation([big, big], [1000, 5000]),
     // 5: new GameScene.SpawnRotation([reg], [], 50),
     // 6: new GameScene.SpawnRotation([reg], [], 50),

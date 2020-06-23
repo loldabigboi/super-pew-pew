@@ -92,9 +92,19 @@ class ContactDamageSystem extends System {
             } 
 
             if (tick) {
+                dmgC.onHit(damageID, otherID, scene);
                 healthC.currHealth -= dmgC.damage;
+                healthC.onHit({
+                    id: otherID, 
+                    otherID: damageID, 
+                    scene: scene
+                });
                 if (healthC.currHealth <= 0) {
-                    healthC.onDeath(otherID, scene);
+                    healthC.onDeath({
+                        id: otherID, 
+                        otherID: damageID,
+                        scene: scene
+                    });
                 }
             }
 

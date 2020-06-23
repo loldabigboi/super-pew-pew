@@ -11,7 +11,10 @@ class TrackingSystem extends System {
 
             const c = this.entities[entityID];
             if (c[TrackingComponent].trackingID === id) {
-                c[TrackingComponent].onTrackDeletion(entityID, scene);
+                c[TrackingComponent].onTrackDeletion({
+                    id: entityID, 
+                    scene: scene
+                });
             }
 
         }
