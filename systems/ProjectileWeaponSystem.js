@@ -56,8 +56,8 @@ class ProjectileWeaponSystem extends System {
                 let relStartingPos = [0,0];
                 const shape = shapeC.shape;
                 if (shapeC.type === p2.Shape.BOX) {
-                    relStartingPos = [ shape.width * (1 - shapeC.propOffset[0]),
-                                       shape.height/2 * (1 - shapeC.propOffset[1]) ];
+                    relStartingPos = [ shape.width/2 * (1 - shapeC.propOffset[0]),
+                                       0 * (1 - shapeC.propOffset[1]) ];
                 } else if (shapeC.type === p2.Shape.CIRCLE) {
                     relStartingPos = [ shape.radius * (1 - shapeC.propOffset[0]),
                                        shape.radius/2 * (1 - shapeC.propOffset[1]) ];
@@ -78,7 +78,7 @@ class ProjectileWeaponSystem extends System {
                 const entityID = Entity.GENERATE_ID();
 
                 const vel = [projWeapC.pSpeed, 0];
-                const newAngle = transC.angle + Math.random() * projWeapC.angleVariance;
+                const newAngle = transC.angle + Math.random() * projWeapC.angleVariance - projWeapC.angleVariance/2;
                 const newVel = [];
                 newVel[0] = Math.cos(newAngle)*vel[0] - Math.sin(newAngle)*vel[1];
                 newVel[1] = Math.sin(newAngle)*vel[0] + Math.cos(newAngle)*vel[1];

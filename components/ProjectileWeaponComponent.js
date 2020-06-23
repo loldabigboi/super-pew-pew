@@ -11,6 +11,7 @@ class ProjectileWeaponComponent extends Component {
         this.pGravityScale = pGravityScale;  // 0 for no grav, 1 for norm. grav
         this.pDamping = pDamping;  // air friction co-efficient
         this.pMaterial = pMaterial;
+        
     }
 
 }

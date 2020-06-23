@@ -14,6 +14,11 @@ class JumpSystem extends System {
         }
     }
 
+    deleteEntity(id) {
+        super.deleteEntity(id);
+        this.jumpRequests = this.jumpRequests.filter((evt) => evt.recipientID != id);
+    }
+
     update(dt, entities) {
 
         for(let i = 0; i < this.world.narrowphase.contactEquations.length; i++){

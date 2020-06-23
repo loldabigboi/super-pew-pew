@@ -93,7 +93,8 @@ class GameScene extends Scene {
             if (key.code === InputManager.fromChar('r').code && !this.entities[this.playerID]) {
                 this.createPlayer();
             }
-        })
+        });
+
 
         this.lastSpawn = 0;
         this.spawnDir = 1;
@@ -119,9 +120,9 @@ class GameScene extends Scene {
             const entityID = Entity.GENERATE_ID();
             let c;
             if (type == GameScene.EnemyTypes.REGULAR) {
-                c = BasicEnemyFactory.createEnemy(entityID, [canvas.width/2, 0], 25*this.spawnDir, 40, 2, 1);
+                c = BasicEnemyFactory.createEnemy(entityID, [canvas.width/2, 0], 25*this.spawnDir, 40, 3, 1);
             } else if (type == GameScene.EnemyTypes.BIG) {
-                c = BasicEnemyFactory.createEnemy(entityID, [canvas.width/2, 0], 25*this.spawnDir, 60, 8, 3);
+                c = BasicEnemyFactory.createEnemy(entityID, [canvas.width/2, 0], 25*this.spawnDir, 60, 12, 3);
             } else {
                 throw new Error();
             }
@@ -253,6 +254,12 @@ class GameScene extends Scene {
 
     }
 
+    createWeaponCrate() {
+
+        
+
+    }
+
     createPlatforms() {
 
         const canvas = document.getElementsByTagName("canvas")[0];
@@ -351,30 +358,52 @@ class GameScene extends Scene {
             InputManager.removeListener('keydown', jumpListener);
         })
 
-        // add gun
-        entityID = Entity.GENERATE_ID();
-        componentsDict = WeaponFactory.createPistol(entityID, this.playerID);
+        // create guns
+        this.weapons = [
+            WeaponFactory.createPistol(Entity.GENERATE_ID(), this.playerID),
+            WeaponFactory.createMachineGun(Entity.GENERATE_ID(), this.playerID),
+            WeaponFactory.createMinigun(Entity.GENERATE_ID(), this.playerID)  
+        ];
 
-        callbackComponent = new LoopCallbackComponent(entityID, (dt, components) => {
-            const mousePos = [InputManager.mouse.x, InputManager.mouse.y];
-            const gunPos = componentsDict[TransformComponent].position;
-            const vec = [mousePos[0] - gunPos[0], mousePos[1] - gunPos[1]];
-            componentsDict[TransformComponent].angle = Math.atan2(vec[1], vec[0]);
-        });
-        componentsDict[LoopCallbackComponent] = [callbackComponent];
-        
-        this.addEntity(entityID, componentsDict);
+        // equip gun
+        this.nextWeapon = this.weapons[Math.floor(Math.random() * this.weapons.length)];
+        this.equipNextWeapon();
 
         const fireListener = (mouse, event) => {
-            this.addEvent(new TransmittedEvent(null, entityID, ProjectileWeaponSystem, ProjectileWeaponSystem.FIRE_WEAPON_EVENT, {}));
+            this.addEvent(new TransmittedEvent(null, this.currWeapon[WeaponComponent].entityID, ProjectileWeaponSystem, ProjectileWeaponSystem.FIRE_WEAPON_EVENT, {}));
         }
         InputManager.addListener('mousedown', fireListener);
-        //InputManager.addListener('mouseup', fireListener);
+        InputManager.addListener('mouseup', (mouse, event) => {
+            if (!this.currWeapon[WeaponComponent].semiAuto) {
+                fireListener(mouse, event);
+            }
+        });
         const gunID = entityID;
         this.addDeletionCallback(gunID, (id, scene) => {
             InputManager.removeListener('mousedown', fireListener);
             InputManager.removeListener('mouseup', fireListener);
         });
+        
+    }
+
+    equipNextWeapon() {
+
+        if (this.currWeapon) {
+            this.deleteEntity[this.currWeapon[WeaponComponent.entityID]];
+            this.currWeapon[LoopCallbackComponent] = undefined;
+        }
+
+        this.currWeapon = this.nextWeapon;
+        const entityID = this.currWeapon[WeaponComponent].entityID;
+        this.currWeapon[LoopCallbackComponent] = [new LoopCallbackComponent(entityID, (dt, components) => {
+            const mousePos = [InputManager.mouse.x, InputManager.mouse.y];
+            const gunPos = this.currWeapon[TransformComponent].position;
+            const vec = [mousePos[0] - gunPos[0], mousePos[1] - gunPos[1]];
+            this.currWeapon[TransformComponent].angle = Math.atan2(vec[1], vec[0]);
+        })];
+        
+        this.addEntity(entityID, this.currWeapon);
+        this.nextWeapon = this.weapons[Math.floor(Math.random() * this.weapons.length)];
         
 
     }

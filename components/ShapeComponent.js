@@ -59,13 +59,15 @@ ShapeComponent.GROUPS = {
     GROUND: Math.pow(2, 1),
     ENEMY:  Math.pow(2, 2),
     PROJ:   Math.pow(2, 3),
-    TELE:   Math.pow(2, 4)
+    TELE:   Math.pow(2, 4),
+    PICKUP: Math.pow(2, 5)
 }
 
 const g = ShapeComponent.GROUPS;
 ShapeComponent.MASKS = {
-    PLAYER: g.ENEMY | g.GROUND | g.TELE,
+    PLAYER: g.ENEMY | g.GROUND | g.TELE | g.PICKUP,
     GROUND: g.PLAYER | g.ENEMY  | g.PROJ,
     ENEMY:  g.PLAYER | g.PROJ | g.GROUND | g.TELE,
     PROJ:   g.ENEMY | g.GROUND | g.TELE,
+    PICKUP: g.PLAYER
 }
