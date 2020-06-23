@@ -26,7 +26,7 @@ class TrackingSystem extends System {
             const trackC = c[TrackingComponent];
             const transC = c[TransformComponent];
             const physC = c[PhysicsComponent];
-            //console.log(trackC.trackingID)
+
             const otherC = entities[trackC.trackingID];
             const otherShapeC = otherC[ShapeComponent];
             const otherTransC = otherC[TransformComponent];

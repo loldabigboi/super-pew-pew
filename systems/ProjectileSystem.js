@@ -36,7 +36,7 @@ class ProjectileSystem extends System {
             const physC = c[PhysicsComponent];
             if (projC.currBounces >= projC.maxBounces) {
                 physC.body.interpolatedPosition = physC.body.previousPosition.slice();
-                deletionEvents.push(new TransmittedEvent(null, null, null, GameScene.DELETE_ENTITY_EVENT, {id: entityID}));
+                deletionEvents.push(new TransmittedEvent(null, entityID, null, GameScene.DELETE_ENTITY_EVENT));
             }
 
         }

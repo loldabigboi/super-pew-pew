@@ -15,9 +15,9 @@ class Scene {
         this.entities = {};
 
         // stores all events to be processed at the end of next update (excl. deletion events as these are handled differently)
-        this.mainEventQueue = [];
+        this.eventQueue = [];
 
-        // stores all entities to be deleted after next systems update
+        // stores all entities that will be deleted during next event queue processing
         this.deletionQueue = [];  
 
         // callbacks for when an entity is deleted
@@ -72,11 +72,15 @@ class Scene {
     }
 
     addEvent(event) {
-        if (event.type == Scene.DELETE_ENTITY_EVENT) {
-            this.deletionQueue.push(event.obj.id);
-        } else {
-            this.mainEventQueue.push(event);
+        if (event.recipientID != undefined && 
+            event.type != Scene.ADD_ENTITY_EVENT && 
+            !this.entities[event.recipientID]) {  // no entity to send event to
+            return;
         }
+        if (event.type == Scene.DELETE_ENTITY_EVENT) {
+            this.deletionQueue.push(event.recipientID);
+        }
+        this.eventQueue.push(event);
     }
 
     update(dt) {
@@ -93,21 +97,23 @@ class Scene {
             }
         }
 
-        while (this.mainEventQueue.length > 0) {
-            const event = this.mainEventQueue.shift();  // treat like a queue
+        while (this.eventQueue.length > 0) {
+            const event = this.eventQueue.shift();  // treat like a queue
             if (!event.targetSystem) {  // event to be processed by scene
                 if (event.type == Scene.ADD_ENTITY_EVENT) {
-                    this.addEntity(event.obj.id, event.obj.components);
+                    this.addEntity(event.recipientID, event.obj.components);
+                } else if (event.type == Scene.DELETE_ENTITY_EVENT) {
+                    this.deleteEntity(event.recipientID);
                 }
             } else {
                 this.systemsDict[event.targetSystem].receiveEvent(event);
             }
         }  
-
-        while (this.deletionQueue.length > 0) {
-            const id = this.deletionQueue.shift();  // treat like a queue
-            this.deleteEntity(id);
-        }
+        this.deletionQueue = [];
+        // while (this.deletionQueue.length > 0) {
+        //     const id = this.deletionQueue.shift();  // treat like a queue
+        //     this.deleteEntity(id);
+        // }
 
     }
         

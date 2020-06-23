@@ -7,7 +7,7 @@ class TrackingComponent extends Component {
         this.relOffset = relOffset;
         this.absOffset = absOffset;
         this.trackScale = trackScale;  // useful for parallax effect
-        this.onTrackDeletion = onTrackDeletionCallback || (() => {});  // called when the tracked entity is deleted
+        this.onTrackDeletion = onTrackDeletionCallback || Callbacks.DELETE_ENTITY;  // called when the tracked entity is deleted
 
     }
 

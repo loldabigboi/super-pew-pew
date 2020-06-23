@@ -83,18 +83,36 @@ class GameScene extends Scene {
         });
 
         this.platformIDs = [];
+        this.score = 0;
 
-        this.createBorders();
         this.createTeleporters();
         this.createPlatforms();
         this.createPlayer();
+        this.createWeaponCrate();
+
+        // create guns
+        this.weapons = [
+            WeaponFactory.createPistol(Entity.GENERATE_ID(), this.playerID),
+            WeaponFactory.createMachineGun(Entity.GENERATE_ID(), this.playerID),
+            WeaponFactory.createMinigun(Entity.GENERATE_ID(), this.playerID), 
+            WeaponFactory.createShotgun(Entity.GENERATE_ID(), this.playerID)  
+        ];
+
+        // equip gun
+        this.nextWeapon = this.weapons[Math.floor(Math.random() * this.weapons.length)];
+        this.equipNextWeapon();
 
         InputManager.addListener('keydown', (key, evt) => {
             if (key.code === InputManager.fromChar('r').code && !this.entities[this.playerID]) {
                 this.createPlayer();
+                this.equipNextWeapon();
             }
         });
 
+        InputManager.addListener('mousedown', (mouse, evt) => {
+            this.addEvent(new TransmittedEvent(null, this.currWeapon[WeaponComponent].entityID, ProjectileWeaponSystem,
+                ProjectileWeaponSystem.FIRE_WEAPON_EVENT, {}));
+        })
 
         this.lastSpawn = 0;
         this.spawnDir = 1;
@@ -110,6 +128,11 @@ class GameScene extends Scene {
 
     update(dt) {
 
+        if (!this.currWeapon[WeaponComponent].semiAuto && InputManager.mouse.down) {
+            this.addEvent(new TransmittedEvent(null, this.currWeapon[WeaponComponent].entityID, ProjectileWeaponSystem,
+                ProjectileWeaponSystem.FIRE_WEAPON_EVENT, {}));
+        }
+
         const now = Date.now();
         if (now - this.lastSpawn > this.currSpawnDelay) {
             this.lastSpawn = now;
@@ -120,9 +143,11 @@ class GameScene extends Scene {
             const entityID = Entity.GENERATE_ID();
             let c;
             if (type == GameScene.EnemyTypes.REGULAR) {
-                c = BasicEnemyFactory.createEnemy(entityID, [canvas.width/2, 0], 25*this.spawnDir, 40, 3, 1);
+                c = BasicEnemyFactory.createEnemy(entityID, [canvas.width/2, 0], 30*this.spawnDir, 40, 3, 1);
             } else if (type == GameScene.EnemyTypes.BIG) {
-                c = BasicEnemyFactory.createEnemy(entityID, [canvas.width/2, 0], 25*this.spawnDir, 60, 12, 3);
+                c = BasicEnemyFactory.createEnemy(entityID, [canvas.width/2, 0], 30*this.spawnDir, 60, 12, 3);
+                c[RenderComponent].strokeColor = 'rgb(200,0,0)';
+                c[RenderComponent].fillColor = 'rgb(200,0,0)';
             } else {
                 throw new Error();
             }
@@ -142,7 +167,7 @@ class GameScene extends Scene {
 
     }
 
-    createBorders() {
+    createPlatforms() {
 
         const canvas = document.getElementsByTagName("canvas")[0];
 
@@ -151,77 +176,54 @@ class GameScene extends Scene {
         const groups = ShapeComponent.GROUPS,
               masks = ShapeComponent.MASKS;
 
-        // add boxes to contain sides
-        let entityID = Entity.GENERATE_ID();
-        let shapeComp = new ShapeComponent(entityID, p2.Shape.BOX, {width: w, height: h}, [0,0], [0,0], 0, groups.GROUND, masks.GROUND, GameScene.OBSTACLE_MATERIAL)
-        let phyComp = new PhysicsComponent(entityID, {position: [w/2, h/2]}, [shapeComp]);
-        let renComp = new RenderComponent(entityID, 'white', 'blue', GameScene.GROUND_LAYER);
+        // add platforms to contain sides of arena
 
-        let componentsDict = {}
-        componentsDict[ShapeComponent] = shapeComp;
-        componentsDict[RenderComponent] = renComp;
-        componentsDict[PhysicsComponent] = phyComp;
-        this.addEntity(entityID, componentsDict);
+        let entityID = Entity.GENERATE_ID();
+        let compDict = PlatformFactory.createPlatform(entityID, w, h, [w/2, h/2], 0);
+        this.addEntity(entityID, compDict);
 
         entityID = Entity.GENERATE_ID();
-        shapeComp = new ShapeComponent(entityID, p2.Shape.BOX, {width: w, height: h}, [0,0], [0,0], 0, groups.GROUND, masks.GROUND, GameScene.OBSTACLE_MATERIAL)
-        phyComp = new PhysicsComponent(entityID, {position: [canvas.width - w/2, h/2]}, [shapeComp]);
-        renComp = new RenderComponent(entityID, 'white', 'blue', GameScene.GROUND_LAYER);
-
-        componentsDict = {}
-        componentsDict[ShapeComponent] = shapeComp;
-        componentsDict[RenderComponent] = renComp;
-        componentsDict[PhysicsComponent] = phyComp;
-        this.addEntity(entityID, componentsDict);
+        compDict = PlatformFactory.createPlatform(entityID, w, h, [canvas.width - w/2, h/2], 0);
+        this.addEntity(entityID, compDict);
 
         // add boxes to contain bottom and top with hole in middle
         w = canvas.width/2 - 39;
         h = 8;
 
         entityID = Entity.GENERATE_ID();
-        shapeComp = new ShapeComponent(entityID, p2.Shape.BOX, {width: w, height: h}, [0,0], [0,0], 0, groups.GROUND, masks.GROUND, GameScene.OBSTACLE_MATERIAL)
-        phyComp = new PhysicsComponent(entityID, {position: [w/2-1, h/2-1]}, [shapeComp]);
-        renComp = new RenderComponent(entityID, 'white', 'blue', GameScene.GROUND_LAYER);
-
-        componentsDict = {}
-        componentsDict[ShapeComponent] = shapeComp;
-        componentsDict[PhysicsComponent] = phyComp;
-        componentsDict[RenderComponent] = renComp;
-        this.addEntity(entityID, componentsDict);
+        compDict = PlatformFactory.createPlatform(entityID, w, h, [w/2-1, h/2 -1 ], 0);
+        this.addEntity(entityID, compDict);
 
         entityID = Entity.GENERATE_ID();
-        shapeComp = new ShapeComponent(entityID, p2.Shape.BOX, {width: w, height: h}, [0,0], [0,0], 0, groups.GROUND, masks.GROUND, GameScene.OBSTACLE_MATERIAL)
-        phyComp = new PhysicsComponent(entityID, {position: [canvas.width - w/2+1, h/2-1]}, [shapeComp]);
-        renComp = new RenderComponent(entityID, 'white', 'blue', GameScene.GROUND_LAYER);
-
-        componentsDict = {}
-        componentsDict[ShapeComponent] = shapeComp;
-        componentsDict[PhysicsComponent] = phyComp;
-        componentsDict[RenderComponent] = renComp;
-        this.addEntity(entityID, componentsDict);
+        compDict = PlatformFactory.createPlatform(entityID, w, h, [canvas.width - w/2+1, h/2 - 1], 0);
+        this.addEntity(entityID, compDict);
 
         entityID = Entity.GENERATE_ID();
-        shapeComp = new ShapeComponent(entityID, p2.Shape.BOX, {width: w, height: h}, [0,0], [0,0], 0, groups.GROUND, masks.GROUND, GameScene.OBSTACLE_MATERIAL)
-        phyComp = new PhysicsComponent(entityID, {position: [w/2-1, canvas.height - h/2+1]}, [shapeComp]);
-        renComp = new RenderComponent(entityID, 'white', 'blue', GameScene.GROUND_LAYER);
-
-        componentsDict = {}
-        componentsDict[ShapeComponent] = shapeComp;
-        componentsDict[PhysicsComponent] = phyComp;
-        componentsDict[RenderComponent] = renComp;
-        this.addEntity(entityID, componentsDict);
+        compDict = PlatformFactory.createPlatform(entityID, w, h, [w/2-1, canvas.height - h/2 + 1], 0);
+        this.addEntity(entityID, compDict);
+        this.platformIDs.push(entityID);
 
         entityID = Entity.GENERATE_ID();
-        shapeComp = new ShapeComponent(entityID, p2.Shape.BOX, {width: w, height: h}, [0,0], [0,0], 0, groups.GROUND, masks.GROUND, GameScene.OBSTACLE_MATERIAL)
-        phyComp = new PhysicsComponent(entityID, {position: [canvas.width - w/2+1, canvas.height - h/2+1]}, [shapeComp]);
-        renComp = new RenderComponent(entityID, 'white', 'blue', GameScene.GROUND_LAYER);
+        compDict = PlatformFactory.createPlatform(entityID, w, h, [canvas.width - w/2+1, canvas.height - h/2 + 1], 0);
+        this.addEntity(entityID, compDict);
+        this.platformIDs.push(entityID);
 
-        componentsDict = {}
-        componentsDict[ShapeComponent] = shapeComp;
-        componentsDict[PhysicsComponent] = phyComp;
-        componentsDict[RenderComponent] = renComp;
-        this.addEntity(entityID, componentsDict);
+        const positionArray = [
+            [canvas.width/2, canvas.height-125],
+            [124, 325],
+            [canvas.width-124, 325],
+            [canvas.width/2, 175]
+        ];
+        const widthArray = [
+            400, 250, 250, 400
+        ];
 
+        for (let i = 0; i < positionArray.length; i++) {
+            entityID = Entity.GENERATE_ID();
+            compDict = PlatformFactory.createPlatform(entityID, widthArray[i], 20, positionArray[i], 0);
+            this.addEntity(entityID, compDict);
+            this.platformIDs.push(entityID);
+        }
 
     }
 
@@ -256,48 +258,48 @@ class GameScene extends Scene {
 
     createWeaponCrate() {
 
-        
-
-    }
-
-    createPlatforms() {
-
-        const canvas = document.getElementsByTagName("canvas")[0];
-
         const groups = ShapeComponent.GROUPS,
               masks = ShapeComponent.MASKS;
 
-        const positionArray = [
-            [canvas.width/2, canvas.height-125],
-            [124, 325],
-            [canvas.width-124, 325],
-            [canvas.width/2, 175]
-        ];
-        const widthArray = [
-            400, 250, 250, 400
-        ];
+        const entityID = Entity.GENERATE_ID();
+        const shapeComp = new ShapeComponent(entityID, p2.Shape.BOX, {
+            width: 30,
+            height: 30
+        }, [0,0], [0,0], 0, groups.PICKUP, masks.PICKUP, groups.PLAYER);
+        const phyComp = new PhysicsComponent(entityID,  {
+            mass: 1,
+            position: [0, 0],
+            fixedRotation: true
+        }, [shapeComp]);
+        const renComp = new RenderComponent(entityID, 'gold', 'gold', GameScene.WEAPON_LAYER);
+        const componentsDict = {};
+        componentsDict[ShapeComponent] = shapeComp;
+        componentsDict[HealthComponent] = new HealthComponent(entityID, 1, () => this.pickupWeaponCrate());
+        componentsDict[RenderComponent] = renComp;
+        componentsDict[PhysicsComponent] = phyComp;
 
-        for (let i = 0; i < 4; i++) {
-            const entityID = Entity.GENERATE_ID();
-            const shapeComp = new ShapeComponent(entityID, p2.Shape.BOX, {
-                width: widthArray[i],
-                height: 20
-            }, [0,0], [0,0], 0, groups.GROUND, masks.GROUND, GameScene.OBSTACLE_MATERIAL)
-            const phyComp = new PhysicsComponent(entityID,  {
-                mass: 0, 
-                position: positionArray[i],
-            }, [shapeComp]);
-            const renComp = new RenderComponent(entityID, 'white', 'blue', GameScene.GROUND_LAYER);
-            const componentsDict = {};
-            componentsDict[ShapeComponent] = shapeComp;
-            componentsDict[RenderComponent] = renComp;
-            componentsDict[PhysicsComponent] = phyComp;
+        this.weaponCrate = componentsDict;
+        this.repositionWeaponCrate();
+        this.addEntity(entityID, componentsDict);
 
-            this.platformIDs.push(entityID);
-    
-            this.addEntity(entityID, componentsDict);
-        }
+    }
 
+    repositionWeaponCrate() {
+
+        const platform = this.entities[this.platformIDs[Math.floor(Math.random() * this.platformIDs.length)]];
+        const platformBody = platform[PhysicsComponent].body;
+        const w = platformBody.shapes[0].width;
+        this.weaponCrate[PhysicsComponent].body.position = [platformBody.position[0] + (-w/2 + Math.random() * w) * 0.75,
+                                                            platformBody.position[1] - 75];
+
+    }
+
+    pickupWeaponCrate() {
+
+        console.log(++this.score);
+        this.equipNextWeapon();
+        this.repositionWeaponCrate();
+        
     }
 
     createPlayer() {
@@ -309,8 +311,8 @@ class GameScene extends Scene {
         this.playerID = entityID;
 
         const shapeComp = new ShapeComponent(entityID, p2.Shape.BOX, {width: 30, height: 30}, [0,0], [0,0], 0, 
-            groups.PLAYER, masks.PLAYER, GameScene.CHARACTER_MATERIAL)
-            const phyComp = new PhysicsComponent(entityID, {
+            groups.PLAYER, masks.PLAYER, g.ENEMY | g.PICKUP, GameScene.CHARACTER_MATERIAL)
+        const phyComp = new PhysicsComponent(entityID, {
             mass: 100, 
             position: [canvas.width/2, canvas.height/2],
             fixedRotation: true,
@@ -318,6 +320,7 @@ class GameScene extends Scene {
         }, [shapeComp]);
         const healthComp = new HealthComponent(entityID, 1, Callbacks.DELETE_ENTITY);
         const jumpComp = new JumpComponent(entityID, [60, 60, 60]);
+        const contactComp = new ContactDamageComponent(entityID, 1, Infinity, undefined, groups.PICKUP);
 
         const renComp = new RenderComponent(entityID, 'blue', 'blue', GameScene.PLAYER_LAYER);
         
@@ -325,9 +328,9 @@ class GameScene extends Scene {
 
             let dx = 0, dy = 0;
             if (InputManager.fromChar('a').down) {
-                dx = -25;
+                dx = -35;
             } else if (InputManager.fromChar('d').down) {
-                dx = 25;
+                dx = 35;
             }
 
             phyComp.body.velocity[0] = dx;
@@ -341,6 +344,7 @@ class GameScene extends Scene {
         let componentsDict = {};
         componentsDict[RenderComponent] = renComp;
         componentsDict[ShapeComponent] = shapeComp;
+        componentsDict[ContactDamageComponent] = contactComp;
         componentsDict[PhysicsComponent] = phyComp;
         componentsDict[JumpComponent] = jumpComp;
         componentsDict[HealthComponent] = healthComp;
@@ -356,32 +360,6 @@ class GameScene extends Scene {
         InputManager.addListener('keydown', jumpListener);
         this.addDeletionCallback(this.playerID, () => {
             InputManager.removeListener('keydown', jumpListener);
-        })
-
-        // create guns
-        this.weapons = [
-            WeaponFactory.createPistol(Entity.GENERATE_ID(), this.playerID),
-            WeaponFactory.createMachineGun(Entity.GENERATE_ID(), this.playerID),
-            WeaponFactory.createMinigun(Entity.GENERATE_ID(), this.playerID)  
-        ];
-
-        // equip gun
-        this.nextWeapon = this.weapons[Math.floor(Math.random() * this.weapons.length)];
-        this.equipNextWeapon();
-
-        const fireListener = (mouse, event) => {
-            this.addEvent(new TransmittedEvent(null, this.currWeapon[WeaponComponent].entityID, ProjectileWeaponSystem, ProjectileWeaponSystem.FIRE_WEAPON_EVENT, {}));
-        }
-        InputManager.addListener('mousedown', fireListener);
-        InputManager.addListener('mouseup', (mouse, event) => {
-            if (!this.currWeapon[WeaponComponent].semiAuto) {
-                fireListener(mouse, event);
-            }
-        });
-        const gunID = entityID;
-        this.addDeletionCallback(gunID, (id, scene) => {
-            InputManager.removeListener('mousedown', fireListener);
-            InputManager.removeListener('mouseup', fireListener);
         });
         
     }
@@ -389,8 +367,8 @@ class GameScene extends Scene {
     equipNextWeapon() {
 
         if (this.currWeapon) {
-            this.deleteEntity[this.currWeapon[WeaponComponent.entityID]];
-            this.currWeapon[LoopCallbackComponent] = undefined;
+            const currID = this.currWeapon[WeaponComponent].entityID;
+            this.addEvent(new TransmittedEvent(null, currID, null, Scene.DELETE_ENTITY_EVENT, {}));
         }
 
         this.currWeapon = this.nextWeapon;
@@ -401,10 +379,12 @@ class GameScene extends Scene {
             const vec = [mousePos[0] - gunPos[0], mousePos[1] - gunPos[1]];
             this.currWeapon[TransformComponent].angle = Math.atan2(vec[1], vec[0]);
         })];
+        this.currWeapon[TrackingComponent].trackingID = this.playerID;
         
-        this.addEntity(entityID, this.currWeapon);
-        this.nextWeapon = this.weapons[Math.floor(Math.random() * this.weapons.length)];
+        this.addEvent(new TransmittedEvent(null, entityID, null, Scene.ADD_ENTITY_EVENT, {components: this.currWeapon}));
         
+        const diffWeapons = this.weapons.filter((wep) => wep != this.currWeapon);
+        this.nextWeapon = diffWeapons[Math.floor(Math.random() * diffWeapons.length)];
 
     }
 

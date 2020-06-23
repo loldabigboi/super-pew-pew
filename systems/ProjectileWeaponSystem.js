@@ -3,7 +3,6 @@ class ProjectileWeaponSystem extends System {
     constructor() {
         super([TransformComponent, WeaponComponent, ProjectileWeaponComponent]);
         this.fireRequests = [];  // requests to fire a weapon
-        this.isFiring = {};  // stores whether the given weapon entity is currently firing or not
     }
 
     /**
@@ -12,18 +11,13 @@ class ProjectileWeaponSystem extends System {
      */
     receiveEvent(event) {
         if (event.type === ProjectileWeaponSystem.FIRE_WEAPON_EVENT) {
-            this.isFiring[event.recipientID] = !this.isFiring[event.recipientID];
+            this.fireRequests.push(event);
         }   
-    }
-
-    addEntity(id, components) {
-        super.addEntity(id, components);
-        this.isFiring[id] = false;
     }
 
     deleteEntity(id) {
         super.deleteEntity(id);
-        this.isFiring[id] = undefined;
+        this.fireRequests = this.fireRequests.filter(req => req.recipientID != id);
     }
 
     update(dt, entities) {
@@ -31,11 +25,10 @@ class ProjectileWeaponSystem extends System {
         const entityEvents = [];
 
         const now = Date.now();
-        for (const entityID of Object.keys(this.entities)) {
+        while (this.fireRequests.length > 0) {
 
-            if (!this.isFiring[entityID]) {
-                continue;
-            }
+            const evt = this.fireRequests.shift();
+            const entityID = evt.recipientID;
 
             let c = this.entities[entityID];
             let transC = c[TransformComponent];
@@ -71,13 +64,14 @@ class ProjectileWeaponSystem extends System {
                                 transC.position[1] + newRelStartingPos[1] ];
             }
 
-            
+            const groups = ShapeComponent.GROUPS,
+                  masks = ShapeComponent.MASKS;
 
             for (let i = 0; i < weapC.attCount; i++) {
                 const componentsDict = {};
                 const entityID = Entity.GENERATE_ID();
 
-                const vel = [projWeapC.pSpeed, 0];
+                const vel = [projWeapC.pSpeed - projWeapC.pSpeedVariance/2 + projWeapC.pSpeedVariance*Math.random(), 0];
                 const newAngle = transC.angle + Math.random() * projWeapC.angleVariance - projWeapC.angleVariance/2;
                 const newVel = [];
                 newVel[0] = Math.cos(newAngle)*vel[0] - Math.sin(newAngle)*vel[1];
@@ -99,7 +93,7 @@ class ProjectileWeaponSystem extends System {
                     throw new Error("Only BulletWeaponComponent is currently supported for projectile weapons");
                 }
                 const projShapeC = new ShapeComponent(entityID, p2.Shape.CIRCLE, shapeObj, [0, 0], [0, 0], 0, 
-                                                      ShapeComponent.GROUPS.PROJ, ShapeComponent.MASKS.PROJ, projWeapC.pMaterial);
+                                                      ShapeComponent.GROUPS.PROJ, ShapeComponent.MASKS.PROJ, groups.ENEMY, projWeapC.pMaterial);
                 componentsDict[ShapeComponent] = projShapeC;
                 componentsDict[PhysicsComponent] =  new PhysicsComponent(entityID, bodyObj, [projShapeC]);
                 componentsDict[LifetimeComponent] = new LifetimeComponent(entityID, projWeapC.pLifetime, Callbacks.DELETE_ENTITY);
@@ -108,15 +102,10 @@ class ProjectileWeaponSystem extends System {
                 componentsDict[HealthComponent] = new HealthComponent(entityID, projWeapC.pPenetrationDepth, Callbacks.DELETE_ENTITY);
                 componentsDict[RenderComponent] = new RenderComponent(entityID, 'black', 'black');
 
-                entityEvents.push(new TransmittedEvent(entityID, null, null, Scene.ADD_ENTITY_EVENT, {
-                    id: entityID,
+                entityEvents.push(new TransmittedEvent(null, entityID, null, Scene.ADD_ENTITY_EVENT, {
                     components: componentsDict
                 }));
 
-            }
-
-            if (weapC.semiAuto) {  // semi automatic weapons must request every time they wish to fire
-                this.isFiring[entityID] = false;
             }
 
         }

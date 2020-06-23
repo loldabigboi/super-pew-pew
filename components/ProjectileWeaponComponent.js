@@ -1,10 +1,11 @@
 class ProjectileWeaponComponent extends Component {
 
-    constructor(entityID, angleVariance, pSpeed, pMaxBounces, pPenetrationDepth, pLifetime, pGravityScale, pDamping, pMaterial) {
+    constructor(entityID, angleVariance, pSpeed, pSpeedVariance, pMaxBounces, pPenetrationDepth, pLifetime, pGravityScale, pDamping, pMaterial) {
         super(entityID);
 
         this.angleVariance = angleVariance;
         this.pSpeed = pSpeed;
+        this.pSpeedVariance = pSpeedVariance;
         this.pMaxBounces = pMaxBounces;
         this.pPenetrationDepth = pPenetrationDepth;  // max number of enemies that this projectile can pass through
         this.pLifetime = pLifetime;

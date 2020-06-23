@@ -10,10 +10,8 @@ class InputManager {
         prevY: 0,
 
         down: false,
-        clicked: false,
         lastDown: 0,
         lastUp: 0,
-        lastClicked: 0
 
     }
 
@@ -161,8 +159,7 @@ canvas.addEventListener('mouseup', (e) => {
 
 canvas.addEventListener('click', (e) => {
     const now = Date.now();
-    InputManager.mouse.down = true;
-    InputManager.mouse.lastDown = now;
     
+    InputManager.mouse.lastClicked = now;
     InputManager.listeners.click.forEach((listener) => listener(InputManager.mouse, e));
 });

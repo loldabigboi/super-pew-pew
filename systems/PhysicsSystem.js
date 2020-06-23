@@ -9,6 +9,24 @@ class PhysicsSystem extends System {
             gravity: [0, 9.82]
         });
 
+        this.world.on('preSolve', (evt) => {
+
+            const newEqs = [];
+            for (const eq of this.world.narrowphase.contactEquations) {
+                
+                if (eq.shapeA.skipResolveMask && eq.shapeA.skipResolveMask & eq.shapeB.collisionGroup) {
+                    continue;
+                } else if (eq.shapeB.skipResolveMask && eq.shapeB.skipResolveMask & eq.shapeA.collisionGroup) {
+                    continue;
+                } else {
+                    newEqs.push(eq);
+                }
+
+            }
+            this.world.narrowphase.contactEquations = newEqs;
+
+        });
+
     }
 
     receiveEvent(event) {

@@ -1,6 +1,6 @@
 class ShapeComponent extends Component {
 
-    constructor(entityID, type, options, absOffset, propOffset, angle, collisionGroup, collisionMask, material, body) {
+    constructor(entityID, type, options, absOffset, propOffset, angle, collisionGroup, collisionMask, skipResolveMask, material, body) {
 
         super(entityID);
         this.type = type;
@@ -35,6 +35,10 @@ class ShapeComponent extends Component {
         this.shape.collisionGroup = collisionGroup;
         this.shape.collisionMask = collisionMask;
 
+        // used to still generate contact events between entities, but have the collision not be resolved
+        // (i.e. they dont physically affect each other)
+        this.shape.skipResolveMask = skipResolveMask;
+
         if (body) {
             this.body = body;
             body.addShape(this.shape, absOffset, angle);
@@ -66,8 +70,8 @@ ShapeComponent.GROUPS = {
 const g = ShapeComponent.GROUPS;
 ShapeComponent.MASKS = {
     PLAYER: g.ENEMY | g.GROUND | g.TELE | g.PICKUP,
-    GROUND: g.PLAYER | g.ENEMY  | g.PROJ,
+    GROUND: g.PLAYER | g.ENEMY  | g.PROJ | g.PICKUP,
     ENEMY:  g.PLAYER | g.PROJ | g.GROUND | g.TELE,
     PROJ:   g.ENEMY | g.GROUND | g.TELE,
-    PICKUP: g.PLAYER
+    PICKUP: g.PLAYER | g.GROUND
 }
