@@ -20,8 +20,8 @@ class Scene {
         // stores all entities that will be deleted during next event queue processing
         this.deletionQueue = [];  
 
-        // callbacks for when an entity is deleted
-        this.deletionCallbacks = {};
+        // callbacks for different stages in an entity's life ('preDeletion' / 'postDeletion')
+        this.entityCallbacks = {};
 
     }
 
@@ -44,7 +44,7 @@ class Scene {
             id = id.id;
         }
         this.entities[id] = components;
-        this.deletionCallbacks[id] = [];
+        this.entityCallbacks[id] = {};
         for (const system of Object.values(this.systemsDict)) {
             system.addEntity(id, components);
         }
@@ -56,19 +56,39 @@ class Scene {
             return;  // duplicate deletion calls can sometimes happen
         }
 
+        const c = this.entities[id];
+
+        if (this.entityCallbacks[id]['preDeletion']) {
+            this.entityCallbacks[id]['preDeletion'].forEach((callback) => callback({
+                id: id,
+                scene: scene,
+                components: c
+            }));
+        }
+        
+
         for (const system of Object.values(this.systemsDict)) {
             system.deleteEntity(id, this);
         }
-        this.deletionCallbacks[id].forEach((fn) => {
-            fn(id, this);
-        });
-        this.deletionCallbacks[id] = undefined;
         delete this.entities[id];
+
+        if (this.entityCallbacks[id]['postDeletion']) {
+            this.entityCallbacks[id]['postDeletion'].forEach((callback) => callback({
+                id: id,
+                scene: this,
+                components: c
+            }));
+        }
+        this.entityCallbacks[id] = undefined;
 
     }
 
-    addDeletionCallback(id, callback) {
-        this.deletionCallbacks[id].push(callback);
+    addEntityCallback(id, type, callback) {
+        if (!this.entities[id]) {
+            return false;
+        }
+        this.entityCallbacks[id][type] = this.entityCallbacks[id][type] || [];
+        this.entityCallbacks[id][type].push(callback);
     }
 
     addEvent(event) {
@@ -83,7 +103,7 @@ class Scene {
         this.eventQueue.push(event);
     }
 
-    update(dt) {
+    updateSystems(dt) {
 
         for (const p of Object.keys(this.priorityDict).sort()) {
             const systems = this.priorityDict[p];
@@ -96,6 +116,10 @@ class Scene {
                 }
             }
         }
+
+    }
+
+    processEvents(dt) {
 
         while (this.eventQueue.length > 0) {
             const event = this.eventQueue.shift();  // treat like a queue
@@ -114,6 +138,13 @@ class Scene {
         //     const id = this.deletionQueue.shift();  // treat like a queue
         //     this.deleteEntity(id);
         // }
+
+    }
+
+    update(dt) {
+
+        this.updateSystems(dt);
+        this.processEvents(dt);
 
     }
         

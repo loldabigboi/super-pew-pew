@@ -4,8 +4,8 @@ class GameScene extends Scene {
 
         super();
 
-        const physicsSystem = new PhysicsSystem();
         const loopSystem = new LoopCallbackSystem();
+        const physicsSystem = new PhysicsSystem();
         const enemyAISystem = new BasicEnemyAISystem(physicsSystem.world);
         const teleportSystem = new TeleporterSystem(physicsSystem.world);
         const jumpSystem = new JumpSystem(physicsSystem.world);
@@ -17,18 +17,18 @@ class GameScene extends Scene {
         const trackingSystem = new TrackingSystem();
         const renderSystem = new RenderSystem();
 
-        this.addSystem(loopSystem, 0);
         this.addSystem(physicsSystem, 1);
         this.addSystem(enemyAISystem, 1);
         this.addSystem(trackingSystem, 2);
+        this.addSystem(projectileWeaponSystem, 2);
         this.addSystem(projectileSystem, 2);
         this.addSystem(jumpSystem, 2);
         this.addSystem(teleportSystem, 2);
         this.addSystem(lifetimeSystem, 2);
         this.addSystem(contactSystem, 2);
-        this.addSystem(projectileWeaponSystem, 2);
         this.addSystem(renderSystem, 3);
         this.addSystem(fatalSystem, 4);
+        this.addSystem(loopSystem, 5);
 
         physicsSystem.world.addContactMaterial(new p2.ContactMaterial(ProjectileWeaponComponent.LOSSLESS_BOUNCE_MATERIAL, GameScene.OBSTACLE_MATERIAL, {
             restitution : 1.0,
@@ -41,9 +41,9 @@ class GameScene extends Scene {
             stiffness : Number.MAX_VALUE // We need infinite stiffness to get exact restitution
         }));
         physicsSystem.world.addContactMaterial(new p2.ContactMaterial(GameScene.CHARACTER_MATERIAL, GameScene.OBSTACLE_MATERIAL, {
-            restitution : 0,
-            friction: 0,
-            relaxation: 10,  //  get rid of residual bouncing effect
+            restitution : 0.05,
+            friction: 0.5,
+            relaxation: 8,  //  get rid of residual bouncing effect
         }));
         physicsSystem.world.addContactMaterial(new p2.ContactMaterial(GameScene.CHARACTER_MATERIAL, GameScene.CHARACTER_MATERIAL, {
             restitution : 0,
@@ -70,7 +70,7 @@ class GameScene extends Scene {
         ];
 
         // equip gun
-        this.nextWeapon = this.weapons[Math.floor(Math.random() * this.weapons.length)];
+        this.nextWeapon = this.weapons[2];//[Math.floor(Math.random() * this.weapons.length)];
         this.equipNextWeapon();
 
         InputManager.addListener('keydown', (key, evt) => {
@@ -85,6 +85,9 @@ class GameScene extends Scene {
                 ProjectileWeaponSystem.FIRE_WEAPON_EVENT, {}));
         })
 
+        this.playerMoving = false;
+        this.firing = false;
+
         this.lastSpawn = 0;
         this.spawnDir = 1;
         this.currSpawnDelay = 0;
@@ -97,43 +100,51 @@ class GameScene extends Scene {
         return GameScene.SpawnRotations[Math.floor(Math.random()*GameScene.SpawnRotations.length)]
     }
 
+    spawnEnemies(now) {
+
+        this.lastSpawn = now;
+
+        const type = this.currentSpawnRotation.spawnTypes[this.spawnI];
+        this.currSpawnDelay = this.currentSpawnRotation.spawnDelays[this.spawnI];
+
+        const entityID = Entity.GENERATE_ID();
+        let c;
+        if (type == GameScene.EnemyTypes.REGULAR) {
+            c = BasicEnemyFactory.createEnemy(entityID, [canvas.width/2, 0], 30*this.spawnDir, 40, 3, 1);
+        } else if (type == GameScene.EnemyTypes.BIG) {
+            c = BasicEnemyFactory.createEnemy(entityID, [canvas.width/2, 0], 30*this.spawnDir, 60, 12, 3);
+            c[RenderComponent].strokeColor = 'rgb(200,0,0)';
+            c[RenderComponent].fillColor = 'rgb(200,0,0)';
+        } else {
+            throw new Error();
+        }
+
+        this.addEntity(entityID, c); 
+
+        this.spawnI++;
+
+        if (this.spawnI >= this.currentSpawnRotation.spawnTypes.length) {
+            this.spawnDir = Math.random < 0.5 ? -1 : 1;
+            this.spawnI = 0;
+            this.currentSpawnRotation = this.getSpawnRotation();
+        }
+
+    }
+
     update(dt) {
 
+        this.firing = false;
         if (!this.currWeapon[WeaponComponent].semiAuto && InputManager.mouse.down) {
+            this.firing = true;
             this.addEvent(new TransmittedEvent(null, this.currWeapon[WeaponComponent].entityID, ProjectileWeaponSystem,
                 ProjectileWeaponSystem.FIRE_WEAPON_EVENT, {}));
         }
 
         const now = Date.now();
         if (now - this.lastSpawn > this.currSpawnDelay) {
-            this.lastSpawn = now;
-
-            const type = this.currentSpawnRotation.spawnTypes[this.spawnI];
-            this.currSpawnDelay = this.currentSpawnRotation.spawnDelays[this.spawnI];
-
-            const entityID = Entity.GENERATE_ID();
-            let c;
-            if (type == GameScene.EnemyTypes.REGULAR) {
-                c = BasicEnemyFactory.createEnemy(entityID, [canvas.width/2, 0], 30*this.spawnDir, 40, 3, 1);
-            } else if (type == GameScene.EnemyTypes.BIG) {
-                c = BasicEnemyFactory.createEnemy(entityID, [canvas.width/2, 0], 30*this.spawnDir, 60, 12, 3);
-                c[RenderComponent].strokeColor = 'rgb(200,0,0)';
-                c[RenderComponent].fillColor = 'rgb(200,0,0)';
-            } else {
-                throw new Error();
-            }
-
-            this.addEntity(entityID, c); 
-
-            this.spawnI++;
-
-            if (this.spawnI >= this.currentSpawnRotation.spawnTypes.length) {
-                this.spawnDir = Math.random < 0.5 ? -1 : 1;
-                this.spawnI = 0;
-                this.currentSpawnRotation = this.getSpawnRotation();
-            }
-
+            this.spawnEnemies(now);
         }
+        
         super.update(dt);
 
     }
@@ -290,14 +301,14 @@ class GameScene extends Scene {
             gravityScale: 2
         }, [shapeComp]);
         const healthComp = new HealthComponent(entityID, 1, Callbacks.DELETE_ENTITY);
-        const jumpComp = new JumpComponent(entityID, [60, 60, 60]);
+        const jumpComp = new JumpComponent(entityID, [6000, 6000, 6000]);
         const contactComp = new ContactDamageComponent(entityID, 1, Infinity, undefined, groups.PICKUP);
 
         const renComp = new RenderComponent(entityID, 'blue', 'blue', GameScene.PLAYER_LAYER);
         
-        let callbackComponent = new LoopCallbackComponent(entityID, ((phyComp) => (componentsDict, dt) => {
+        let callbackComponent = new LoopCallbackComponent(entityID, (componentsDict, dt) => {
 
-            let dx = 0, dy = 0;
+            let dx = 0;
             if (InputManager.fromChar('a').down) {
                 dx = -35;
             } else if (InputManager.fromChar('d').down) {
@@ -305,12 +316,15 @@ class GameScene extends Scene {
             }
 
             phyComp.body.velocity[0] = dx;
+            // if (!this.firing && this.playerMoving) {
+            //     phyComp.body.velocity[0] = dx;
+            // } else if (dx) {
+            //     phyComp.body.applyImpulse([dx*5, 0]);
+            // }
 
-            if (dy) {
-                phyComp.body.velocity[1] = dy;
-            }
+            this.playerMoving = dx != 0;
 
-        })(phyComp));
+        });
         
         let componentsDict = {};
         componentsDict[RenderComponent] = renComp;
@@ -329,7 +343,7 @@ class GameScene extends Scene {
             }
         };
         InputManager.addListener('keydown', jumpListener);
-        this.addDeletionCallback(this.playerID, () => {
+        this.addEntityCallback(this.playerID, 'postDeletion', () => {
             InputManager.removeListener('keydown', jumpListener);
         });
         
@@ -351,6 +365,16 @@ class GameScene extends Scene {
             this.currWeapon[TransformComponent].angle = Math.atan2(vec[1], vec[0]);
         })];
         this.currWeapon[TrackingComponent].trackingID = this.playerID;
+        this.currWeapon[WeaponComponent].onUse = (obj) => {
+            this.firing = true;
+            const c = obj.components;
+            const playerC = this.entities[this.playerID];
+
+            let kickbackVel = [];
+            p2.vec2.rotate(kickbackVel, [-c[ProjectileWeaponComponent].kickback, 0], c[TransformComponent].angle);
+            
+            playerC[PhysicsComponent].body.applyImpulse(kickbackVel);
+        }
         
         this.addEvent(new TransmittedEvent(null, entityID, null, Scene.ADD_ENTITY_EVENT, {components: this.currWeapon}));
         

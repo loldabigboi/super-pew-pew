@@ -93,6 +93,7 @@ class RenderSystem extends System {
                 }
     
                 ctx.save();
+                ctx.globalAlpha = renderC.opacity;
                 ctx.translate(x, y);
                 ctx.rotate(shapeC.angle);
     

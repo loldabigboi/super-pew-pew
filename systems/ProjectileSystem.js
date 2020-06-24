@@ -27,7 +27,7 @@ class ProjectileSystem extends System {
     }
 
     update(dt, entities, scene) {
-        
+
         for (const entityID of Object.keys(this.entities)) {
 
             const c = this.entities[entityID];

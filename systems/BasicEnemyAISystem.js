@@ -25,7 +25,7 @@ class BasicEnemyAISystem extends System {
                     this.wasColliding[enemyBody.id] = true;
                     // reset speed to initial speed but reverse direction
                     const c = this.entities[enemyBody.id];
-                    enemyBody.velocity[0] = -this.lastVel[enemyBody.id];
+                    enemyBody.velocity[0] = -Math.sign(this.lastVel[enemyBody.id])*this.entities[enemyBody.id][BasicEnemyAIComponent].speed;
                 }
 
             }
@@ -51,8 +51,16 @@ class BasicEnemyAISystem extends System {
     update(dt, entities) {
 
         for (const id of Object.keys(this.entities)) {
+
+            const body = this.entities[id][PhysicsComponent].body;
+            const spd = this.entities[id][BasicEnemyAIComponent].speed;
+            if (Math.abs(body.velocity[0]) != spd) {  // counteract friction
+                body.velocity[0] = Math.sign(body.velocity[0]) * spd;
+            }
+
             this.lastVel[id] = this.entities[id][PhysicsComponent].body.velocity[0];
             this.wasColliding[id] = false;
+
         }
 
     }

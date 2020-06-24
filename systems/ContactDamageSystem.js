@@ -24,6 +24,11 @@ class ContactDamageSystem extends System {
         });
     }
 
+    deleteEntity(id) {
+        super.deleteEntity(id);
+        this.collisions = this.collisions.filter((c) => c.damageID != id && c.otherID != id);
+    }
+
     update(dt, entities, scene) {
 
         const prevDamaged = {}
@@ -97,13 +102,15 @@ class ContactDamageSystem extends System {
                 healthC.onHit({
                     id: otherID, 
                     otherID: damageID, 
-                    scene: scene
+                    scene: scene,
+                    components: otherC
                 });
                 if (healthC.currHealth <= 0) {
                     healthC.onDeath({
                         id: otherID, 
                         otherID: damageID,
-                        scene: scene
+                        scene: scene,
+                        components: otherC
                     });
                 }
             }

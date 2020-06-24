@@ -9,7 +9,7 @@ class WeaponFactory {
         c[TrackingComponent] = new TrackingComponent(entityID, trackID, ShapeComponent.CENTER, [0, 3], 1);
         c[FatalDependencyComponent] = new FatalDependencyComponent(entityID, trackID);
         c[WeaponComponent] = new WeaponComponent(entityID, 1, 75, true, 1);
-        c[ProjectileWeaponComponent] = new ProjectileWeaponComponent(entityID, 0.05, 125, 0, 1, 1, 3000, 0, 0, p2.Shape.CIRCLE, {radius: 6}, ProjectileWeaponComponent.LOSSLESS_BOUNCE_MATERIAL);
+        c[ProjectileWeaponComponent] = new ProjectileWeaponComponent(entityID, 0.05, 0, 125, 0, 1, 1, 3000, 0, 0, p2.Shape.CIRCLE, {radius: 6}, ProjectileWeaponComponent.LOSSLESS_BOUNCE_MATERIAL);
 
         return c;
             
@@ -24,7 +24,7 @@ class WeaponFactory {
         c[TrackingComponent] = new TrackingComponent(entityID, trackID, ShapeComponent.CENTER, [0, 3], 1);
         c[FatalDependencyComponent] = new FatalDependencyComponent(entityID, trackID);
         c[WeaponComponent] = new WeaponComponent(entityID, 1, 50, false, 1);
-        c[ProjectileWeaponComponent] = new ProjectileWeaponComponent(entityID, 0.1, 125, 0, 1, 1, 2500, 0, 0, p2.Shape.CIRCLE, {radius: 6}, ProjectileWeaponComponent.LOSSLESS_BOUNCE_MATERIAL);
+        c[ProjectileWeaponComponent] = new ProjectileWeaponComponent(entityID, 0.1, 0, 125, 0, 1, 1, 2500, 0, 0, p2.Shape.CIRCLE, {radius: 6}, ProjectileWeaponComponent.LOSSLESS_BOUNCE_MATERIAL);
 
         return c;
 
@@ -38,8 +38,8 @@ class WeaponFactory {
         c[TransformComponent] = new TransformComponent(entityID, [0, 0], 0);
         c[TrackingComponent] = new TrackingComponent(entityID, trackID, ShapeComponent.CENTER, [0, 3], 1);
         c[FatalDependencyComponent] = new FatalDependencyComponent(entityID, trackID);
-        c[WeaponComponent] = new WeaponComponent(entityID, 15, 600, true, 1);
-        c[ProjectileWeaponComponent] = new ProjectileWeaponComponent(entityID, 0.5, 125, 100, 1, 1, 200, 0, 0.3, p2.Shape.CIRCLE, {radius: 6}, ProjectileWeaponComponent.LOSSLESS_BOUNCE_MATERIAL);
+        c[WeaponComponent] = new WeaponComponent(entityID, 8, 600, true, 1);
+        c[ProjectileWeaponComponent] = new ProjectileWeaponComponent(entityID, 0.5, 5, 125, 100, 1, 1, 200, 0, 0.3, p2.Shape.CIRCLE, {radius: 6}, ProjectileWeaponComponent.LOSSLESS_BOUNCE_MATERIAL);
 
         return c;
 
@@ -54,7 +54,7 @@ class WeaponFactory {
         c[TrackingComponent] = new TrackingComponent(entityID, trackID, ShapeComponent.CENTER, [0, 3], 1);
         c[FatalDependencyComponent] = new FatalDependencyComponent(entityID, trackID);
         c[WeaponComponent] = new WeaponComponent(entityID, 1, 15, false, 1);
-        c[ProjectileWeaponComponent] = new ProjectileWeaponComponent(entityID, 0.7, 150, 0, 1, 1, 1750, 0, 0, p2.Shape.CIRCLE, {radius: 6}, ProjectileWeaponComponent.LOSSLESS_BOUNCE_MATERIAL);
+        c[ProjectileWeaponComponent] = new ProjectileWeaponComponent(entityID, 0.7, 200, 150, 0, 1, 1, 1750, 0, 0, p2.Shape.CIRCLE, {radius: 6}, ProjectileWeaponComponent.LOSSLESS_BOUNCE_MATERIAL);
 
         return c;
 
@@ -83,7 +83,7 @@ class WeaponFactory {
         c[TrackingComponent] = new TrackingComponent(entityID, trackID, ShapeComponent.CENTER, [0, -8], 1);
         c[FatalDependencyComponent] = new FatalDependencyComponent(entityID, trackID);
         c[WeaponComponent] = new WeaponComponent(entityID, 1, 1200, true, 1);
-        c[ProjectileWeaponComponent] = new ProjectileWeaponComponent(entityID, 0, 80, 0, 1, 1, 4000, 0, -0.25, p2.Shape.CIRCLE, {radius: 8}, ProjectileWeaponComponent.LOSSLESS_BOUNCE_MATERIAL, {
+        c[ProjectileWeaponComponent] = new ProjectileWeaponComponent(entityID, 0, 0, 80, 0, 1, 1, 4000, 0, -0.25, p2.Shape.CIRCLE, {radius: 8}, ProjectileWeaponComponent.LOSSLESS_BOUNCE_MATERIAL, {
             onDeath: (obj) => {
                 const c = obj.scene.entities[obj.id];
                 const position = c[PhysicsComponent].body.position;
@@ -109,7 +109,7 @@ class WeaponFactory {
         c[TrackingComponent] = new TrackingComponent(entityID, trackID, ShapeComponent.CENTER, [0, 5], 1);
         c[FatalDependencyComponent] = new FatalDependencyComponent(entityID, trackID);
         c[WeaponComponent] = new WeaponComponent(entityID, 1, 1000, true, 1);
-        c[ProjectileWeaponComponent] = new ProjectileWeaponComponent(entityID, 0, 100, 0, 4, 1, 2500, 1.5, 0, p2.Shape.CIRCLE, {radius: 8}, ProjectileWeaponComponent.LOSS_BOUNCE_MATERIAL, {
+        c[ProjectileWeaponComponent] = new ProjectileWeaponComponent(entityID, 0, 0, 100, 0, 4, 1, 2500, 1.5, 0, p2.Shape.CIRCLE, {radius: 8}, ProjectileWeaponComponent.LOSS_BOUNCE_MATERIAL, {
             onDeath: (obj) => {
                 const c = obj.scene.entities[obj.id];
                 const position = c[PhysicsComponent].body.position;
@@ -123,7 +123,6 @@ class WeaponFactory {
             }
         });
         return c;
-
 
     }
 

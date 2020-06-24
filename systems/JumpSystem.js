@@ -54,7 +54,8 @@ class JumpSystem extends System {
 
             if (jumpC.canJump) {
 
-                physC.body.velocity[1] = -jumpC.strengthArray[jumpC.jumpI];
+                physC.body.velocity[1] = 0;
+                physC.body.applyImpulse([0, -jumpC.strengthArray[jumpC.jumpI]]);
                 jumpC.jumpI++;
                 jumpC.canJump = jumpC.jumpI < jumpC.strengthArray.length;
 

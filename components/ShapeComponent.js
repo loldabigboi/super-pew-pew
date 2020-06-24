@@ -4,6 +4,7 @@ class ShapeComponent extends Component {
 
         super(entityID);
         this.type = type;
+        this.options = options;
         this.absOffset = absOffset;  // offset relative to body
         this.propOffset = propOffset;
         switch (type) {

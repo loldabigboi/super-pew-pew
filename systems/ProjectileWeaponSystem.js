@@ -20,7 +20,7 @@ class ProjectileWeaponSystem extends System {
         this.fireRequests = this.fireRequests.filter(req => req.recipientID != id);
     }
 
-    update(dt, entities) {
+    update(dt, entities, scene) {
 
         const entityEvents = [];
 
@@ -64,8 +64,25 @@ class ProjectileWeaponSystem extends System {
                                 transC.position[1] + newRelStartingPos[1] ];
             }
 
+            // const trackC = c[TrackingComponent];
+            // if (projWeapC.kickback != 0 && trackC) {
+            //     const trackedEntityC = entities[trackC.trackingID];
+            //     const trackedPhysC = trackedEntityC[PhysicsComponent];
+            //     if (trackedPhysC) {  // apply kickback force to tracked body
+            //         let dVel = []
+            //         p2.vec2.rotate(dVel, [-projWeapC.kickback, 0], transC.angle);
+            //         trackedPhysC.body.applyImpulse(dVel);
+            //     }
+            // }
+
             const groups = ShapeComponent.GROUPS,
                   masks = ShapeComponent.MASKS;
+
+            weapC.onUse({
+                id: entityID,
+                scene: scene,
+                components: c
+            });
 
             for (let i = 0; i < weapC.attCount; i++) {
                 const componentsDict = {};

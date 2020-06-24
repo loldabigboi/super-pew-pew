@@ -1,9 +1,10 @@
 class ProjectileWeaponComponent extends Component {
 
-    constructor(entityID, angleVariance, pSpeed, pSpeedVariance, pMaxBounces, pPenetrationDepth, pLifetime, pGravityScale, pDamping, pShapeType, pShapeObj, pMaterial, pCallbacks) {
+    constructor(entityID, angleVariance, kickback, pSpeed, pSpeedVariance, pMaxBounces, pPenetrationDepth, pLifetime, pGravityScale, pDamping, pShapeType, pShapeObj, pMaterial, pCallbacks) {
         super(entityID);
 
         this.angleVariance = angleVariance;
+        this.kickback = kickback;
         this.pSpeed = pSpeed;
         this.pSpeedVariance = pSpeedVariance;
         this.pMaxBounces = pMaxBounces;
