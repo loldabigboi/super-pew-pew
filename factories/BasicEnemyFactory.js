@@ -4,7 +4,7 @@ class BasicEnemyFactory {
 
         const g = ShapeComponent.GROUPS;
 
-        const renComp = new RenderComponent(entityID, 'red', 'red', GameScene.ENEMY_LAYER);
+        const renComp = new RenderComponent(entityID, 'red', 'black', 3, GameScene.ENEMY_LAYER);
         const  aiComp = new BasicEnemyAIComponent(entityID, speed);
         const shapeComp = new ShapeComponent(entityID, p2.Shape.BOX, {width: size, height: size}, [0,0], [0,0], 0, 
             ShapeComponent.GROUPS.ENEMY, ShapeComponent.MASKS.ENEMY, 0, GameScene.CHARACTER_MATERIAL);

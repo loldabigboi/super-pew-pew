@@ -36,7 +36,7 @@ class GameScene extends Scene {
             stiffness : Number.MAX_VALUE // We need infinite stiffness to get exact restitution
         }));
         physicsSystem.world.addContactMaterial(new p2.ContactMaterial(ProjectileWeaponComponent.LOSS_BOUNCE_MATERIAL, GameScene.OBSTACLE_MATERIAL, {
-            restitution : 0.8,
+            restitution : 0.6,
             friction: 0,
             stiffness : Number.MAX_VALUE // We need infinite stiffness to get exact restitution
         }));
@@ -70,7 +70,7 @@ class GameScene extends Scene {
         ];
 
         // equip gun
-        this.nextWeapon = this.weapons[2];//[Math.floor(Math.random() * this.weapons.length)];
+        this.nextWeapon = this.weapons[Math.floor(Math.random() * this.weapons.length)];
         this.equipNextWeapon();
 
         InputManager.addListener('keydown', (key, evt) => {
@@ -113,7 +113,7 @@ class GameScene extends Scene {
             c = BasicEnemyFactory.createEnemy(entityID, [canvas.width/2, 0], 30*this.spawnDir, 40, 3, 1);
         } else if (type == GameScene.EnemyTypes.BIG) {
             c = BasicEnemyFactory.createEnemy(entityID, [canvas.width/2, 0], 30*this.spawnDir, 60, 12, 3);
-            c[RenderComponent].strokeColor = 'rgb(200,0,0)';
+            c[RenderComponent].strokeColor = 'black';
             c[RenderComponent].fillColor = 'rgb(200,0,0)';
         } else {
             throw new Error();
@@ -226,11 +226,9 @@ class GameScene extends Scene {
             collisionResponse: false, 
             position: [canvas.width/2, canvas.height + 100],
         }, [shapeComp]);
-        const renComp = new RenderComponent(entityID, 'white', 'blue', GameScene.GROUND_LAYER);
         const teleComp = new TeleporterComponent(entityID, [canvas.width/2, 0]);
         const componentsDict = {};
         componentsDict[ShapeComponent] = shapeComp;
-        componentsDict[RenderComponent] = renComp;
         componentsDict[TeleporterComponent] = teleComp;
         componentsDict[PhysicsComponent] = phyComp;
 
@@ -253,7 +251,7 @@ class GameScene extends Scene {
             position: [0, 0],
             fixedRotation: true
         }, [shapeComp]);
-        const renComp = new RenderComponent(entityID, 'gold', 'gold', GameScene.WEAPON_LAYER);
+        const renComp = new RenderComponent(entityID, 'gold', 'gold', 1, GameScene.WEAPON_LAYER);
         const componentsDict = {};
         componentsDict[ShapeComponent] = shapeComp;
         componentsDict[HealthComponent] = new HealthComponent(entityID, 1, undefined, () => this.pickupWeaponCrate());
@@ -304,7 +302,7 @@ class GameScene extends Scene {
         const jumpComp = new JumpComponent(entityID, [6000, 6000, 6000]);
         const contactComp = new ContactDamageComponent(entityID, 1, Infinity, undefined, groups.PICKUP);
 
-        const renComp = new RenderComponent(entityID, 'blue', 'blue', GameScene.PLAYER_LAYER);
+        const renComp = new RenderComponent(entityID, 'blue', 'blue', 1, GameScene.PLAYER_LAYER);
         
         let callbackComponent = new LoopCallbackComponent(entityID, (componentsDict, dt) => {
 

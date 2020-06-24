@@ -56,9 +56,6 @@ class RenderSystem extends System {
                 const shapeC = c[ShapeComponent];
                 const shape = shapeC.shape;
     
-                ctx.strokeStyle = renderC.strokeColor;
-                ctx.fillStyle = renderC.fillColor;
-    
                 let x, y;
                 let xOffset, yOffset;
                 if (transformC) {
@@ -93,7 +90,13 @@ class RenderSystem extends System {
                 }
     
                 ctx.save();
+
                 ctx.globalAlpha = renderC.opacity;
+                ctx.lineWidth = renderC.strokeWidth;
+                
+                ctx.strokeStyle = renderC.strokeColor;
+                ctx.fillStyle = renderC.fillColor;
+
                 ctx.translate(x, y);
                 ctx.rotate(shapeC.angle);
     
@@ -106,19 +109,16 @@ class RenderSystem extends System {
                 ctx.translate(xOffset, yOffset);
                 
                 if (shapeC.type === p2.Shape.BOX) {
-    
                     ctx.beginPath();
                     ctx.rect(0, 0, shapeC.shape.width, shapeC.shape.height);
-                    ctx.fill();
-                    ctx.stroke();
-    
                 } else if (shapeC.type === p2.Shape.CIRCLE) {
-    
                     ctx.beginPath();
-                    ctx.arc(0, 0, shapeC.shape.radius, 0, 2*Math.PI, false);
-                    ctx.fill();
+                    ctx.arc(0, 0, shapeC.shape.radius, 0, 2*Math.PI, false);    
+                }
+
+                ctx.fill();
+                if (renderC.strokeColor) {
                     ctx.stroke();
-    
                 }
     
                 ctx.restore();

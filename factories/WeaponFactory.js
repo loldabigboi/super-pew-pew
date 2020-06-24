@@ -3,7 +3,7 @@ class WeaponFactory {
     static createPistol(entityID, trackID) {
 
         const c = {};
-        c[RenderComponent] = new RenderComponent(entityID, 'red', 'red', GameScene.WEAPON_LAYER);
+        c[RenderComponent] = new RenderComponent(entityID, 'red', 'red', 1, GameScene.WEAPON_LAYER);
         c[ShapeComponent] = new ShapeComponent(entityID, p2.Shape.BOX, {width: 20, height: 5}, [0, 0], ShapeComponent.CENTER_LEFT, 0);
         c[TransformComponent] = new TransformComponent(entityID, [0, 0], 0);
         c[TrackingComponent] = new TrackingComponent(entityID, trackID, ShapeComponent.CENTER, [0, 3], 1);
@@ -18,7 +18,7 @@ class WeaponFactory {
     static createMachineGun(entityID, trackID) {
 
         const c = {};
-        c[RenderComponent] = new RenderComponent(entityID, 'orange', 'orange', GameScene.WEAPON_LAYER);
+        c[RenderComponent] = new RenderComponent(entityID, 'orange', 'orange', 1, GameScene.WEAPON_LAYER);
         c[ShapeComponent] = new ShapeComponent(entityID, p2.Shape.BOX, {width: 25, height: 5}, [0, 0], ShapeComponent.CENTER_LEFT, 0);
         c[TransformComponent] = new TransformComponent(entityID, [0, 0], 0);
         c[TrackingComponent] = new TrackingComponent(entityID, trackID, ShapeComponent.CENTER, [0, 3], 1);
@@ -33,7 +33,7 @@ class WeaponFactory {
     static createShotgun(entityID, trackID) {
 
         const c = {};
-        c[RenderComponent] = new RenderComponent(entityID, 'green', 'green', GameScene.WEAPON_LAYER);
+        c[RenderComponent] = new RenderComponent(entityID, 'green', 'green', 1, GameScene.WEAPON_LAYER);
         c[ShapeComponent] = new ShapeComponent(entityID, p2.Shape.BOX, {width: 25, height: 8}, [0, 0], ShapeComponent.CENTER_LEFT, 0);
         c[TransformComponent] = new TransformComponent(entityID, [0, 0], 0);
         c[TrackingComponent] = new TrackingComponent(entityID, trackID, ShapeComponent.CENTER, [0, 3], 1);
@@ -48,7 +48,7 @@ class WeaponFactory {
     static createMinigun(entityID, trackID) {
 
         const c = {};
-        c[RenderComponent] = new RenderComponent(entityID, 'purple', 'purple', GameScene.WEAPON_LAYER);
+        c[RenderComponent] = new RenderComponent(entityID, 'purple', 'purple', 1, GameScene.WEAPON_LAYER);
         c[ShapeComponent] = new ShapeComponent(entityID, p2.Shape.BOX, {width: 30, height: 12}, [-6, 0], ShapeComponent.CENTER_LEFT, 0);
         c[TransformComponent] = new TransformComponent(entityID, [0, 0], 0);
         c[TrackingComponent] = new TrackingComponent(entityID, trackID, ShapeComponent.CENTER, [0, 3], 1);
@@ -63,12 +63,15 @@ class WeaponFactory {
     static createExplosion(entityID, position, size) {
 
         const c = {};
-        c[RenderComponent] = new RenderComponent(entityID, 'rgba(255,165,0,0.5)', 'rgba(255,165,0,0.5)', GameScene.WEAPON_LAYER);
+        c[RenderComponent] = new RenderComponent(entityID, 'rgba(255,165,0,0.75)', undefined, 1, GameScene.WEAPON_LAYER);
         c[ShapeComponent] = new ShapeComponent(entityID, p2.Shape.CIRCLE, {radius: size}, [0,0], [0,0], 0, ShapeComponent.GROUPS.PROJ,
             ShapeComponent.MASKS.PROJ, 0);
         c[ContactDamageComponent] = new ContactDamageComponent(entityID, 100, Infinity, undefined, -1);
         c[PhysicsComponent] = new PhysicsComponent(entityID, {position: position.slice(), collisionResponse: false, mass:0}, [c[ShapeComponent]]);
         c[LifetimeComponent] = new LifetimeComponent(entityID, 800);
+        c[LoopCallbackComponent] = [new LoopCallbackComponent(entityID, () => {
+            c[RenderComponent].opacity = Math.max(0, c[RenderComponent].opacity - 0.02);
+        })];
 
         return c;
     
@@ -77,7 +80,7 @@ class WeaponFactory {
     static createRocketLauncher(entityID, trackID) {
 
         const c = {};
-        c[RenderComponent] = new RenderComponent(entityID, 'cyan', 'cyan', GameScene.WEAPON_LAYER);
+        c[RenderComponent] = new RenderComponent(entityID, 'cyan', 'cyan', 1, GameScene.WEAPON_LAYER);
         c[ShapeComponent] = new ShapeComponent(entityID, p2.Shape.BOX, {width: 40, height: 15}, [0, 0], ShapeComponent.CENTER, 0);
         c[TransformComponent] = new TransformComponent(entityID, [0, 0], 0);
         c[TrackingComponent] = new TrackingComponent(entityID, trackID, ShapeComponent.CENTER, [0, -8], 1);
@@ -103,7 +106,7 @@ class WeaponFactory {
     static createGrenadeLauncher(entityID, trackID) {
 
         const c = {};
-        c[RenderComponent] = new RenderComponent(entityID, 'pink', 'pink', GameScene.WEAPON_LAYER);
+        c[RenderComponent] = new RenderComponent(entityID, 'pink', 'pink', 1, GameScene.WEAPON_LAYER);
         c[ShapeComponent] = new ShapeComponent(entityID, p2.Shape.BOX, {width: 30, height: 15}, [-10, 0], ShapeComponent.CENTER_LEFT, 0);
         c[TransformComponent] = new TransformComponent(entityID, [0, 0], 0);
         c[TrackingComponent] = new TrackingComponent(entityID, trackID, ShapeComponent.CENTER, [0, 5], 1);
