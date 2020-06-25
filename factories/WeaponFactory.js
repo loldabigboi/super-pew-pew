@@ -110,9 +110,9 @@ class WeaponFactory {
             const angle = c[TransformComponent].angle + Math.PI;
             const particleC = ParticleEmitterFactory.createSimpleEmitter(id, entities, p2.Shape.CIRCLE, {radius: 17, radiusVariance: 2}, {
                 fadeRate: 0.02, 
-                speed: 4, 
-                damping: 0.2,
-                speedVariance: 3,
+                speed: 8, 
+                damping: 0.1,
+                speedVariance: 4,
                 lifetimeVariance: 400,
             }, 12, angle-Math.PI/4, angle+Math.PI/4);
             particleC[ParentComponent] = new ParentComponent(id, obj.projID, [0,0], [0,0], Callbacks.DELETE_ENTITY);

@@ -21,8 +21,9 @@ class ParticleEmitterFactory {
             particleC[PhysicsComponent] = new PhysicsComponent(particleID, {
                 position: ParentComponent.getAbsolutePosition(entityID, entities),
                 velocity: vel,
-                damping: options.damping || 0.5,
-                gravityScale: options.gravityScale || 0
+                mass: 1,
+                gravityScale: options.gravityScale || 0,
+                damping: options.damping
             }, [particleC[ShapeComponent]]);
 
             particleC[RenderComponent] = new RenderComponent(particleID, options.fill || 'lightgrey', options.stroke, 1, GameScene.WEAPON_LAYER);

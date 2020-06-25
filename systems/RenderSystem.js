@@ -8,6 +8,9 @@ class RenderSystem extends System {
         ])
         this.layers = {};
 
+        this.offset = [0,0];  // absolute offset of the rendering, used to pan the 'camera'
+        this.tempOffset = [100,0];  // resets after every update, used for e.g. camera shake
+
     }
 
     addEntity(id, components) {
@@ -87,7 +90,7 @@ class RenderSystem extends System {
                 ctx.strokeStyle = renderC.strokeColor;
                 ctx.fillStyle = renderC.fillColor;
 
-                ctx.translate(pos[0], pos[1]);
+                ctx.translate(pos[0] + this.offset[0] + this.tempOffset[0], pos[1] + this.offset[1] + this.tempOffset[1]);
                 ctx.rotate(shapeC.angle);
     
                 if (transformC) {
@@ -115,6 +118,8 @@ class RenderSystem extends System {
 
             }
         }
+
+        this.tempOffset = [0,0];
 
     }
 
