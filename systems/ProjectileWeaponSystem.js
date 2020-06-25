@@ -42,7 +42,7 @@ class ProjectileWeaponSystem extends System {
                 weapC.lastUsed = now;
             }
             
-            let startingPos = transC.position;
+            let startingPos = ParentComponent.getAbsolutePosition(entityID, entities);
 
             if (shapeC) {
                 
@@ -56,12 +56,9 @@ class ProjectileWeaponSystem extends System {
                                        shape.radius/2 * (1 - shapeC.propOffset[1]) ];
                 }
 
-                let newRelStartingPos = [];
-                newRelStartingPos[0] = Math.cos(transC.angle)*relStartingPos[0] - Math.sin(transC.angle)*relStartingPos[1];
-                newRelStartingPos[1] = Math.sin(transC.angle)*relStartingPos[0] + Math.cos(transC.angle)*relStartingPos[1];
-                            
-                startingPos = [ transC.position[0] + newRelStartingPos[0],
-                                transC.position[1] + newRelStartingPos[1] ];
+                p2.vec2.rotate(relStartingPos, relStartingPos, transC.angle);
+                p2.vec2.add(startingPos, startingPos, relStartingPos);
+
             }
 
             // const trackC = c[TrackingComponent];
@@ -106,7 +103,7 @@ class ProjectileWeaponSystem extends System {
                                                       ShapeComponent.GROUPS.PROJ, ShapeComponent.MASKS.PROJ, groups.ENEMY, projWeapC.pMaterial);
                 componentsDict[ShapeComponent] = projShapeC;
                 componentsDict[PhysicsComponent] =  new PhysicsComponent(entityID, bodyObj, [projShapeC]);
-                componentsDict[LifetimeComponent] = new LifetimeComponent(entityID, projWeapC.pLifetime, projWeapC.pCallbacks.onDeath);
+                componentsDict[DelayedCallbackComponent] = [new DelayedCallbackComponent(entityID, projWeapC.pLifetime, projWeapC.pCallbacks.onDeath)];
                 componentsDict[ContactDamageComponent] = new ContactDamageComponent(entityID, weapC.damage, Infinity, undefined, -1);
                 componentsDict[ProjectileComponent] = new ProjectileComponent(entityID, projWeapC.pMaxBounces, projWeapC.pCallbacks.onCreation, projWeapC.pCallbacks.onBounce,
                     projWeapC.pCallbacks.onDeath);

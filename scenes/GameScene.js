@@ -4,18 +4,20 @@ class GameScene extends Scene {
 
         super();
 
+        const delaySystem = new DelayedCallbackSystem();
+        const repeatSystem = new RepeatingCallbackSystem();
         const loopSystem = new LoopCallbackSystem();
         const physicsSystem = new PhysicsSystem();
         const enemyAISystem = new BasicEnemyAISystem(physicsSystem.world);
         const teleportSystem = new TeleporterSystem(physicsSystem.world);
         const jumpSystem = new JumpSystem(physicsSystem.world);
-        const lifetimeSystem = new LifetimeSystem();
         const fatalSystem = new FatalDependencySystem();
         const contactSystem = new ContactDamageSystem(physicsSystem.world);
         const projectileSystem = new ProjectileSystem(physicsSystem.world);
         const projectileWeaponSystem = new ProjectileWeaponSystem();
         const trackingSystem = new TrackingSystem();
         const renderSystem = new RenderSystem();
+        const parentSystem = new ParentSystem();
 
         this.addSystem(physicsSystem, 1);
         this.addSystem(enemyAISystem, 1);
@@ -24,11 +26,13 @@ class GameScene extends Scene {
         this.addSystem(projectileSystem, 2);
         this.addSystem(jumpSystem, 2);
         this.addSystem(teleportSystem, 2);
-        this.addSystem(lifetimeSystem, 2);
         this.addSystem(contactSystem, 2);
         this.addSystem(renderSystem, 3);
         this.addSystem(fatalSystem, 4);
+        this.addSystem(delaySystem, 5);
+        this.addSystem(repeatSystem, 5);
         this.addSystem(loopSystem, 5);
+        this.addSystem(parentSystem, 5);
 
         physicsSystem.world.addContactMaterial(new p2.ContactMaterial(ProjectileWeaponComponent.LOSSLESS_BOUNCE_MATERIAL, GameScene.OBSTACLE_MATERIAL, {
             restitution : 1.0,
@@ -358,11 +362,11 @@ class GameScene extends Scene {
         const entityID = this.currWeapon[WeaponComponent].entityID;
         this.currWeapon[LoopCallbackComponent] = [new LoopCallbackComponent(entityID, (dt, components) => {
             const mousePos = [InputManager.mouse.x, InputManager.mouse.y];
-            const gunPos = this.currWeapon[TransformComponent].position;
+            const gunPos = ParentComponent.getAbsolutePosition(entityID, this.entities);
             const vec = [mousePos[0] - gunPos[0], mousePos[1] - gunPos[1]];
             this.currWeapon[TransformComponent].angle = Math.atan2(vec[1], vec[0]);
         })];
-        this.currWeapon[TrackingComponent].trackingID = this.playerID;
+        this.currWeapon[ParentComponent].parentID = this.playerID;
         this.currWeapon[WeaponComponent].onUse = (obj) => {
             this.firing = true;
             const c = obj.components;

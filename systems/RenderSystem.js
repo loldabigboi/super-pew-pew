@@ -30,17 +30,13 @@ class RenderSystem extends System {
 
     }
 
-    foreDeleteEntity(id) {
-        this.deleteEntity(id);
-    }
-
     deleteEntity(id) {
         const c = this.entities[id];
         super.deleteEntity(id);
         delete this.layers[c[RenderComponent].layer][id];
     }
 
-    update() {
+    update(dt, entities, scene) {
 
         const canvas = document.getElementsByTagName('canvas')[0];
         const ctx = canvas.getContext('2d');
@@ -56,14 +52,11 @@ class RenderSystem extends System {
                 const shapeC = c[ShapeComponent];
                 const shape = shapeC.shape;
     
-                let x, y;
-                let xOffset, yOffset;
+                let pos = ParentComponent.getAbsolutePosition(entityID, entities);
+                let xOffset = shapeC.flatOffset[0], 
+                    yOffset = shapeC.flatOffset[1];
                 if (transformC) {
-                    x = transformC.position[0],
-                    y = transformC.position[1];
-    
-                    xOffset = shapeC.absOffset[0];
-                    yOffset = shapeC.absOffset[1];
+
                     if (shapeC.type === p2.Shape.BOX) {
                         xOffset += shapeC.propOffset[0]*shape.width;
                         yOffset += shapeC.propOffset[1]*shape.height;
@@ -73,22 +66,16 @@ class RenderSystem extends System {
                     }
     
                 } else {  // must have associated physics body (either their own or from another entity)
-    
-                    const body = shapeC.body;
-                    const pos = body.interpolatedPosition;
-                    x = pos[0] + shape.position[0];
-                    y = pos[1] + shape.position[1];
-    
+        
                     if (shapeC.type === p2.Shape.BOX) {
-                        xOffset = shape.width*-0.5;
-                        yOffset = shape.height*-0.5;
-                    } else if (shapeC.type === p2.Shape.CIRCLE) {  // circle drawing is already centered
-                        xOffset = 0;
-                        yOffset = 0;
+                        xOffset += shape.width*-0.5;
+                        yOffset += shape.height*-0.5;
+                    } else if (shapeC.type === p2.Shape.CIRCLE) {  
+                        // circle drawing is already centered
                     }
     
                 }
-    
+
                 ctx.save();
 
                 ctx.globalAlpha = renderC.opacity;
@@ -97,7 +84,7 @@ class RenderSystem extends System {
                 ctx.strokeStyle = renderC.strokeColor;
                 ctx.fillStyle = renderC.fillColor;
 
-                ctx.translate(x, y);
+                ctx.translate(pos[0], pos[1]);
                 ctx.rotate(shapeC.angle);
     
                 if (transformC) {

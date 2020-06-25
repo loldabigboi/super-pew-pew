@@ -19,16 +19,15 @@ class BasicEnemyFactory {
                 delete c[ContactDamageComponent];
                 delete c[HealthComponent];
                 delete c[BasicEnemyAIComponent];
-                c[LifetimeComponent] = new LifetimeComponent(entityID, 1000);
-                //c[PhysicsComponent].body.collisionResponse = false;
+                c[DelayedCallbackComponent] = [new DelayedCallbackComponent(entityID, 1000, Callbacks.DELETE_ENTITY)];
                 c[PhysicsComponent].body.fixedRotation = false;
-                const newVel = [0, -25];
-                p2.vec2.rotate(c[PhysicsComponent].body.velocity, newVel, -Math.PI/3 + Math.random()*Math.PI*2/3);
+                const newVel = [0, -35];
+                p2.vec2.rotate(c[PhysicsComponent].body.velocity, newVel, -Math.PI/4 + Math.random()*Math.PI*3/4);
                 c[PhysicsComponent].body.angularVelocity = Math.random() > 0.5 ? 0.75 : -0.75;
                 c[PhysicsComponent].body.gravityScale = 1;
                 c[PhysicsComponent].body.shapes[0].collisionMask = 0;
-                c[LoopCallbackComponent] = [new LoopCallbackComponent(entityID, () => {
-                    c[RenderComponent].opacity = Math.max(0, c[RenderComponent].opacity - 0.02);
+                c[RepeatingCallbackComponent] = [new RepeatingCallbackComponent(entityID, 30, () => {
+                    c[RenderComponent].opacity = Math.max(0, c[RenderComponent].opacity - 0.06);
                 })]
                 obj.scene.addEvent(new TransmittedEvent(null, entityID, null, Scene.ADD_ENTITY_EVENT, {
                     components: c

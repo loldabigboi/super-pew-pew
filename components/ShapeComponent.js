@@ -1,12 +1,15 @@
 class ShapeComponent extends Component {
 
-    constructor(entityID, type, options, absOffset, propOffset, angle, collisionGroup, collisionMask, skipResolveMask, material, body) {
+    constructor(entityID, type, options, flatOffset, propOffset, angle, collisionGroup, collisionMask, skipResolveMask, material, body) {
 
         super(entityID);
+        
+        this.flatOffset = flatOffset;  // offset relative to body
+        this.propOffset = propOffset;
+
         this.type = type;
         this.options = options;
-        this.absOffset = absOffset;  // offset relative to body
-        this.propOffset = propOffset;
+
         switch (type) {
             case p2.Shape.BOX:
                 this.shape = new p2.Box(options);
@@ -42,7 +45,7 @@ class ShapeComponent extends Component {
 
         if (body) {
             this.body = body;
-            body.addShape(this.shape, absOffset, angle);
+            body.addShape(this.shape, flatOffset, angle);
         }
         
     }
