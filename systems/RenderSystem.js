@@ -32,6 +32,9 @@ class RenderSystem extends System {
 
     deleteEntity(id) {
         const c = this.entities[id];
+        if (!c) {
+            return;
+        }
         super.deleteEntity(id);
         delete this.layers[c[RenderComponent].layer][id];
     }

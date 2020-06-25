@@ -81,7 +81,7 @@ class WeaponFactory {
     
     }
 
-    static createRocketLauncher(entityID, parentID) {
+    static createRocketLauncher(entityID, parentID, entities) {
 
         const w = 40, h = 15;
 
@@ -91,10 +91,10 @@ class WeaponFactory {
         c[ParentComponent] = new ParentComponent(entityID, parentID, [0, -7], Offsets.NONE);
         c[TransformComponent] = new TransformComponent(entityID, Offsets.NONE, 0);
         c[WeaponComponent] = new WeaponComponent(entityID, 1, 1200, true, 1);
-        c[ProjectileWeaponComponent] = new ProjectileWeaponComponent(entityID, 0, 0, 80, 0, 1, 1, 4000, 0, -0.25, p2.Shape.CIRCLE, {radius: 8}, ProjectileWeaponComponent.LOSSLESS_BOUNCE_MATERIAL, {
+        c[ProjectileWeaponComponent] = new ProjectileWeaponComponent(entityID, 0, 0, 80, 0, 1, 1, 4000, 0, -0.25, p2.Shape.BOX, {width:30, height:10}, ProjectileWeaponComponent.LOSSLESS_BOUNCE_MATERIAL, {
             onDeath: (obj) => {
-                const c = obj.scene.entities[obj.id];
-                const position = c[PhysicsComponent].body.position;
+                const projC = obj.scene.entities[obj.id];
+                const position = projC[PhysicsComponent].body.position;
 
                 const explosionID = Entity.GENERATE_ID();
                 const explosionC = WeaponFactory.createExplosion(explosionID, position.slice(), 100);
@@ -102,7 +102,25 @@ class WeaponFactory {
                 obj.scene.addEvent(new TransmittedEvent(null, explosionID, null, Scene.ADD_ENTITY_EVENT, {
                     components: explosionC
                 }));
-            }
+            },
+
+        }, (obj) => {
+
+            const id = Entity.GENERATE_ID();
+            const angle = c[TransformComponent].angle + Math.PI;
+            const particleC = ParticleEmitterFactory.createSimpleEmitter(id, entities, p2.Shape.CIRCLE, {radius: 17, radiusVariance: 2}, {
+                fadeRate: 0.02, 
+                speed: 4, 
+                damping: 0.2,
+                speedVariance: 3,
+                lifetimeVariance: 400,
+            }, 12, angle-Math.PI/4, angle+Math.PI/4);
+            particleC[ParentComponent] = new ParentComponent(id, obj.projID, [0,0], [0,0], Callbacks.DELETE_ENTITY);
+
+            obj.scene.addEvent(new TransmittedEvent(null, id, null, Scene.ADD_ENTITY_EVENT, {
+                components: particleC
+            }));
+
         });
         return c;
 

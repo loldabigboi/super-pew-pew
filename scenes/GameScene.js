@@ -69,12 +69,12 @@ class GameScene extends Scene {
             WeaponFactory.createMachineGun(Entity.GENERATE_ID(), this.playerID),
             WeaponFactory.createMinigun(Entity.GENERATE_ID(), this.playerID), 
             WeaponFactory.createShotgun(Entity.GENERATE_ID(), this.playerID),
-            WeaponFactory.createRocketLauncher(Entity.GENERATE_ID(), this.playerID),
+            WeaponFactory.createRocketLauncher(Entity.GENERATE_ID(), this.playerID, this.entities),
             WeaponFactory.createGrenadeLauncher(Entity.GENERATE_ID(), this.playerID),
         ];
 
         // equip gun
-        this.nextWeapon = this.weapons[Math.floor(Math.random() * this.weapons.length)];
+        this.nextWeapon = this.weapons[4];//Math.floor(Math.random() * this.weapons.length)];
         this.equipNextWeapon();
 
         InputManager.addListener('keydown', (key, evt) => {

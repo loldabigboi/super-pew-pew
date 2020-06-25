@@ -1,6 +1,6 @@
 class ProjectileWeaponComponent extends Component {
 
-    constructor(entityID, angleVariance, kickback, pSpeed, pSpeedVariance, pMaxBounces, pPenetrationDepth, pLifetime, pGravityScale, pDamping, pShapeType, pShapeObj, pMaterial, pCallbacks) {
+    constructor(entityID, angleVariance, kickback, pSpeed, pSpeedVariance, pMaxBounces, pPenetrationDepth, pLifetime, pGravityScale, pDamping, pShapeType, pShapeObj, pMaterial, pCallbacks, onFire) {
         super(entityID);
 
         this.angleVariance = angleVariance;
@@ -16,7 +16,8 @@ class ProjectileWeaponComponent extends Component {
         this.pShapeObj = pShapeObj;
         this.pMaterial = pMaterial;
         this.pCallbacks = pCallbacks || {};
-        
+        this.onFire = onFire || function(){};
+
     }
 
 }
