@@ -4,35 +4,22 @@ class GameScene extends Scene {
 
         super();
 
-        const delaySystem = new DelayedCallbackSystem();
-        const repeatSystem = new RepeatingCallbackSystem();
-        const loopSystem = new LoopCallbackSystem();
         const physicsSystem = new PhysicsSystem();
-        const enemyAISystem = new BasicEnemyAISystem(physicsSystem.world);
-        const teleportSystem = new TeleporterSystem(physicsSystem.world);
-        const jumpSystem = new JumpSystem(physicsSystem.world);
-        const fatalSystem = new FatalDependencySystem();
-        const contactSystem = new ContactDamageSystem(physicsSystem.world);
-        const projectileSystem = new ProjectileSystem(physicsSystem.world);
-        const projectileWeaponSystem = new ProjectileWeaponSystem();
-        const trackingSystem = new TrackingSystem();
-        const renderSystem = new RenderSystem();
-        const parentSystem = new ParentSystem();
 
         this.addSystem(physicsSystem, 1);
-        this.addSystem(enemyAISystem, 1);
-        this.addSystem(trackingSystem, 2);
-        this.addSystem(projectileWeaponSystem, 2);
-        this.addSystem(projectileSystem, 2);
-        this.addSystem(jumpSystem, 2);
-        this.addSystem(teleportSystem, 2);
-        this.addSystem(contactSystem, 2);
-        this.addSystem(renderSystem, 3);
-        this.addSystem(fatalSystem, 4);
-        this.addSystem(delaySystem, 5);
-        this.addSystem(repeatSystem, 5);
-        this.addSystem(loopSystem, 5);
-        this.addSystem(parentSystem, 5);
+        this.addSystem(new BasicEnemyAISystem(physicsSystem.world), 1);
+        this.addSystem(new TrackingSystem(), 2);
+        this.addSystem(new ProjectileWeaponSystem(), 2);
+        this.addSystem(new ProjectileSystem(physicsSystem.world), 2);
+        this.addSystem(new JumpSystem(physicsSystem.world), 2);
+        this.addSystem(new TeleporterSystem(physicsSystem.world), 2);
+        this.addSystem(new ContactDamageSystem(physicsSystem.world), 2);
+        this.addSystem(new RenderSystem(), 3);
+        this.addSystem(new FatalDependencySystem(), 4);
+        this.addSystem(new DelayedCallbackSystem(), 5);
+        this.addSystem(new RepeatingCallbackSystem(), 5);
+        this.addSystem(new LoopCallbackSystem(), 5);
+        this.addSystem(new ParentSystem(), 5);
 
         physicsSystem.world.addContactMaterial(new p2.ContactMaterial(ProjectileWeaponComponent.LOSSLESS_BOUNCE_MATERIAL, GameScene.OBSTACLE_MATERIAL, {
             restitution : 1.0,
@@ -88,9 +75,6 @@ class GameScene extends Scene {
             this.addEvent(new TransmittedEvent(null, this.currWeapon[WeaponComponent].entityID, ProjectileWeaponSystem,
                 ProjectileWeaponSystem.FIRE_WEAPON_EVENT, {}));
         })
-
-        this.playerMoving = false;
-        this.firing = false;
 
         this.lastSpawn = 0;
         this.spawnDir = 1;
@@ -368,7 +352,6 @@ class GameScene extends Scene {
         })];
         this.currWeapon[ParentComponent].parentID = this.playerID;
         this.currWeapon[WeaponComponent].onUse = (obj) => {
-            this.firing = true;
             const c = obj.components;
             const playerC = this.entities[this.playerID];
 
