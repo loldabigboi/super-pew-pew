@@ -105,8 +105,8 @@ class GameScene extends Scene {
             c = BasicEnemyFactory.createEnemy(entityID, [canvas.width/2, 0], 30*this.spawnDir, 40, 3, 1);
         } else if (type == GameScene.EnemyTypes.BIG) {
             c = BasicEnemyFactory.createEnemy(entityID, [canvas.width/2, 0], 30*this.spawnDir, 60, 12, 3);
-            c[RenderComponent].strokeColor = 'black';
-            c[RenderComponent].fillColor = 'rgb(200,0,0)';
+            c[RenderComponent].stroke = 'black';
+            c[RenderComponent].fill = 'rgb(200,0,0)';
         } else {
             throw new Error();
         }

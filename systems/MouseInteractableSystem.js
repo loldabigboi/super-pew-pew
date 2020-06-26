@@ -27,19 +27,17 @@ class MouseInteractableSystem extends System {
             const transC = c[TransformComponent];
             const physC = c[PhysicsComponent];
 
-            let centerPos = [0,0];
-            if (physC) {
-                centerPos = physC.body.position;
-            } else {
-                const pos = transC.position;
-                if (shapeC.type == p2.Shape.BOX) {
-                    p2.vec2.add(centerPos, pos, [shapeC.shape.width/2, shapeC.shape.height/2]);
-                } else if (shapeC.type == p2.Shape.CIRCLE) {
-                    // circles are already centered
-                } else {
-                    throw new Error("invalid shape type");
-                }
+            let centerPos = ParentComponent.getAbsolutePosition(entityID, entities);
+            const propOffset = shapeC.propOffset;
+            let w, h;
+            if (shapeC.type == p2.Shape.BOX) {
+                w = shapeC.shape.width;
+                h = shapeC.shape.height;
+            } else if (shapeC.type == p2.Shape.CIRCLE) {
+                w = shapeC.shape.radius;
+                h = w;
             }
+            p2.vec2.add(centerPos, centerPos, [(0.5-propOffset[0])*w, (0.5-propOffset[1])*h])
 
             const shape = shapeC.shape;
             const wasHovered = mouseC.hovered;
