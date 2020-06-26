@@ -27,13 +27,13 @@ class MouseInteractableSystem extends System {
             const transC = c[TransformComponent];
             const physC = c[PhysicsComponent];
 
-            let centerPos;
+            let centerPos = [0,0];
             if (physC) {
                 centerPos = physC.body.position;
             } else {
                 const pos = transC.position;
                 if (shapeC.type == p2.Shape.BOX) {
-                    p2.vec2.add(pos, pos, [-shapeC.shape.width/2, -shapeC.shape.height/2]);
+                    p2.vec2.add(centerPos, pos, [shapeC.shape.width/2, shapeC.shape.height/2]);
                 } else if (shapeC.type == p2.Shape.CIRCLE) {
                     // circles are already centered
                 } else {
@@ -44,8 +44,8 @@ class MouseInteractableSystem extends System {
             const shape = shapeC.shape;
             const wasHovered = mouseC.hovered;
             if (shapeC.type == p2.Shape.BOX) {
-                mouseC.hovered = !(mouse.x < centerPos - shape.width/2  || mouse.x > centerPos + shape.width/2 ||
-                                   mouse.y < centerPos - shape.height/2 || mouse.y > centerPos + shape.height/2);
+                mouseC.hovered = !(mouse.x < centerPos[0] - shape.width/2  || mouse.x > centerPos[0] + shape.width/2 ||
+                                   mouse.y < centerPos[1] - shape.height/2 || mouse.y > centerPos[1] + shape.height/2);
             } else if (shapeC.type == p2.Shape.CIRCLE) {
                 mouseC.hovered = p2.vec2.sqrDist([mouse.x, mouse.y], centerPos) < shape.radius*shape.radius;
             }
@@ -68,13 +68,15 @@ class MouseInteractableSystem extends System {
                     mouseC.mouseWasDown = true;
                     mouseC.onMouseDown.forEach((callback) => callback(obj));
                 } else {
-                    if (!mouse.down && this.lastMouse.down) {
+                    if (!mouse.down) {
+                        if (this.lastMouse.down) {
+                            mouseC.onMouseUp.forEach((callback) => callback(obj));
+                        }
                         if (mouseC.mouseWasDown) {
                             mouseC.onClick.forEach((callback) => callback(obj));
                         }
-                        mouseC.onMouseUp.forEach((callback) => callback(obj));
+                        mouseC.mouseWasDown = false;
                     }
-                    mouseC.mouseWasDown = false;
                 }
             } else {
                 mouseC.mouseWasDown = false;

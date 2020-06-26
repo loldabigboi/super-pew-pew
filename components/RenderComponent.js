@@ -1,11 +1,11 @@
 class RenderComponent extends Component {
 
-    constructor(entityID, fillColor, strokeColor, strokeWidth=1, layer=0, opacity=1) {
+    constructor(entityID, fill, stroke, strokeWidth=1, layer=0, opacity=1) {
 
         super(entityID);
 
-        this.fillColor = fillColor;
-        this.strokeColor = strokeColor;
+        this.fill = fill;
+        this.stroke = stroke;
         this.strokeWidth = strokeWidth;
         this.layer = layer;
         this.opacity = opacity;

@@ -87,8 +87,8 @@ class RenderSystem extends System {
                 ctx.globalAlpha = renderC.opacity;
                 ctx.lineWidth = renderC.strokeWidth;
                 
-                ctx.strokeStyle = renderC.strokeColor;
-                ctx.fillStyle = renderC.fillColor;
+                ctx.strokeStyle = renderC.stroke;
+                ctx.fillStyle = renderC.fill;
 
                 ctx.translate(pos[0] + this.offset[0] + this.tempOffset[0], pos[1] + this.offset[1] + this.tempOffset[1]);
                 ctx.rotate(shapeC.angle);
@@ -110,7 +110,7 @@ class RenderSystem extends System {
                 }
 
                 ctx.fill();
-                if (renderC.strokeColor) {
+                if (renderC.stroke) {
                     ctx.stroke();
                 }
     
