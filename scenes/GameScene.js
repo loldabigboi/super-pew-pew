@@ -43,6 +43,7 @@ class GameScene extends Scene {
         }));
 
         this.platformIDs = [];
+        this.lastPlatformI = 2;
         this.score = 0;
 
         this.createTeleporters();
@@ -61,7 +62,7 @@ class GameScene extends Scene {
         ];
 
         // equip gun
-        this.nextWeapon = this.weapons[4];//Math.floor(Math.random() * this.weapons.length)];
+        this.nextWeapon = this.weapons[Math.floor(Math.random() * this.weapons.length)];
         this.equipNextWeapon();
 
         InputManager.addListener('keydown', (key, evt) => {
@@ -81,6 +82,9 @@ class GameScene extends Scene {
         this.currSpawnDelay = 0;
         this.currentSpawnRotation = this.getSpawnRotation();
         this.spawnI = 0;
+
+        this.screenShake = 0;  // used to set RenderSystem's tempOffset to simulate screen shake
+        this.screenShakeDamping = 0.9; // how quickly the screen shake decreases
 
     }
 
@@ -132,7 +136,12 @@ class GameScene extends Scene {
         if (now - this.lastSpawn > this.currSpawnDelay) {
             this.spawnEnemies(now);
         }
-        
+
+        let newTempOffset = [0,0];
+        p2.vec2.rotate(newTempOffset, [this.screenShake, 0], Math.random()*Math.PI*2);
+        this.screenShake *= this.screenShakeDamping;
+
+        this.systemsDict[RenderSystem].tempOffset = newTempOffset;
         super.update(dt);
 
     }
@@ -254,7 +263,14 @@ class GameScene extends Scene {
 
     repositionWeaponCrate() {
 
-        const platform = this.entities[this.platformIDs[Math.floor(Math.random() * this.platformIDs.length)]];
+        let newPlatformI = Math.floor(Math.random() * this.platformIDs.length);
+        while (newPlatformI == this.lastPlatformI) {
+            newPlatformI = Math.floor(Math.random() * this.platformIDs.length);
+        }
+        this.lastPlatformI = newPlatformI;
+
+        const platform = this.entities[this.platformIDs[newPlatformI]];
+
         const platformBody = platform[PhysicsComponent].body;
         const w = platformBody.shapes[0].width;
         this.weaponCrate[PhysicsComponent].body.position = [platformBody.position[0] + (-w/2 + Math.random() * w) * 0.75,
