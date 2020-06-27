@@ -6,7 +6,7 @@ class Game {
         canvas.height = 600;
 
         this.scenes = {}
-        this.currScene = new GameScene();
+        this.currScene = new MainMenuScene();
         this.count = 0; 
     }
 

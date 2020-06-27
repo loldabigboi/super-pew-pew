@@ -31,7 +31,7 @@ class ParentComponent extends Component {
 
             const shapeC = nodeC[ShapeComponent];
             if (i == 0 && shapeC) {
-                const offset = shapeC.flatOffset;
+                const offset = shapeC.flatOffset.slice();
                 let w, h;
                 if (shapeC.type == p2.Shape.BOX) {
                     w = shapeC.shape.width;

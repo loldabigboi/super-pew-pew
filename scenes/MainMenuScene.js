@@ -38,7 +38,7 @@ class MainMenuScene extends Scene {
         });
         buttonC[MouseInteractableComponent].onClick.push(() => console.log("click"));
         buttonC[TransformComponent] = new TransformComponent(buttonID, [0,0], 0);
-        buttonC[ShapeComponent] = new ShapeComponent(buttonID, p2.Shape.BOX, {width: 100, height: 50}, [0,0], [0,0], 0);
+        buttonC[ShapeComponent] = new ShapeComponent(buttonID, p2.Shape.BOX, {width: 100, height: 50}, [0,0], [-0.5,-0.5], 0);
         this.addEntity(buttonID, buttonC);
 
     }

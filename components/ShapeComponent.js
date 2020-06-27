@@ -52,16 +52,6 @@ class ShapeComponent extends Component {
 
 }
 
-ShapeComponent.TOP_LEFT      = [ 0   , 0  ];
-ShapeComponent.TOP_CENTER    = [-0.5,  0  ];
-ShapeComponent.TOP_RIGHT     = [-1  ,  0  ];
-ShapeComponent.CENTER_LEFT   = [ 0  , -0.5];
-ShapeComponent.CENTER        = [-0.5, -0.5];
-ShapeComponent.CENTER_RIGHT  = [-1  , -0.5];
-ShapeComponent.BOTTOM_LEFT   = [ 0  , -1  ];
-ShapeComponent.BOTTOM_CENTER = [-0.5, -1  ];
-ShapeComponent.BOTTOM_RIGHT  = [-1  , -1  ];
-
 ShapeComponent.GROUPS = {
     PLAYER: Math.pow(2, 0),
     GROUND: Math.pow(2, 1),

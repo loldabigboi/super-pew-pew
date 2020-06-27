@@ -27,17 +27,7 @@ class MouseInteractableSystem extends System {
             const transC = c[TransformComponent];
             const physC = c[PhysicsComponent];
 
-            let centerPos = ParentComponent.getAbsolutePosition(entityID, entities);
-            const propOffset = shapeC.propOffset;
-            let w, h;
-            if (shapeC.type == p2.Shape.BOX) {
-                w = shapeC.shape.width;
-                h = shapeC.shape.height;
-            } else if (shapeC.type == p2.Shape.CIRCLE) {
-                w = shapeC.shape.radius;
-                h = w;
-            }
-            p2.vec2.add(centerPos, centerPos, [(0.5-propOffset[0])*w, (0.5-propOffset[1])*h])
+            let centerPos = ParentComponent.getAbsolutePosition(entityID, entities, [0,0]);
 
             const shape = shapeC.shape;
             const wasHovered = mouseC.hovered;
