@@ -57,30 +57,20 @@ class RenderSystem extends System {
                 const renderC = c[RenderComponent];
                 const shapeC = c[ShapeComponent];
                 const shape = shapeC.shape;
-    
-                let pos = ParentComponent.getAbsolutePosition(entityID, entities);
-                let xOffset = shapeC.flatOffset[0], 
-                    yOffset = shapeC.flatOffset[1];
-                if (transformC) {
 
-                    if (shapeC.type === p2.Shape.BOX) {
-                        xOffset += shapeC.propOffset[0]*shape.width;
-                        yOffset += shapeC.propOffset[1]*shape.height;
-                    } else if (shapeC.type === p2.Shape.CIRCLE) {
-                        xOffset += shapeC.propOffset[0]*shape.radius;
-                        yOffset += shapeC.propOffset[1]*shape.radius;
-                    }
-    
-                } else {  // must have associated physics body (either their own or from another entity)
-        
-                    if (shapeC.type === p2.Shape.BOX) {
-                        xOffset += shape.width*-0.5;
-                        yOffset += shape.height*-0.5;
-                    } else if (shapeC.type === p2.Shape.CIRCLE) {  
-                        // circle drawing is already centered
-                    }
-    
+                let w, h;
+                if (shapeC.type == p2.Shape.BOX) {
+                    w = shape.width;
+                    h = shape.height;
+                } else {
+                    w = shape.radius;
+                    h = shape.radius;
                 }
+    
+                let pos = ParentComponent.getAbsolutePosition(entityID, entities, [0,0]);
+                const offset = [shapeC.flatOffset[0] + shapeC.propOffset[0]*w, 
+                                shapeC.flatOffset[1] + shapeC.propOffset[1]*h]
+
 
                 ctx.save();
 
@@ -90,23 +80,24 @@ class RenderSystem extends System {
                 ctx.strokeStyle = renderC.stroke;
                 ctx.fillStyle = renderC.fill;
 
-                ctx.translate(pos[0] + this.offset[0] + this.tempOffset[0], pos[1] + this.offset[1] + this.tempOffset[1]);
-                ctx.rotate(shapeC.angle);
-    
+                ctx.translate(pos[0] + this.offset[0] + this.tempOffset[0], 
+                              pos[1] + this.offset[1] + this.tempOffset[1]);
+                ctx.translate(-offset[0], -offset[1])
+                
                 if (transformC) {
                     ctx.rotate(transformC.angle);
                 } else {
                     ctx.rotate(shapeC.body.angle);
                 }
-                
-                ctx.translate(xOffset, yOffset);
-                
+
+                ctx.translate(offset[0], offset[1]);
+                                
                 if (shapeC.type === p2.Shape.BOX) {
                     ctx.beginPath();
-                    ctx.rect(0, 0, shapeC.shape.width, shapeC.shape.height);
+                    ctx.rect(-w/2, -h/2, w, h);
                 } else if (shapeC.type === p2.Shape.CIRCLE) {
                     ctx.beginPath();
-                    ctx.arc(0, 0, shapeC.shape.radius, 0, 2*Math.PI, false);    
+                    ctx.arc(0, 0, w, 0, 2*Math.PI, false);    
                 }
 
                 ctx.fill();

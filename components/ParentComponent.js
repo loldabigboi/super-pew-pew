@@ -10,7 +10,7 @@ class ParentComponent extends Component {
         
     }
 
-    static getAbsolutePosition(id, entities) {
+    static getAbsolutePosition(id, entities, propOffset=[0,0]) {
 
         let current = entities[id];
         let tree = [current];
@@ -27,6 +27,22 @@ class ParentComponent extends Component {
                 p2.vec2.add(pos, pos, nodeC[PhysicsComponent].body.position);
             } else if (nodeC[TransformComponent]) {
                 p2.vec2.add(pos, pos, nodeC[TransformComponent].position);
+            }
+
+            const shapeC = nodeC[ShapeComponent];
+            if (i == 0 && shapeC) {
+                const offset = shapeC.flatOffset;
+                let w, h;
+                if (shapeC.type == p2.Shape.BOX) {
+                    w = shapeC.shape.width;
+                    h = shapeC.shape.height; 
+                } else {
+                    w = shapeC.shape.radius;
+                    h = shapeC.shape.radius;
+                }
+                p2.vec2.add(offset, offset, [(shapeC.propOffset[0]-propOffset[0])*w, 
+                                             (shapeC.propOffset[1]-propOffset[1])*h]);
+                p2.vec2.add(pos, pos, offset)
             }
 
             if (i+1 < tree.length) {
