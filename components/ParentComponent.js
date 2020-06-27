@@ -40,8 +40,13 @@ class ParentComponent extends Component {
                     w = shapeC.shape.radius;
                     h = shapeC.shape.radius;
                 }
-                p2.vec2.add(offset, offset, [(propOffset[0]-shapeC.propOffset[0])*w, 
+                if (propOffset) {
+                    p2.vec2.add(offset, offset, [(propOffset[0]-shapeC.propOffset[0])*w, 
                                              (propOffset[1]-shapeC.propOffset[1])*h]);
+                } else {
+                    p2.vec2.add(offset, offset, [shapeC.propOffset[0]*w, shapeC.propOffset[1]]);
+                }
+                
                 p2.vec2.add(pos, pos, offset)
             }
 

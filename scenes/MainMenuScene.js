@@ -22,7 +22,6 @@ class MainMenuScene extends Scene {
         this.addSystem(new ParentSystem(), 5);
 
         this.createUI();
-
     }
 
     createUI() {
