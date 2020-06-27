@@ -49,6 +49,7 @@ class GameScene extends Scene {
         this.createPlatforms();
         this.createPlayer();
         this.createWeaponCrate();
+        this.createUI();
 
         // create guns
         this.weapons = [
@@ -142,6 +143,19 @@ class GameScene extends Scene {
 
         this.systemsDict[RenderSystem].tempOffset = newTempOffset;
         super.update(dt);
+
+    }
+
+    createUI() {
+
+        const scoreTextID = Entity.GENERATE_ID();
+        const scoreTextC = {};
+        scoreTextC[TransformComponent] = new TransformComponent(scoreTextID, [canvas.width/2, 50], 0);
+        scoreTextC[TextRenderComponent] = new TextRenderComponent(scoreTextID, '0', {fontFamily: 'cursive', fontSize: '56px'});
+        scoreTextC[RenderComponent] = new RenderComponent(scoreTextID, 'white', 'black', 2, GameScene.TEXT_LAYER);
+        this.addEntity(scoreTextID, scoreTextC);
+
+        this.scoreTextC = scoreTextC;
 
     }
 
@@ -279,7 +293,8 @@ class GameScene extends Scene {
 
     pickupWeaponCrate() {
 
-        console.log(++this.score);
+        this.score++;
+        this.scoreTextC[TextRenderComponent].text = ''+this.score;
         this.equipNextWeapon();
         this.repositionWeaponCrate();
         
@@ -422,3 +437,4 @@ GameScene.PROJ_LAYER = 2;
 GameScene.PLAYER_LAYER = 3;
 GameScene.WEAPON_LAYER = 4;
 GameScene.ENEMY_LAYER = 5;
+GameScene.TEXT_LAYER = 6;

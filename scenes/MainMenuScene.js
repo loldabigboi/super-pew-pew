@@ -31,8 +31,13 @@ class MainMenuScene extends Scene {
         const titleTextID = Entity.GENERATE_ID();
         const titleTextC = {};
         titleTextC[TransformComponent] = new TransformComponent(titleTextID, [canvas.width/2, 200], 0);
-        titleTextC[TextRenderComponent] = new TextRenderComponent(titleTextID, 'super pew pew', {fontFamily: 'cursive', fontSize: '56px'});
+        titleTextC[TextRenderComponent] = new TextRenderComponent(titleTextID, 'super pew pew', {fontFamily: 'cursive', fontSize: 56});
         titleTextC[RenderComponent] = new RenderComponent(titleTextID, 'purple', 'orange', 2);
+        titleTextC[LoopCallbackComponent] = [new LoopCallbackComponent(titleTextID, 
+            CallbackFactory.createOscillatorCallback(titleTextC[TransformComponent], ['angle'], 0.025, 0.000069, 0.99)
+        ), new LoopCallbackComponent(titleTextID,
+            CallbackFactory.createOscillatorCallback(titleTextC[TextRenderComponent], ['fontSize'], 0.75, 0.0025, 0.99)
+        )]
         this.addEntity(titleTextID, titleTextC);
 
         const buttonID = Entity.GENERATE_ID();
@@ -53,7 +58,7 @@ class MainMenuScene extends Scene {
         textC[TransformComponent] = new TransformComponent(buttonTextID, [0,0], 0);
         textC[ParentComponent] = new ParentComponent(buttonTextID, buttonID, [0,0], [0,0]);
         textC[RenderComponent] = new RenderComponent(buttonTextID, 'white', 'white', 1, 3);
-        textC[TextRenderComponent] = new TextRenderComponent(buttonTextID, 'play', {fontSize: '28px', fontFamily: 'cursive'});
+        textC[TextRenderComponent] = new TextRenderComponent(buttonTextID, 'play', {fontSize: 28, fontFamily: 'cursive'});
         this.addEntity(buttonTextID, textC);
 
     }

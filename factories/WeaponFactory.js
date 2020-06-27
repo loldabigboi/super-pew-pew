@@ -117,7 +117,7 @@ class WeaponFactory {
 
             const id = Entity.GENERATE_ID();
             const angle = c[TransformComponent].angle + Math.PI;
-            const particleC = ParticleEmitterFactory.createSimpleEmitter(id, entities, p2.Shape.CIRCLE, {radius: 17, radiusVariance: 2}, {
+            const particleC = ParticleEmitterFactory.createSimpleEmitter(id, entities, p2.Shape.CIRCLE, {radius: 30, radiusVariance: 5}, {
                 fadeRate: 0.02, 
                 speed: 8, 
                 damping: 0.1,

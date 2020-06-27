@@ -5,7 +5,7 @@ class TextRenderComponent extends Component {
         super(entityID);
 
         this.text  = text;
-        this.fontSize = options.fontSize || '18px';
+        this.fontSize = options.fontSize || 18;
         this.fontFamily = options.fontFamily || 'serif';
         this.align = options.align || 'left';
         this.propOffset = options.propOffset || [0,0];

@@ -112,7 +112,7 @@ class RenderSystem extends System {
 
                 } else {
 
-                    ctx.font = textC.fontSize + ' ' + textC.fontFamily;
+                    ctx.font = textC.fontSize + 'px ' + textC.fontFamily;
                     ctx.textBaseline = 'middle';
                     const metrics = ctx.measureText(textC.text);
                     const w = metrics.width;
