@@ -1,6 +1,8 @@
 class Scene {
 
-    constructor() {
+    constructor(game) {
+
+        this.game = game;
 
         // store systems by priority so we can have 'layers' (certain systems run b4 other ones)
         this.priorityDict = {

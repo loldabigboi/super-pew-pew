@@ -1,8 +1,8 @@
 class MainMenuScene extends Scene {
 
-    constructor() {
+    constructor(game) {
 
-        super();
+        super(game);
 
         const physicsSystem = new PhysicsSystem();
 
@@ -26,6 +26,15 @@ class MainMenuScene extends Scene {
 
     createUI() {
 
+        const canvas = document.getElementsByTagName('canvas')[0];
+
+        const titleTextID = Entity.GENERATE_ID();
+        const titleTextC = {};
+        titleTextC[TransformComponent] = new TransformComponent(titleTextID, [canvas.width/2, 200], 0);
+        titleTextC[TextRenderComponent] = new TextRenderComponent(titleTextID, 'super pew pew', {fontFamily: 'cursive', fontSize: '56px'});
+        titleTextC[RenderComponent] = new RenderComponent(titleTextID, 'purple', 'orange', 2);
+        this.addEntity(titleTextID, titleTextC);
+
         const buttonID = Entity.GENERATE_ID();
         const buttonC = ButtonFactory.createSimpleButton(buttonID, {
             fill: 'red'
@@ -34,10 +43,18 @@ class MainMenuScene extends Scene {
         }, {
             fill: 'lightgreen'
         });
-        buttonC[MouseInteractableComponent].onClick.push(() => console.log("click"));
-        buttonC[TransformComponent] = new TransformComponent(buttonID, [0,0], 0);
-        buttonC[ShapeComponent] = new ShapeComponent(buttonID, p2.Shape.BOX, {width: 100, height: 50}, [0,0], [-0.5,-0.5], 0);
+        buttonC[MouseInteractableComponent].onClick.push(() => this.game.changeScene(GameScene));
+        buttonC[TransformComponent] = new TransformComponent(buttonID, [canvas.width/2, 350], 0);
+        buttonC[ShapeComponent] = new ShapeComponent(buttonID, p2.Shape.BOX, {width: 75, height: 50}, [0,0], [0,0], 0);
         this.addEntity(buttonID, buttonC);
+
+        const buttonTextID = Entity.GENERATE_ID();
+        const textC = {};
+        textC[TransformComponent] = new TransformComponent(buttonTextID, [0,0], 0);
+        textC[ParentComponent] = new ParentComponent(buttonTextID, buttonID, [0,0], [0,0]);
+        textC[RenderComponent] = new RenderComponent(buttonTextID, 'white', 'white', 1, 3);
+        textC[TextRenderComponent] = new TextRenderComponent(buttonTextID, 'play', {fontSize: '28px', fontFamily: 'cursive'});
+        this.addEntity(buttonTextID, textC);
 
     }
 

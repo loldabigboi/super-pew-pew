@@ -57,7 +57,6 @@ class RenderSystem extends System {
                 const renderC = c[RenderComponent];
                 const shapeC = c[ShapeComponent];
                 const textC = c[TextRenderComponent];
-                const shape = shapeC.shape;
 
                 ctx.save();
 
@@ -68,6 +67,8 @@ class RenderSystem extends System {
                 ctx.fillStyle = renderC.fill;
 
                 if (shapeC) {
+
+                    const shape = shapeC.shape;
 
                     let w, h;
                     if (shapeC.type == p2.Shape.BOX) {
@@ -112,20 +113,20 @@ class RenderSystem extends System {
                 } else {
 
                     ctx.font = textC.fontSize + ' ' + textC.fontFamily;
+                    ctx.textBaseline = 'middle';
                     const metrics = ctx.measureText(textC.text);
                     const w = metrics.width;
                     const h = metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent;
-                    
-                    const centerPos = ParentComponent.getAbsolutePosition(entityID, entities, undefined);
-                    ctx.translate(centerPos[0], centerPos[1]);
+
+                    const pos = ParentComponent.getAbsolutePosition(entityID, entities, undefined);
+                    ctx.translate(pos[0], pos[1]);
 
                     if (transformC) {
                         ctx.rotate(transformC.angle);
-                    } else {
-                        ctx.rotate(shapeC.body.angle + shapeC.shape.angle);
                     }
 
-                    ctx.translate((-0.5 + textC.propOffset[0])*w, (-0.5 + textC.propOffset[1])*h);                    
+                    // base y offset is 0.5h as text renders using the y coord of the bottom of the text
+                    ctx.translate((-0.5 + textC.propOffset[0])*w, (textC.propOffset[1])*h);                    
 
                     if (renderC.fill) {
                         ctx.fillText(textC.text, 0, 0);
