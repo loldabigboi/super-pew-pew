@@ -8,7 +8,6 @@ class MainMenuScene extends Scene {
 
         this.addSystem(physicsSystem, 1);
         this.addSystem(new BasicEnemyAISystem(physicsSystem.world), 1);
-        this.addSystem(new TrackingSystem(), 2);
         this.addSystem(new MouseInteractableSystem(), 2);
         this.addSystem(new ProjectileWeaponSystem(), 2);
         this.addSystem(new ProjectileSystem(physicsSystem.world), 2);
