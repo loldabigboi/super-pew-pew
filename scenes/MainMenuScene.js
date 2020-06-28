@@ -38,7 +38,7 @@ class MainMenuScene extends Scene {
         ), new LoopCallbackComponent(titleTextID, 
             CallbackFactory.createFnAttributeModifier(Math.sin, titleTextC[TransformComponent], ['angle'], 0.1, 0.03)
         ), new LoopCallbackComponent(titleTextID,
-            CallbackFactory.createFnAttributeModifier(Math.sin, titleTextC[TextRenderComponent], ['fontSize'], 2, 0.05)
+            CallbackFactory.createFnAttributeModifier(Math.sin, titleTextC[TextRenderComponent], ['fontSize'], 5, 0.05)
         )]
         this.addEntity(titleTextID, titleTextC);
 

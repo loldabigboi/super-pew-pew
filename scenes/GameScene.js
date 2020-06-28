@@ -62,7 +62,7 @@ class GameScene extends Scene {
         ];
 
         // equip gun
-        this.nextWeapon = this.weapons[Math.floor(Math.random() * this.weapons.length)];
+        this.nextWeapon = this.weapons[4];//Math.floor(Math.random() * this.weapons.length)];
         this.equipNextWeapon();
 
         InputManager.addListener('keydown', (key, evt) => {
@@ -151,8 +151,9 @@ class GameScene extends Scene {
         const scoreTextID = Entity.GENERATE_ID();
         const scoreTextC = {};
         scoreTextC[TransformComponent] = new TransformComponent(scoreTextID, [canvas.width/2, 50], 0);
-        scoreTextC[TextRenderComponent] = new TextRenderComponent(scoreTextID, '0', {fontFamily: 'cursive', fontSize: '56px'});
+        scoreTextC[TextRenderComponent] = new TextRenderComponent(scoreTextID, '0', {fontFamily: 'cursive', fontSize: 56});
         scoreTextC[RenderComponent] = new RenderComponent(scoreTextID, 'white', 'black', 2, GameScene.TEXT_LAYER);
+        scoreTextC[LoopCallbackComponent] = [];
         this.addEntity(scoreTextID, scoreTextC);
 
         this.scoreTextC = scoreTextC;
@@ -295,6 +296,19 @@ class GameScene extends Scene {
 
         this.score++;
         this.scoreTextC[TextRenderComponent].text = ''+this.score;
+
+        const sizeCallback = CallbackFactory.createFnAttributeModifier((x) => Math.pow(2, (-(x*x))), this.scoreTextC[TextRenderComponent], 
+        ['fontSize'], 25, 0.25, -1.7);
+        const rotCallback = CallbackFactory.createFnAttributeModifier(Math.sin, this.scoreTextC[TransformComponent], 
+        ['angle'], 0.08, 0.55, -Math.PI);
+        this.scoreTextC[LoopCallbackComponent].push(
+            new LoopCallbackComponent(this.scoreTextC[RenderComponent].entityID, 
+                CallbackFactory.attachSelfDestructThreshold(sizeCallback, this.scoreTextC[LoopCallbackComponent], 'x', 2))
+        );
+        this.scoreTextC[LoopCallbackComponent].push(
+            new LoopCallbackComponent(this.scoreTextC[RenderComponent].entityID, 
+                CallbackFactory.attachSelfDestructThreshold(rotCallback, this.scoreTextC[LoopCallbackComponent], 'x', Math.PI))
+        );
         this.equipNextWeapon();
         this.repositionWeaponCrate();
         

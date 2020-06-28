@@ -1,6 +1,6 @@
 class ParticleEmitterFactory {
 
-    static createSimpleEmitter(entityID, entities, particleShapeType, particleShapeOptions, options, interval, startAngle, endAngle) {
+    static createSimpleEmitter(entityID, entities, particleShapeType, particleShapeOptions, options, interval, startAngle, endAngle, onCreation=()=>{}) {
 
         const c = {};
         c[TransformComponent] = new TransformComponent(entityID, [0,0], 0);
@@ -38,7 +38,16 @@ class ParticleEmitterFactory {
                     particleC[RenderComponent].opacity = Math.max(0, particleC[RenderComponent].opacity - options.fadeRate);
                 })]
             }
+            if (options.dRadius) {
+                particleC[RepeatingCallbackComponent].push(new RepeatingCallbackComponent(particleID, 20, () => {
+                    particleC[ShapeComponent].shape.radius += options.dRadius;
+                }));
+            }
 
+            onCreation({
+                id: particleID,
+                components: particleC
+            })
             obj.scene.addEvent(new TransmittedEvent(null, particleID, null, Scene.ADD_ENTITY_EVENT, {
                 components: particleC
             }));

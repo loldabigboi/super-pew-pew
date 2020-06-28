@@ -15,6 +15,25 @@ class CallbackFactory {
         return () => {
             ref[identifier] = initVal + fn(x) * amplitude;
             x += dx;
+            return {
+                x: x,
+                y: ref[identifier],
+                initVal: initVal,
+                ref: ref,
+                identifier: identifier
+            };
+        }
+
+    }
+
+    static attachSelfDestructThreshold(fnCallback, containingArray, thresholdType, threshold) {
+
+        return function() {
+            const obj = fnCallback();
+            if (obj[thresholdType] > threshold) {
+                obj.ref[obj.identifier] = obj.initVal;
+                containingArray.splice(containingArray.indexOf(this), 1);
+            }
         }
 
     }

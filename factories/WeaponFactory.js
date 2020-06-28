@@ -97,7 +97,7 @@ class WeaponFactory {
         c[ShapeComponent] = new ShapeComponent(entityID, p2.Shape.BOX, {width: w, height: h}, [0, 0], Offsets.NONE, 0);
         c[ParentComponent] = new ParentComponent(entityID, parentID, [0, -7], Offsets.NONE);
         c[TransformComponent] = new TransformComponent(entityID, Offsets.NONE, 0);
-        c[WeaponComponent] = new WeaponComponent(entityID, 1, 1200, true, 1);
+        c[WeaponComponent] = new WeaponComponent(entityID, 1, 1500, true, 1);
         c[ProjectileWeaponComponent] = new ProjectileWeaponComponent(entityID, 0, 0, 80, 0, 1, 1, 4000, 0, -0.25, p2.Shape.BOX, {width:30, height:10}, ProjectileWeaponComponent.LOSSLESS_BOUNCE_MATERIAL, {
             onDeath: (obj) => {
                 obj.scene.screenShake += 15;
@@ -117,13 +117,15 @@ class WeaponFactory {
 
             const id = Entity.GENERATE_ID();
             const angle = c[TransformComponent].angle + Math.PI;
-            const particleC = ParticleEmitterFactory.createSimpleEmitter(id, entities, p2.Shape.CIRCLE, {radius: 30, radiusVariance: 5}, {
-                fadeRate: 0.02, 
+            const particleC = ParticleEmitterFactory.createSimpleEmitter(id, entities, p2.Shape.CIRCLE, {radius: 30}, {
+                fadeRate: 0.03, 
                 speed: 8, 
                 damping: 0.1,
                 speedVariance: 4,
-                lifetimeVariance: 400,
-            }, 12, angle-Math.PI/4, angle+Math.PI/4);
+                dRadius: 0.5
+            }, 12, angle-Math.PI/4, angle+Math.PI/4, (obj) => {
+                obj.components[ShapeComponent].shape.radius += -5 + Math.random()*10;
+            });
             particleC[ParentComponent] = new ParentComponent(id, obj.projID, [0,0], [0,0], Callbacks.DELETE_ENTITY);
 
             obj.scene.addEvent(new TransmittedEvent(null, id, null, Scene.ADD_ENTITY_EVENT, {
