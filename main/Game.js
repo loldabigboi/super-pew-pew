@@ -6,18 +6,16 @@ class Game {
         canvas.height = 600;
 
         this.scenes = {}
-        this.addScene(new GameScene(this));
-        this.addScene(new MainMenuScene(this));
 
-        this.changeScene(MainMenuScene);
+        this.changeScene(new MainMenuScene(this));
     }
 
     addScene(scene) {
         this.scenes[scene.constructor] = scene;
     }
 
-    changeScene(sceneConstructor) {
-        this.currScene = this.scenes[sceneConstructor];
+    changeScene(scene) {
+        this.currScene = scene;
     }
 
     run(last) {

@@ -50,7 +50,7 @@ class MainMenuScene extends Scene {
         }, {
             fill: 'lightgreen'
         });
-        buttonC[MouseInteractableComponent].listeners.mouseup.push(() => this.game.changeScene(GameScene));
+        buttonC[MouseInteractableComponent].listeners.mouseup.push(() => this.game.changeScene(new GameScene(this.game)));
         buttonC[TransformComponent] = new TransformComponent(buttonID, [canvas.width/2, 350], 0);
         buttonC[ShapeComponent] = new ShapeComponent(buttonID, p2.Shape.BOX, {width: 75, height: 50}, [0,0], [0,0], 0);
         this.addEntity(buttonID, buttonC);

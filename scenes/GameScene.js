@@ -68,7 +68,7 @@ class GameScene extends Scene {
 
         InputManager.addListener('keydown', (key, evt) => {
             if (key.code === InputManager.ESC) {
-                this.game.changeScene(MainMenuScene);
+                this.game.changeScene(new MainMenuScene(this.game));
             }
         });
 
@@ -177,7 +177,7 @@ class GameScene extends Scene {
         this.scorePopupC[ShapeComponent] = new ShapeComponent(this.scorePopupID, p2.Shape.BOX,
             {width: canvas.width, height: canvas.height}, [0,0], [0,0], 0);
         this.scorePopupC[TransformComponent] = new TransformComponent(this.scorePopupID, [canvas.width/2, canvas.height/2], 0);
-        this.scorePopupC[RenderComponent] = new RenderComponent(this.scorePopupID, undefined, undefined, undefined, GameScene.OVERLAY_LAYER, true);
+        this.scorePopupC[RenderComponent] = new RenderComponent(this.scorePopupID, 'rgba(255,255,255,0.3)', undefined, undefined, GameScene.OVERLAY_LAYER, true);
         this.scorePopupC[RenderComponent].render = false;
 
         this.addEntity(this.scorePopupID, this.scorePopupC);
@@ -236,7 +236,7 @@ class GameScene extends Scene {
         const quitID = Entity.GENERATE_ID();
         const quitC = ButtonFactory.createSimpleButton(quitID, GameScene.OVERLAY_LAYER, {fill: 'red'}, {fill: 'blue'}, {fill: 'lightgreen'});
         quitC[MouseInteractableComponent].listeners.mouseup.push(() => {      
-            this.game.changeScene(MainMenuScene);
+            this.game.changeScene(new MainMenuScene(this.game));
         });
         quitC[MouseInteractableComponent].interactable = 'inherit';
         quitC[RenderComponent].isStatic = 'inherit';
