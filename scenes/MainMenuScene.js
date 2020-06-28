@@ -33,10 +33,12 @@ class MainMenuScene extends Scene {
         titleTextC[TransformComponent] = new TransformComponent(titleTextID, [canvas.width/2, 200], 0);
         titleTextC[TextRenderComponent] = new TextRenderComponent(titleTextID, 'super pew pew', {fontFamily: 'cursive', fontSize: 56});
         titleTextC[RenderComponent] = new RenderComponent(titleTextID, 'purple', 'orange', 2);
-        titleTextC[LoopCallbackComponent] = [new LoopCallbackComponent(titleTextID, 
-            CallbackFactory.createOscillatorCallback(titleTextC[TransformComponent], ['angle'], 0.025, 0.000069, 0.99)
+        titleTextC[LoopCallbackComponent] = [new LoopCallbackComponent(titleTextID,
+            CallbackFactory.createFnAttributeModifier(Math.sin, titleTextC[TransformComponent], ['position', '1'], 5, 0.05)
+        ), new LoopCallbackComponent(titleTextID, 
+            CallbackFactory.createFnAttributeModifier(Math.sin, titleTextC[TransformComponent], ['angle'], 0.1, 0.03)
         ), new LoopCallbackComponent(titleTextID,
-            CallbackFactory.createOscillatorCallback(titleTextC[TextRenderComponent], ['fontSize'], 0.75, 0.0025, 0.99)
+            CallbackFactory.createFnAttributeModifier(Math.sin, titleTextC[TextRenderComponent], ['fontSize'], 2, 0.05)
         )]
         this.addEntity(titleTextID, titleTextC);
 
