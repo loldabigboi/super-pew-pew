@@ -1,11 +1,14 @@
 class JumpComponent extends Component {
 
-    constructor(entityID, strengthArray) {
+    constructor(entityID, initialStrength, totalBoost, boostRate) {
 
         super(entityID);
-        this.strengthArray = strengthArray;
-        this.jumpI = 0;  // index of current jump
-        this.canJump = true;
+
+        this.initialStrength = initialStrength;
+        this.totalBoost = totalBoost;
+        this.remainingBoost = totalBoost;
+        this.boostRate = boostRate;
+        this.canJump = false;
 
     }
 

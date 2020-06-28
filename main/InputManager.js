@@ -72,6 +72,7 @@ InputManager.SHIFT = 16;
 InputManager.CONTROL = 17;
 InputManager.ALT = 18;
 InputManager.CAPSLOCK = 20;
+InputManager.ESC = 27;
 InputManager.SPACE = 32;
 InputManager.SEMICOLON = 186;
 InputManager.EQUAL = 187;

@@ -9,16 +9,22 @@ class CallbackFactory {
             ref = ref[attributeNames[i]];
         }
 
-        let initVal = ref[identifier];
+        let y = 0;
 
         let x = offset;
         return () => {
-            ref[identifier] = initVal + fn(x) * amplitude;
+
+            // may look weierd, but its done like this so if the 'actual' value of the component attribute (without fn value added) changes during the lifetime
+            // of this callback, it doesn't matter
+            ref[identifier] -= y;
+            y = fn(x)*amplitude;
+            ref[identifier] += y;
             x += dx;
+
             return {
                 x: x,
                 y: ref[identifier],
-                initVal: initVal,
+                initVal: ref[identifier] - y,
                 ref: ref,
                 identifier: identifier
             };

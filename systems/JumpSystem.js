@@ -35,11 +35,11 @@ class JumpSystem extends System {
             } else {
                 continue;
             }
-
+            
             if ((jumpBody == c.bodyA && c.normalA[1] == 1) || 
                 (jumpBody == c.bodyB && c.normalA[1] == -1)) {
                 this.entities[jumpBody.id][JumpComponent].canJump = true;
-                this.entities[jumpBody.id][JumpComponent].jumpI = 0;
+                this.entities[jumpBody.id][JumpComponent].remainingBoost = this.entities[jumpBody.id][JumpComponent].totalBoost;
             }
 
         }
@@ -53,12 +53,18 @@ class JumpSystem extends System {
             const physC = c[PhysicsComponent];
 
             if (jumpC.canJump) {
-
-                physC.body.velocity[1] = 0;
-                physC.body.applyImpulse([0, -jumpC.strengthArray[jumpC.jumpI]]);
-                jumpC.jumpI++;
-                jumpC.canJump = jumpC.jumpI < jumpC.strengthArray.length;
-
+                physC.body.velocity[1] = -jumpC.initialStrength;
+                jumpC.canJump = false;
+            } else {
+                let boost;
+                if (jumpC.remainingBoost < jumpC.boostRate) {
+                    boost = jumpC.remainingBoost;
+                    jumpC.remainingBoost = 0;
+                } else {
+                    boost = jumpC.boostRate;
+                    jumpC.remainingBoost -= jumpC.boostRate;
+                }
+                physC.body.velocity[1] -= boost;
             }
 
         }

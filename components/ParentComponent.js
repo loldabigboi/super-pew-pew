@@ -76,4 +76,31 @@ class ParentComponent extends Component {
 
     }
 
+    /**
+     * Travers the parent tree to find the first parent (incl. self) with a non-undefined value for the specified attribute
+     * @param {*} entityID Id of child
+     * @param {*} entities Dictionary of all entities
+     * @param {*} componentConstructor Constructor of component
+     * @param {*} attributeName Name of specific attribute
+     */
+    static getInheritedValue(entityID, entities, componentConstructor, attributeName) {
+
+        let currID = entityID;
+        while (entities[currID][ParentComponent]) {
+            if (entities[currID][componentConstructor] &&
+                entities[currID][componentConstructor][attributeName] == 'inherit') {
+                currID = entities[currID][ParentComponent].parentID;
+            } else {
+                break;
+            }
+        }
+
+        if (entities[currID][componentConstructor][attributeName] == 'inherit') {
+            console.log(`WARNING: inheritance does not fully propagate for ${attributeName}.`);
+        }
+        return entities[currID][componentConstructor][attributeName];
+
+
+    }
+
 }

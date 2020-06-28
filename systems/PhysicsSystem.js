@@ -6,7 +6,7 @@ class PhysicsSystem extends System {
         super([PhysicsComponent]);
         
         this.world = new p2.World({
-            gravity: [0, 9.82]
+            gravity: [0, 15]
         });
 
         this.world.on('preSolve', (evt) => {

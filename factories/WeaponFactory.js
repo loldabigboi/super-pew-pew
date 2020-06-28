@@ -73,7 +73,7 @@ class WeaponFactory {
     static createExplosion(entityID, position, initSize, dSize, maxSize) {
 
         const c = {};
-        c[RenderComponent] = new RenderComponent(entityID, 'rgba(255,165,0,0.75)', undefined, 1, GameScene.WEAPON_LAYER);
+        c[RenderComponent] = new RenderComponent(entityID, 'rgba(255, 205, 54, 0.8)', undefined, 1, GameScene.WEAPON_LAYER);
         c[ShapeComponent] = new ShapeComponent(entityID, p2.Shape.CIRCLE, {radius: initSize}, Offsets.NONE, Offsets.NONE, 0, ShapeComponent.GROUPS.PROJ,
             ShapeComponent.MASKS.PROJ, 0);
         c[ContactDamageComponent] = new ContactDamageComponent(entityID, 100, Infinity, undefined, -1);

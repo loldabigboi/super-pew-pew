@@ -19,57 +19,116 @@ class MouseInteractableSystem extends System {
     update(dt, entities, scene) {
 
         const mouse = InputManager.mouse;
-        for (const entityID of Object.keys(this.entities)) {
+        let currLayer;
+        for (const entityID of Object.keys(this.entities).sort((idA, idB) => {
+            return this.entities[idB][MouseInteractableComponent].layer - 
+                   this.entities[idA][MouseInteractableComponent].layer;
+        })) {
 
             const c = this.entities[entityID];
             const mouseC = c[MouseInteractableComponent];
             const shapeC = c[ShapeComponent];
-            const transC = c[TransformComponent];
-            const physC = c[PhysicsComponent];
+            const shape = shapeC.shape;
 
             let centerPos = ParentComponent.getAbsolutePosition(entityID, entities, [0,0]);
+            let overlaps = (shapeC.type == p2.Shape.BOX && !(mouse.x < centerPos[0] - shape.width/2  || mouse.x > centerPos[0] + shape.width/2 ||
+                                                             mouse.y < centerPos[1] - shape.height/2 || mouse.y > centerPos[1] + shape.height/2))
 
-            const shape = shapeC.shape;
-            const wasHovered = mouseC.hovered;
-            if (shapeC.type == p2.Shape.BOX) {
-                mouseC.hovered = !(mouse.x < centerPos[0] - shape.width/2  || mouse.x > centerPos[0] + shape.width/2 ||
-                                   mouse.y < centerPos[1] - shape.height/2 || mouse.y > centerPos[1] + shape.height/2);
-            } else if (shapeC.type == p2.Shape.CIRCLE) {
-                mouseC.hovered = p2.vec2.sqrDist([mouse.x, mouse.y], centerPos) < shape.radius*shape.radius;
-            }
 
-            const obj = {
-                id: entityID,
-                scene: scene,
-                components: c,
-                mouse: mouse,
-                lastMouse: this.lastMouse
+            if (!ParentComponent.getInheritedValue(entityID, entities, MouseInteractableComponent, 'interactable') || 
+                (currLayer != undefined && mouseC.layer != currLayer)) {
+                overlaps = false;
             }
-            if (wasHovered && !mouseC.hovered) {
-                mouseC.onMouseLeave.forEach((callback) => callback(obj));
-            } else if (!wasHovered && mouseC.hovered) {
-                mouseC.onMouseEnter.forEach((callback) => callback(obj));
-            }
+            
+            if (overlaps) {
 
-            if (mouseC.hovered) {
-                if (mouse.down && !this.lastMouse.down) {
-                    mouseC.mouseWasDown = true;
-                    mouseC.onMouseDown.forEach((callback) => callback(obj));
-                } else {
-                    if (!mouse.down) {
-                        if (this.lastMouse.down) {
-                            mouseC.onMouseUp.forEach((callback) => callback(obj));
-                        }
-                        if (mouseC.mouseWasDown) {
-                            mouseC.onClick.forEach((callback) => callback(obj));
-                        }
-                        mouseC.mouseWasDown = false;
+                if ((mouse.x != mouse.prevX || mouse.y != mouse.prevY) &&
+                    mouseC.listeners.mousemove) {
+                    mouseC.listeners.mousemove.forEach((listener) => {
+                        listener({
+                            mouse: mouse,
+                            mouseC: mouseC,
+                            lastMouse: this.lastMouse,
+                            components: c,
+                            id: entityID,
+                            scene: scene
+                        });
+                    })
+                }
+
+                if (!mouseC.hovered) {
+                    if (mouseC.listeners.mouseenter) {
+                        mouseC.listeners.mouseenter.forEach((listener) => {
+                            listener({
+                                mouse: mouse,
+                                mouseC: mouseC,
+                                lastMouse: this.lastMouse,
+                                components: c,
+                                id: entityID,
+                                scene: scene
+                            });
+                        })
                     }
                 }
+
+                if (!this.lastMouse.down && mouse.down) {
+                    if (mouseC.listeners.mousedown) {
+                        mouseC.listeners.mousedown.forEach((listener) => {
+                            listener({
+                                mouse: mouse,
+                                mouseC: mouseC,
+                                lastMouse: this.lastMouse,
+                                components: c,
+                                id: entityID,
+                                scene: scene
+                            });
+                        })
+                    }
+                } else if (this.lastMouse.down && !mouse.down) {
+                    if (mouseC.listeners.mouseup) {
+                        mouseC.listeners.mouseup.forEach((listener) => {
+                            listener({
+                                mouse: mouse,
+                                mouseC: mouseC,
+                                lastMouse: this.lastMouse,
+                                components: c,
+                                id: entityID,
+                                scene: scene
+                            });
+                        })
+                    }
+                }
+
+                currLayer = mouseC.layer;
+
+                mouseC.mouse = {
+                    prevX: mouseC.mouse.x,
+                    prevY: mouseC.mouse.y,
+                    x: mouse.x,
+                    y: mouse.y,
+                }
+
             } else {
-                mouseC.mouseWasDown = false;
+
+                if (mouseC.hovered) {
+                    if (mouseC.listeners.mouseleave) {
+                        mouseC.listeners.mouseleave.forEach((listener) => {
+                            listener({
+                                mouse: mouse,
+                                mouseC: mouseC,
+                                lastMouse: this.lastMouse,
+                                components: c,
+                                id: entityID,
+                                scene: scene
+                            });
+                        })
+                    }
+                }
+
             }
 
+            mouseC.hovered = overlaps;
+                
         }
 
         this.lastMouse = {};

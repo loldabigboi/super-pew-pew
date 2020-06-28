@@ -5,38 +5,42 @@ class MouseInteractableComponent extends Component {
      * @param {*} entityID 
      * @param {*} callbacks Object containing arrays of listeners for different types of events
      */
-    constructor(entityID, callbacks) {
+    constructor(entityID, listeners, layer=0) {
 
         super(entityID);
 
+        this.interactable = true;  // flag that can be set to false to ignore mouse interactions
+
+        this.wasHovered = false;
         this.hovered = false;
-        this.mouseWasDown = false;  // whether mouse was down on this entity on last update (used for click event)
 
-        this.onMouseEnter = callbacks.onMouseEnter || [];
-        if (!(this.onMouseEnter) instanceof Array) {
-            this.onMouseEnter = [this.onMouseEnter];
-        }
+        this.mouse = {
 
-        this.onMouseLeave = callbacks.onMouseLeave || [];
-        if (!(this.onMouseLeave) instanceof Array) {
-            this.onMouseLeave = [this.onMouseLeave];
-        }
+            x: 0,
+            prevX: 0,
+            y: 0,
+            prevY: 0,
+    
+            down: false,
+            lastDown: 0,
+            lastUp: 0
+    
+        };
 
-        this.onMouseDown = callbacks.onMouseDown || [];
-        if (!(this.onMouseDown) instanceof Array) {
-            this.onMouseDown = [this.onMouseDown];
-        }
+        this.listeners = listeners;
 
-        this.onMouseUp = callbacks.onMouseUp || [];
-        if (!(this.onMouseUp) instanceof Array) {
-            this.onMouseUp = [this.onMouseUp];
-        }
+        const listenerNames = ['mousedown', 'mouseup', 'mousemove', 'mouseenter', 'mouseleave'];
+        listenerNames.forEach((name) => {
+            if (this.listeners[name]) {
+                if (!(this.listeners[name] instanceof Array)) {
+                    this.listeners[name] = [this.listeners[name]];
+                }
+            } else {
+                this.listeners[name] = [];
+            }   
+        })
 
-        this.onClick = callbacks.onClick || [];
-        if (!(this.onClick) instanceof Array) {
-            this.onClick = [this.onClick];
-        }
-
+        this.layer = layer;
 
     }
 

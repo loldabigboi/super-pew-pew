@@ -47,7 +47,6 @@ class RenderSystem extends System {
         const ctx = canvas.getContext('2d');
 
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-        ctx.translate(this.offset[0] + this.tempOffset[0], this.offset[1] + this.tempOffset[1]);
         
         for (const layer of Object.keys(this.layers).sort()) {
             for (const entityID of Object.keys(this.layers[layer])) {
@@ -58,13 +57,21 @@ class RenderSystem extends System {
                 const shapeC = c[ShapeComponent];
                 const textC = c[TextRenderComponent];
 
+                if (!ParentComponent.getInheritedValue(entityID, entities, RenderComponent, 'render')) {
+                    continue;
+                }
+
                 ctx.save();
 
-                ctx.globalAlpha = renderC.opacity;
-                ctx.lineWidth = renderC.strokeWidth;
+                if (!ParentComponent.getInheritedValue(entityID, entities, RenderComponent, 'isStatic')) {
+                    ctx.translate(this.offset[0] + this.tempOffset[0], this.offset[1] + this.tempOffset[1]);
+                }
+
+                ctx.globalAlpha = ParentComponent.getInheritedValue(entityID, entities, RenderComponent, 'opacity');
+                ctx.lineWidth = ParentComponent.getInheritedValue(entityID, entities, RenderComponent, 'strokeWidth');
                 
-                ctx.strokeStyle = renderC.stroke;
-                ctx.fillStyle = renderC.fill;
+                ctx.strokeStyle = ParentComponent.getInheritedValue(entityID, entities, RenderComponent, 'stroke');
+                ctx.fillStyle = ParentComponent.getInheritedValue(entityID, entities, RenderComponent, 'fill');
 
                 if (shapeC) {
 
@@ -112,7 +119,8 @@ class RenderSystem extends System {
 
                 } else {
 
-                    ctx.font = textC.fontSize + 'px ' + textC.fontFamily;
+                    ctx.font = ParentComponent.getInheritedValue(entityID, entities, TextRenderComponent, 'fontSize') + 'px ' + 
+                               ParentComponent.getInheritedValue(entityID, entities, TextRenderComponent, 'fontFamily');
                     ctx.textBaseline = 'middle';
                     const metrics = ctx.measureText(textC.text);
                     const w = metrics.width;
@@ -141,7 +149,6 @@ class RenderSystem extends System {
 
             }
         }
-        ctx.translate(-(this.offset[0] + this.tempOffset[0]), -(this.offset[1] + this.tempOffset[1]));
         this.tempOffset = [0,0];
 
     }
