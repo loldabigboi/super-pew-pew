@@ -8,6 +8,7 @@ class GameScene extends Scene {
 
         this.addSystem(physicsSystem, 1);
         this.addSystem(new BasicEnemyAISystem(physicsSystem.world), 1);
+        this.addSystem(new FlyingEnemyAISystem(), 1);
         this.addSystem(new ProjectileWeaponSystem(), 2);
         this.addSystem(new MouseInteractableSystem(), 2);
         this.addSystem(new ProjectileSystem(physicsSystem.world), 2);
@@ -105,8 +106,12 @@ class GameScene extends Scene {
             c = BasicEnemyFactory.createEnemy(entityID, [canvas.width/2, 0], 30*this.spawnDir, 40, 3, 1);
         } else if (type == GameScene.EnemyTypes.BIG) {
             c = BasicEnemyFactory.createEnemy(entityID, [canvas.width/2, 0], 30*this.spawnDir, 60, 12, 3);
-            c[RenderComponent].stroke = 'black';
             c[RenderComponent].fill = 'rgb(200,0,0)';
+        } else if (type == GameScene.EnemyTypes.FLYING) {
+            c = BasicEnemyFactory.createEnemy(entityID, [canvas.width/2, 0], 15*this.spawnDir, 30, 2, 0.2);
+            c[RenderComponent].fill = 'pink';
+            c[ShapeComponent].shape.material = ProjectileWeaponComponent.LOSSLESS_BOUNCE_MATERIAL;
+            c[FlyingEnemyAIComponent] = new FlyingEnemyAIComponent(entityID, this.playerID, 25);
         } else {
             throw new Error();
         }
@@ -177,7 +182,7 @@ class GameScene extends Scene {
         this.scorePopupC[ShapeComponent] = new ShapeComponent(this.scorePopupID, p2.Shape.BOX,
             {width: canvas.width, height: canvas.height}, [0,0], [0,0], 0);
         this.scorePopupC[TransformComponent] = new TransformComponent(this.scorePopupID, [canvas.width/2, canvas.height/2], 0);
-        this.scorePopupC[RenderComponent] = new RenderComponent(this.scorePopupID, 'rgba(255,255,255,0.3)', undefined, undefined, GameScene.OVERLAY_LAYER, true);
+        this.scorePopupC[RenderComponent] = new RenderComponent(this.scorePopupID, 'rgba(255,255,255,0.5)', undefined, undefined, GameScene.OVERLAY_LAYER, true);
         this.scorePopupC[RenderComponent].render = false;
 
         this.addEntity(this.scorePopupID, this.scorePopupC);
@@ -516,17 +521,22 @@ GameScene.SpawnRotation = class {
 
 GameScene.EnemyTypes = {
     REGULAR: 0,
-    BIG: 1
+    BIG: 1,
+    FLYING: 2
 }
 
 const reg = GameScene.EnemyTypes.REGULAR,
-      big = GameScene.EnemyTypes.BIG;
+      big = GameScene.EnemyTypes.BIG,
+      fly = GameScene.EnemyTypes.FLYING;
 GameScene.SpawnRotations = [
     new GameScene.SpawnRotation([reg], [1000]),
     new GameScene.SpawnRotation([reg, reg, reg], [300, 300, 3500]),
     new GameScene.SpawnRotation([big], [2500]),
     new GameScene.SpawnRotation([reg, big, reg], [300, 300, 5000]),
     new GameScene.SpawnRotation([big, big], [1000, 5000]),
+    new GameScene.SpawnRotation([fly], [250]),
+    new GameScene.SpawnRotation([fly, fly], [200, 400]),
+    new GameScene.SpawnRotation([reg, fly, reg], [300, 300, 800])
     // 5: new GameScene.SpawnRotation([reg], [], 50),
     // 6: new GameScene.SpawnRotation([reg], [], 50),
     // 7: new GameScene.SpawnRotation([reg], [], 50),

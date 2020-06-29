@@ -44,7 +44,7 @@ class RenderSystem extends System {
     update(dt, entities, scene) {
 
         const canvas = document.getElementsByTagName('canvas')[0];
-        const ctx = canvas.getContext('2d');
+        const ctx = canvas.getContext('2d', {alpha: false});
 
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         
@@ -54,6 +54,7 @@ class RenderSystem extends System {
                 const c = this.entities[entityID];
                 const transformC = c[TransformComponent];
                 const renderC = c[RenderComponent];
+                const filterC = c[RenderFilterComponent]
                 const shapeC = c[ShapeComponent];
                 const textC = c[TextRenderComponent];
 
@@ -62,6 +63,15 @@ class RenderSystem extends System {
                 }
 
                 ctx.save();
+
+                if (filterC) {
+
+                    if (filterC.type == 'blur') {
+                        const amt = filterC.obj.amount;
+                        ctx.filter = 'blur(' + amt + 'px)';
+                    }  
+
+                }
 
                 if (!ParentComponent.getInheritedValue(entityID, entities, RenderComponent, 'isStatic')) {
                     ctx.translate(this.offset[0] + this.tempOffset[0], this.offset[1] + this.tempOffset[1]);
