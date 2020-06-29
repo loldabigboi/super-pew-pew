@@ -1,17 +1,28 @@
 class ResourceManager {
 
     static loadedResources = {};
-    static loadingCount = 0;
 
-    static loadImage(id, relPath) {
+    static loadImages(infoArr, onload) {
 
-        const imageObj = new Image();
-        imageObj.src = relPath;
-        
-        ResourceManager.loadingCount++;
-        imageObj.onload(() => ResourceManager.loadingCount--);
+        // used to call callback once all img.onload callbacks have executed
+        const counter = {
+            count: 0,
+            decrement: function() {
+                if (--this.count == 0) {
+                    onload();
+                }
+            } 
+        }
 
-        this.loadedResources[id] = imageObj;
+        for (const obj of infoArr) {
+            const imgObj = new Image();
+            imgObj.src = obj.src;
+            counter.count++;
+            imgObj.onload = () => {
+                counter.decrement(onload);
+            }
+            ResourceManager.loadedResources[obj.id] = imgObj;
+        }
 
     }
 

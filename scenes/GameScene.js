@@ -105,7 +105,7 @@ class GameScene extends Scene {
         if (type == GameScene.EnemyTypes.REGULAR) {
             c = BasicEnemyFactory.createEnemy(entityID, [canvas.width/2, 0], 30*this.spawnDir, 40, 3, 1);
         } else if (type == GameScene.EnemyTypes.BIG) {
-            c = BasicEnemyFactory.createEnemy(entityID, [canvas.width/2, 0], 30*this.spawnDir, 60, 12, 3);
+            c = BasicEnemyFactory.createEnemy(entityID, [canvas.width/2, 0], 30*this.spawnDir, 80, 12, 3);
             c[RenderComponent].fill = 'rgb(200,0,0)';
         } else if (type == GameScene.EnemyTypes.FLYING) {
             c = BasicEnemyFactory.createEnemy(entityID, [canvas.width/2, 0], 15*this.spawnDir, 30, 2, 0.2);
@@ -366,7 +366,7 @@ class GameScene extends Scene {
             position: [0, 0],
             fixedRotation: true
         }, [shapeComp]);
-        const renComp = new RenderComponent(entityID, 'gold', 'gold', 1, GameScene.WEAPON_LAYER);
+        const renComp = new RenderComponent(entityID, 'gold', 'black', 2, GameScene.WEAPON_LAYER);
         const componentsDict = {};
         componentsDict[ShapeComponent] = shapeComp;
         componentsDict[HealthComponent] = new HealthComponent(entityID, 1, undefined, () => this.pickupWeaponCrate());
@@ -444,7 +444,7 @@ class GameScene extends Scene {
         const jumpComp = new JumpComponent(entityID, 75, 50, 5);
         const contactComp = new ContactDamageComponent(entityID, 1, Infinity, undefined, groups.PICKUP);
 
-        const renComp = new RenderComponent(entityID, 'blue', 'blue', 1, GameScene.PLAYER_LAYER);
+        const renComp = new RenderComponent(entityID, 'blue', 'black', 2, GameScene.PLAYER_LAYER);
         
         let callbackComponent = new LoopCallbackComponent(entityID, (componentsDict, dt) => {
 

@@ -8,6 +8,15 @@ class Game {
         this.scenes = {}
 
         this.changeScene(new MainMenuScene(this));
+        this.loadResources();
+
+    }
+
+    loadResources() {
+        ResourceManager.loadImages([{
+            id: 'reg_enemy', 
+            src: 'res/reg_enemy.png'
+        }], () => this.run(Date.now()));
     }
 
     addScene(scene) {

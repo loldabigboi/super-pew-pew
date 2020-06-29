@@ -57,6 +57,7 @@ class RenderSystem extends System {
                 const filterC = c[RenderFilterComponent]
                 const shapeC = c[ShapeComponent];
                 const textC = c[TextRenderComponent];
+                const imageC = c[ImageRenderComponent];
 
                 if (!ParentComponent.getInheritedValue(entityID, entities, RenderComponent, 'render')) {
                     continue;
@@ -110,20 +111,26 @@ class RenderSystem extends System {
                     }
 
                     ctx.translate(offset[0], offset[1]);
-                                    
-                    if (shapeC.type === p2.Shape.BOX) {
-                        ctx.beginPath();
-                        ctx.rect(-w/2, -h/2, w, h);
-                    } else if (shapeC.type === p2.Shape.CIRCLE) {
-                        ctx.beginPath();
-                        ctx.arc(0, 0, w, 0, 2*Math.PI, false);    
-                    }
 
-                    if (renderC.fill) {
-                        ctx.fill();
-                    }
-                    if (renderC.stroke) {
-                        ctx.stroke();
+                    if (imageC) {
+                        ctx.drawImage(ResourceManager.getResource(imageC.imageID), -shape.width/2, -shape.height/2, shape.width, shape.height);
+                    } else {
+
+                        if (shapeC.type === p2.Shape.BOX) {
+                            ctx.beginPath();
+                            ctx.rect(-w/2, -h/2, w, h);
+                        } else if (shapeC.type === p2.Shape.CIRCLE) {
+                            ctx.beginPath();
+                            ctx.arc(0, 0, w, 0, 2*Math.PI, false);    
+                        }
+    
+                        if (renderC.fill) {
+                            ctx.fill();
+                        }
+                        if (renderC.stroke) {
+                            ctx.stroke();
+                        }
+
                     }
         
 

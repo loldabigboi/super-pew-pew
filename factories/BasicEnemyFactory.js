@@ -5,6 +5,7 @@ class BasicEnemyFactory {
         const g = ShapeComponent.GROUPS;
 
         const renComp = new RenderComponent(entityID, 'red', 'black', 3, GameScene.ENEMY_LAYER);
+        const imageComp = new ImageRenderComponent(entityID, 'reg_enemy');
         const  aiComp = new BasicEnemyAIComponent(entityID, speed);
         const shapeComp = new ShapeComponent(entityID, p2.Shape.BOX, {width: size, height: size}, [0,0], [0,0], 0, 
             ShapeComponent.GROUPS.ENEMY, ShapeComponent.MASKS.ENEMY, 0, GameScene.CHARACTER_MATERIAL);
@@ -39,6 +40,7 @@ class BasicEnemyFactory {
         const contactComp = new ContactDamageComponent(entityID, 1, Infinity, undefined, -1);
         const componentsDict = {};
         componentsDict[RenderComponent] = renComp;
+        componentsDict[ImageRenderComponent] = imageComp;
         componentsDict[HealthComponent] = healthComp;
         componentsDict[ContactDamageComponent] = contactComp;
         componentsDict[BasicEnemyAIComponent] = aiComp;
