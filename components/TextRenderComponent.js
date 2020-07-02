@@ -1,14 +1,20 @@
 class TextRenderComponent extends Component {
 
-    constructor(entityID, text, options={}) {
+    constructor(entityID, text, style={}) {
 
         super(entityID);
 
         this.text  = text;
-        this.fontSize = options.fontSize || 18;
-        this.fontFamily = options.fontFamily || 'serif';
-        this.align = options.align || 'left';
-        this.propOffset = options.propOffset || [0,0];
+        this.style = style;
+
+    }
+
+    set style(newStyle) {
+
+        this.fontSize = newStyle.fontSize || this.fontSize || 18;
+        this.fontFamily = newStyle.fontFamily || this.fontFamily || 'serif';
+        this.align = newStyle.align || this.align || 'left';
+        this.propOffset = newStyle.propOffset || this.propOffset || [0,0];
 
     }
 

@@ -104,7 +104,34 @@ class RenderSystem extends System {
                 ctx.strokeStyle = strokeStr;
                 ctx.fillStyle = fillStr;
 
-                if (shapeC) {
+                const transCAngle = !transformC ? 0 : ParentComponent.getInheritedValue(entityID, entities, TransformComponent, 'angle');
+                if (textC) {
+
+                    ctx.font = ParentComponent.getInheritedValue(entityID, entities, TextRenderComponent, 'fontSize') + 'px ' + 
+                               ParentComponent.getInheritedValue(entityID, entities, TextRenderComponent, 'fontFamily');
+                    ctx.textBaseline = 'middle';
+                    const metrics = ctx.measureText(textC.text);
+                    const w = metrics.width;
+                    const h = metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent;
+
+                    const pos = ParentComponent.getAbsolutePosition(entityID, entities, undefined);
+                    ctx.translate(pos[0], pos[1]);
+
+                    if (transformC) {
+                        ctx.rotate(transCAngle);
+                    }
+
+                    // base y offset is 0.5h as text renders using the y coord of the bottom of the text
+                    ctx.translate((-0.5 + textC.propOffset[0])*w, (textC.propOffset[1])*h);                    
+
+                    if (fillStr) {
+                        ctx.fillText(textC.text, 0, 0);
+                    }
+                    if (strokeStr) {
+                        ctx.strokeText(textC.text, 0, 0);
+                    }
+
+                } else if (shapeC) {
 
                     const shape = shapeC.shape;
 
@@ -125,7 +152,7 @@ class RenderSystem extends System {
                     ctx.translate(-offset[0], -offset[1])
                     
                     if (transformC) {
-                        ctx.rotate(transformC.angle);
+                        ctx.rotate(transCAngle);
                     } else {
                         ctx.rotate(shapeC.body.angle + shapeC.shape.angle);
                     }
@@ -154,33 +181,7 @@ class RenderSystem extends System {
                     }
         
 
-                } else {
-
-                    ctx.font = ParentComponent.getInheritedValue(entityID, entities, TextRenderComponent, 'fontSize') + 'px ' + 
-                               ParentComponent.getInheritedValue(entityID, entities, TextRenderComponent, 'fontFamily');
-                    ctx.textBaseline = 'middle';
-                    const metrics = ctx.measureText(textC.text);
-                    const w = metrics.width;
-                    const h = metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent;
-
-                    const pos = ParentComponent.getAbsolutePosition(entityID, entities, undefined);
-                    ctx.translate(pos[0], pos[1]);
-
-                    if (transformC) {
-                        ctx.rotate(transformC.angle);
-                    }
-
-                    // base y offset is 0.5h as text renders using the y coord of the bottom of the text
-                    ctx.translate((-0.5 + textC.propOffset[0])*w, (textC.propOffset[1])*h);                    
-
-                    if (fillStr) {
-                        ctx.fillText(textC.text, 0, 0);
-                    }
-                    if (strokeStr) {
-                        ctx.strokeText(textC.text, 0, 0);
-                    }
-
-                } 
+                }
 
                 ctx.restore();
 

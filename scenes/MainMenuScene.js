@@ -37,49 +37,57 @@ class MainMenuScene extends Scene {
         }, -1);
         this.addEntity(backgroundID, backgroundC);
 
-        const titleTextID = Entity.GENERATE_ID();
-        const titleTextC = {};
-        titleTextC[TransformComponent] = new TransformComponent(titleTextID, [canvas.width/2, 200], 0);
-        titleTextC[TextRenderComponent] = new TextRenderComponent(titleTextID, 'super pew pew', {fontFamily: 'cursive', fontSize: 56});
-        titleTextC[RenderComponent] = new RenderComponent(titleTextID, {
-            fill: {h:0,s:100,l:50}
+        const titleBgID = Entity.GENERATE_ID();
+        const titleBgC = {};
+        titleBgC[TransformComponent] = new TransformComponent(titleBgID, [canvas.width/2, 200], 0);
+        titleBgC[RenderComponent] = new RenderComponent(titleBgID, {
+            stroke: {h:0,s:100,l:50},
+            strokeWidth: 3,
         });
-        
-        const yCallback = CallbackFactory.createFnAttributeModifier(Math.sin, titleTextC[TransformComponent], ['position', '1'], 4, 0.069),
-              rotCallback = CallbackFactory.createFnAttributeModifier(Math.sin, titleTextC[TransformComponent], ['angle'], 0.1, 0.03),
-              fontCallback = CallbackFactory.createFnAttributeModifier(Math.sin, titleTextC[TextRenderComponent], ['fontSize'], 5, 0.05);
+        titleBgC[TextRenderComponent] = new TextRenderComponent(titleBgID, 'Super Pew Pew', {
+            fontFamily: 'ArcadeIn',
+            fontSize: 100
+        });
 
-        titleTextC[LoopCallbackComponent] = [new LoopCallbackComponent(titleTextID, () => {
+        const yCallback = CallbackFactory.createFnAttributeModifier(Math.sin, titleBgC[TransformComponent], ['position', '1'], 4, 0.069),
+        rotCallback = CallbackFactory.createFnAttributeModifier(Math.sin, titleBgC[TransformComponent], ['angle'], 0.1, 0.03),
+        fontCallback = CallbackFactory.createFnAttributeModifier(Math.sin, titleBgC[TextRenderComponent], ['fontSize'], 5, 0.05);
+
+        titleBgC[LoopCallbackComponent] = [new LoopCallbackComponent(titleBgID, () => {
             yCallback();
             rotCallback();
             fontCallback();
-            titleTextC[RenderComponent].fill.h += 1.5;
+            titleBgC[RenderComponent].stroke.h += 1.5;
         })];
-        this.addEntity(titleTextID, titleTextC);
+
+        this.addEntity(titleBgID, titleBgC);
+
 
         const buttonID = Entity.GENERATE_ID();
         const buttonC = GUIFactory.createSimpleButton(buttonID, 0, {
-            fill: {r:255,g:0,b:0},
+            fill: {r:255,g:255,b:255},
+            stroke: {},
+            fontSize: 72
         }, {
-            fill: {r:0,g:0,b:255},
+            fontSize: 86,
+            stroke: {h:0,s:100,l:50}
         }, {
-            fill: {r:0,g:255,b:0},
+            fill: {r:225,g:225,b:225}
         });
         buttonC[MouseInteractableComponent].listeners.mouseup.push(() => this.game.changeScene(new GameScene(this.game)));
         buttonC[TransformComponent] = new TransformComponent(buttonID, [canvas.width/2, 350], 0);
-        buttonC[ShapeComponent] = new ShapeComponent(buttonID, p2.Shape.BOX, {width: 75, height: 50}, [0,0], [0,0], 0);
+        buttonC[ShapeComponent] = new ShapeComponent(buttonID, p2.Shape.BOX, {width: 140, height: 35}, [0,0], [0,0], 0);
+        buttonC[TextRenderComponent] = new TextRenderComponent(buttonID, 'PLAY', {
+            fontSize: 72, 
+            fontFamily: 'ArcadeIn'
+        });
+        buttonC[LoopCallbackComponent] = [new LoopCallbackComponent(buttonID, () => {
+            if (buttonC[RenderComponent].stroke.h != undefined) {
+                buttonC[RenderComponent].stroke.h += 3;
+            }
+        })]
         this.addEntity(buttonID, buttonC);
-
-        const buttonTextID = Entity.GENERATE_ID();
-        const textC = {};
-        textC[TransformComponent] = new TransformComponent(buttonTextID, [0,0], 0);
-        textC[ParentComponent] = new ParentComponent(buttonTextID, buttonID, [0,0], [0,0]);
-        textC[RenderComponent] = new RenderComponent(buttonTextID, {
-            fill: {r:255,g:255,b:255}
-        }, {}, 1, 3);
-        textC[TextRenderComponent] = new TextRenderComponent(buttonTextID, 'play', {fontSize: 28, fontFamily: 'cursive'});
-        this.addEntity(buttonTextID, textC);
-
+        
     }
 
 }
