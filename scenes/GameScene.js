@@ -45,11 +45,12 @@ class GameScene extends Scene {
 
         this.platformIDs = [];
         this.lastPlatformI = 2;
-        this.score = 0;
+        this.score = new Observable(0);
 
         this.createTeleporters();
         this.createPlatforms();
         this.createPlayer();
+        this.createBackground();
         this.createWeaponCrate();
         this.createUI();
 
@@ -103,25 +104,24 @@ class GameScene extends Scene {
         const entityID = Entity.GENERATE_ID();
         let c;
         if (type == GameScene.EnemyTypes.REGULAR) {
-            c = BasicEnemyFactory.createEnemy(entityID, [canvas.width/2, 0], 30*this.spawnDir, 40, 3, 1);
+            c = BasicEnemyFactory.createEnemy(entityID, [canvas.width/2, 0], 30, 40, 3, 1);
         } else if (type == GameScene.EnemyTypes.BIG) {
-            c = BasicEnemyFactory.createEnemy(entityID, [canvas.width/2, 0], 30*this.spawnDir, 80, 12, 3);
-            c[RenderComponent].fill = 'rgb(200,0,0)';
+            c = BasicEnemyFactory.createEnemy(entityID, [canvas.width/2, 0], 30, 80, 12, 3);
         } else if (type == GameScene.EnemyTypes.FLYING) {
-            c = BasicEnemyFactory.createEnemy(entityID, [canvas.width/2, 0], 15*this.spawnDir, 30, 2, 0.2);
-            c[RenderComponent].fill = 'pink';
+            c = BasicEnemyFactory.createEnemy(entityID, [canvas.width/2, 0], 15, 30, 2, 0.2);
             c[ShapeComponent].shape.material = ProjectileWeaponComponent.LOSSLESS_BOUNCE_MATERIAL;
             c[FlyingEnemyAIComponent] = new FlyingEnemyAIComponent(entityID, this.playerID, 25);
         } else {
             throw new Error();
         }
+        c[PhysicsComponent].body.velocity[0] *= this.spawnDir;
 
         this.addEntity(entityID, c); 
 
         this.spawnI++;
 
         if (this.spawnI >= this.currentSpawnRotation.spawnTypes.length) {
-            this.spawnDir = Math.random < 0.5 ? -1 : 1;
+            this.spawnDir = Math.random() < 0.5 ? -1 : 1;
             this.spawnI = 0;
             this.currentSpawnRotation = this.getSpawnRotation();
         }
@@ -155,17 +155,57 @@ class GameScene extends Scene {
 
     }
 
+    createBackground() {
+
+        const canvas = document.getElementsByTagName('canvas')[0];
+
+        this.backgroundID = Entity.GENERATE_ID();
+        this.backgroundC = {};
+        this.backgroundC[TransformComponent] = new TransformComponent(this.backgroundID, [canvas.width/2, canvas.height/2], 0);
+        this.backgroundC[ShapeComponent] = new ShapeComponent(this.backgroundID, p2.Shape.BOX, {width: 1200, height: 659}, [0,0], [0,0], 0);
+        this.backgroundC[RenderComponent] = new RenderComponent(this.backgroundID, {
+            fill: {r:0,g:0,b:0,a:0.2}
+        }, GameScene.BACKGROUND_LAYER, true);
+        
+        this.addEntity(this.backgroundID, this.backgroundC);
+
+    }
+
     createUI() {
 
         const canvas = document.getElementsByTagName('canvas')[0];
+
+        const fpsCounterID = Entity.GENERATE_ID();
+        const fpsCounterC = {};
+        fpsCounterC[TransformComponent] = new TransformComponent(this.scoreTextID, [40, 25], 0);
+        fpsCounterC[TextRenderComponent] = new TextRenderComponent(this.scoreTextID, 'FPS: ??', {
+            fontFamily: 'cursive', 
+            fontSize: 16,
+            propOffset: [0.5, 0]
+        });
+        fpsCounterC[RenderComponent] = new RenderComponent(this.scoreTextID, {
+            fill: {r:255,g:255,b:255}
+        }, GameScene.GAME_OVERLAY_LAYER, true);
+        fpsCounterC[LoopCallbackComponent] = [new LoopCallbackComponent(fpsCounterID, (obj) => {
+            const fps = (obj.dt / 0.1666666667) * 60;
+            fpsCounterC[TextRenderComponent].text = "FPS: " + fps.toFixed(0);
+        }, 30)];
+        this.addEntity(fpsCounterID, fpsCounterC);
+
 
         this.scoreTextID = Entity.GENERATE_ID();
         this.scoreTextC = {};
         this.scoreTextC[TransformComponent] = new TransformComponent(this.scoreTextID, [canvas.width/2, 50], 0);
         this.scoreTextC[TextRenderComponent] = new TextRenderComponent(this.scoreTextID, '0', {fontFamily: 'cursive', fontSize: 56});
-        this.scoreTextC[RenderComponent] = new RenderComponent(this.scoreTextID, 'white', 'black', 2, GameScene.GAME_OVERLAY_LAYER, true);
+        this.scoreTextC[RenderComponent] = new RenderComponent(this.scoreTextID, {
+            fill: {r:255,g:255,b:255}
+        }, GameScene.GAME_OVERLAY_LAYER, true);
         this.scoreTextC[LoopCallbackComponent] = [];
         this.addEntity(this.scoreTextID, this.scoreTextC);
+
+        this.score.addChangeListener((prev, curr) => {
+            this.scoreTextC[TextRenderComponent].text = ''+curr;
+        })
 
         this.gameMouseUiID = Entity.GENERATE_ID();
         this.gameMouseUiC = {};
@@ -182,14 +222,20 @@ class GameScene extends Scene {
         this.scorePopupC[ShapeComponent] = new ShapeComponent(this.scorePopupID, p2.Shape.BOX,
             {width: canvas.width, height: canvas.height}, [0,0], [0,0], 0);
         this.scorePopupC[TransformComponent] = new TransformComponent(this.scorePopupID, [canvas.width/2, canvas.height/2], 0);
-        this.scorePopupC[RenderComponent] = new RenderComponent(this.scorePopupID, 'rgba(255,255,255,0.5)', undefined, undefined, GameScene.OVERLAY_LAYER, true);
+        this.scorePopupC[RenderComponent] = new RenderComponent(this.scorePopupID, {
+            fill: {r:0,g:0,b:0,a:0.1}
+        }, GameScene.OVERLAY_LAYER, true);
         this.scorePopupC[RenderComponent].render = false;
 
         this.addEntity(this.scorePopupID, this.scorePopupC);
 
         this.scorePopupTextID = Entity.GENERATE_ID();
         this.scorePopupTextC = {};
-        this.scorePopupTextC[RenderComponent] = new RenderComponent(this.scorePopupTextID, 'white', 'black', 2, GameScene.OVERLAY_LAYER, 'inherit');
+        this.scorePopupTextC[RenderComponent] = new RenderComponent(this.scorePopupTextID, {
+            fill: {r:255,g:255,b:255}, 
+            stroke: {r:0,g:0,b:0}, 
+            strokeWidth: 2
+        }, GameScene.OVERLAY_LAYER, 'inherit');
         this.scorePopupTextC[RenderComponent].render = 'inherit'
         this.scorePopupTextC[TextRenderComponent] = new TextRenderComponent(this.scorePopupTextID, 'you died with 0 points lole :p', {
             fontSize: 54,
@@ -197,15 +243,26 @@ class GameScene extends Scene {
         });
         this.scorePopupTextC[ParentComponent] = new ParentComponent(this.scorePopupTextID, this.scorePopupID, [0, 0], [0,0], Callbacks.DELETE_ENTITY);
         this.scorePopupTextC[TransformComponent] = new TransformComponent(this.scorePopupTextID, [0, -100], 0);
+        this.scorePopupTextC[LoopCallbackComponent] = [new LoopCallbackComponent(this.scorePopupTextID,
+            CallbackFactory.createFnAttributeModifier(Math.sin, this.scorePopupTextC[TransformComponent], ['position', '1'], 4, 0.02)
+        ), new LoopCallbackComponent(this.scorePopupTextID, 
+            CallbackFactory.createFnAttributeModifier(Math.sin, this.scorePopupTextC[TransformComponent], ['angle'], 0.1, 0.015)
+        ), new LoopCallbackComponent(this.scorePopupTextID,
+            CallbackFactory.createFnAttributeModifier(Math.sin, this.scorePopupTextC[TextRenderComponent], ['fontSize'], 3, 0.05)
+        )]
 
         this.addEntity(this.scorePopupTextID, this.scorePopupTextC);
 
         const playAgainID = Entity.GENERATE_ID();
-        const playAgainC = ButtonFactory.createSimpleButton(playAgainID, GameScene.OVERLAY_LAYER, {fill: 'red'}, {fill: 'blue'}, {fill: 'lightgreen'});
+        const playAgainC = GUIFactory.createSimpleButton(playAgainID, GameScene.OVERLAY_LAYER, 
+            {stroke: {r:194,g:0,b:255}, strokeWidth: 5}, 
+            {stroke: {r:255,g:100,b:255}}, 
+            {stroke: {r:255,g:150,b:255}});
         playAgainC[MouseInteractableComponent].listeners.mouseup.push(() => {
             
             this.createPlayer();
             this.equipNextWeapon();
+            this.repositionWeaponCrate();
 
             for (let entityID of Object.keys(this.entities)) {
                 if (this.entities[entityID][BasicEnemyAIComponent]) {
@@ -213,8 +270,7 @@ class GameScene extends Scene {
                 }
             }
 
-            this.score = 0;
-            this.scoreTextC[TextRenderComponent].text = '0';
+            this.score.value = 0;
             this.scorePopupC[RenderComponent].render = false;
             this.scorePopupC[MouseInteractableComponent].interactable = false;
         
@@ -222,43 +278,46 @@ class GameScene extends Scene {
         playAgainC[MouseInteractableComponent].interactable = 'inherit';
         playAgainC[RenderComponent].isStatic = 'inherit';
         playAgainC[RenderComponent].render = 'inherit';
-        playAgainC[ShapeComponent] = new ShapeComponent(playAgainID, p2.Shape.BOX, {width: 150, height: 50}, [0,0], [0,0], 0);
+        playAgainC[ShapeComponent] = new ShapeComponent(playAgainID, p2.Shape.BOX, {width: 200, height: 60}, [0,0], [0,0], 0);
         playAgainC[ParentComponent] = new ParentComponent(playAgainID, this.scorePopupID, [0, 0], [0,0], Callbacks.DELETE_ENTITY);
-        playAgainC[TransformComponent] = new TransformComponent(playAgainID, [0, 100], 0);
+        playAgainC[TransformComponent] = new TransformComponent(playAgainID, [0, 80], 0);
 
         this.addEntity(playAgainID, playAgainC);
 
         const playAgainTextID = Entity.GENERATE_ID();
-        const playAgainTextC = {};
-        playAgainTextC[RenderComponent] = new RenderComponent(playAgainTextID, 'white', undefined, 1, GameScene.OVERLAY_LAYER, 'inherit');
-        playAgainTextC[RenderComponent].render = 'inherit'
-        playAgainTextC[TextRenderComponent] = new TextRenderComponent(playAgainTextID, 'play agen', {fontSize: 28, fontFamily: 'cursive'});
-        playAgainTextC[ParentComponent] = new ParentComponent(playAgainTextID, playAgainID, [0, 0], [0,0], Callbacks.DELETE_ENTITY);
-        playAgainTextC[TransformComponent] = new TransformComponent(playAgainID, [0, 0], 0);
+        const playAgainTextC = GUIFactory.createButtonDependent(playAgainTextID, playAgainC, 
+            {fill: {r:255,g:0,b:255}}, 
+            {fill: {r:255,g:100,b:255}}, 
+            {fill: {r:255,g:150,b:255}}
+        );
+        playAgainTextC[TextRenderComponent] = new TextRenderComponent(playAgainTextID, 'Play again', {fontSize: 28, fontFamily: 'cursive'});
 
         this.addEntity(playAgainTextID, playAgainTextC);
 
         const quitID = Entity.GENERATE_ID();
-        const quitC = ButtonFactory.createSimpleButton(quitID, GameScene.OVERLAY_LAYER, {fill: 'red'}, {fill: 'blue'}, {fill: 'lightgreen'});
+        const quitC = GUIFactory.createSimpleButton(quitID, GameScene.OVERLAY_LAYER, 
+            {stroke: {r:194,g:0,b:255}, strokeWidth: 5, fill:{}}, 
+            {stroke: {r:255,g:100,b:255}, fill:{}}, 
+            {stroke: {r:255,g:150,b:255}, fill:{}});
         quitC[MouseInteractableComponent].listeners.mouseup.push(() => {      
             this.game.changeScene(new MainMenuScene(this.game));
         });
         quitC[MouseInteractableComponent].interactable = 'inherit';
         quitC[RenderComponent].isStatic = 'inherit';
         quitC[RenderComponent].render = 'inherit';
-        quitC[ShapeComponent] = new ShapeComponent(quitID, p2.Shape.BOX, {width: 80, height: 50}, [0,0], [0,0], 0);
+        quitC[ShapeComponent] = new ShapeComponent(quitID, p2.Shape.BOX, {width: 140, height: 60}, [0,0], [0,0], 0);
         quitC[ParentComponent] = new ParentComponent(quitID, this.scorePopupID, [0, 0], [0,0], Callbacks.DELETE_ENTITY);
-        quitC[TransformComponent] = new TransformComponent(quitID, [0, 175], 0);
+        quitC[TransformComponent] = new TransformComponent(quitID, [0, 190], 0);
 
         this.addEntity(quitID, quitC);
 
         const quitTextID = Entity.GENERATE_ID();
-        const quitTextC = {};
-        quitTextC[RenderComponent] = new RenderComponent(quitTextID, 'white', undefined, 1, GameScene.OVERLAY_LAYER, 'inherit');
-        quitTextC[RenderComponent].render = 'inherit'
-        quitTextC[TextRenderComponent] = new TextRenderComponent(quitTextID, 'quit', {fontSize: 28, fontFamily: 'cursive'});
-        quitTextC[ParentComponent] = new ParentComponent(quitTextID, quitID, [0, 0], [0,0], Callbacks.DELETE_ENTITY);
-        quitTextC[TransformComponent] = new TransformComponent(quitTextID, [0, 0], 0);
+        const quitTextC = GUIFactory.createButtonDependent(quitTextID, quitC, 
+            {fill: {r:255,g:0,b:255}}, 
+            {fill: {r:255,g:100,b:255}}, 
+            {fill: {r:255,g:150,b:255}}
+        );
+        quitTextC[TextRenderComponent] = new TextRenderComponent(quitTextID, 'Quit', {fontSize: 28, fontFamily: 'cursive'});
 
         this.addEntity(quitTextID, quitTextC);
 
@@ -366,12 +425,17 @@ class GameScene extends Scene {
             position: [0, 0],
             fixedRotation: true
         }, [shapeComp]);
-        const renComp = new RenderComponent(entityID, 'gold', 'black', 2, GameScene.WEAPON_LAYER);
+        const renComp = new RenderComponent(entityID, {
+            fill: {h:0,s:100,l:50}
+        }, {}, 0, GameScene.WEAPON_LAYER);
         const componentsDict = {};
         componentsDict[ShapeComponent] = shapeComp;
         componentsDict[HealthComponent] = new HealthComponent(entityID, 1, undefined, () => this.pickupWeaponCrate());
         componentsDict[RenderComponent] = renComp;
         componentsDict[PhysicsComponent] = phyComp;
+        componentsDict[LoopCallbackComponent] = [new LoopCallbackComponent(entityID, () => {
+            componentsDict[RenderComponent].fill.h++;
+        })];
 
         this.weaponCrate = componentsDict;
         this.repositionWeaponCrate();
@@ -398,8 +462,7 @@ class GameScene extends Scene {
 
     pickupWeaponCrate() {
 
-        this.score++;
-        this.scoreTextC[TextRenderComponent].text = ''+this.score;
+        this.score.value++;
 
         const sizeCallback = CallbackFactory.createFnAttributeModifier((x) => Math.pow(2, (-(x*x))), this.scoreTextC[TextRenderComponent], 
         ['fontSize'], 25, 0.25, -1.7);
@@ -434,17 +497,20 @@ class GameScene extends Scene {
             fixedRotation: true,
             gravityScale: 2
         }, [shapeComp]);
+        p2.vec2.copy(phyComp.body.previousPosition, phyComp.body.position);
         const healthComp = new HealthComponent(entityID, 1, (obj) => {
             Callbacks.DELETE_ENTITY(obj);
             this.scorePopupC[RenderComponent].render = true;
             this.scorePopupC[MouseInteractableComponent].interactable = true;
-            const txt = 'you died with ' + this.score + ' point' + (this.score != 1 ? 's' : '') + ' lole :p';
+            const txt = 'you died with ' + this.score.value + ' point' + (this.score.value != 1 ? 's' : '') + ' lole :p';
             this.scorePopupTextC[TextRenderComponent].text = txt;
         });
         const jumpComp = new JumpComponent(entityID, 75, 50, 5);
         const contactComp = new ContactDamageComponent(entityID, 1, Infinity, undefined, groups.PICKUP);
 
-        const renComp = new RenderComponent(entityID, 'blue', 'black', 2, GameScene.PLAYER_LAYER);
+        const renComp = new RenderComponent(entityID, {
+            fill: {r:255,g:255,b:255}
+        }, GameScene.PLAYER_LAYER);
         
         let callbackComponent = new LoopCallbackComponent(entityID, (componentsDict, dt) => {
 
@@ -469,9 +535,38 @@ class GameScene extends Scene {
         componentsDict[JumpComponent] = jumpComp;
         componentsDict[HealthComponent] = healthComp;
         componentsDict[LoopCallbackComponent] = [callbackComponent];
+        this.playerC = componentsDict;
 
         this.addEntity(entityID, componentsDict);
-        
+
+        // create a bow attachment for player
+        const bowID = Entity.GENERATE_ID();
+        const bowC = {};
+        bowC[TransformComponent] = new TransformComponent(bowID, [0,0], Math.PI/4);
+        bowC[ShapeComponent] = new ShapeComponent(bowID, p2.Shape.BOX, {width: 25, height: 8}, [0,0], [0,0], 0);
+        bowC[RenderComponent] = new RenderComponent(bowID, {
+            fill: {r:255,g:0,b:225}
+        }, GameScene.PLAYER_LAYER);
+        bowC[ParentComponent] = new ParentComponent(bowID, this.playerID, [-4,6], [0.5,-0.5]);
+        bowC[LoopCallbackComponent] = [new LoopCallbackComponent(bowID, () => {
+            // normalise angle to between 0 and Math.PI*2
+             let angle = (this.currWeapon[TransformComponent].angle % (Math.PI*2));
+             if (angle < 0) {
+                 angle += Math.PI*2;
+             }
+
+             if (angle > Math.PI/2 && angle < Math.PI * 3/2) {
+                bowC[TransformComponent].angle = Math.PI/4;
+                bowC[ParentComponent].propOffset = [0.5, -0.5];
+                bowC[ParentComponent].flatOffset = [-4, 6];
+             } else {
+                bowC[TransformComponent].angle = -Math.PI/4;
+                bowC[ParentComponent].propOffset = [-0.5, -0.5];
+                bowC[ParentComponent].flatOffset = [4, 6];
+             }
+        })];
+        this.addEntity(bowID, bowC);
+
     }
 
     equipNextWeapon() {

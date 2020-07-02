@@ -48,7 +48,7 @@ class Scene {
         this.entities[id] = components;
         this.entityCallbacks[id] = {};
         for (const system of Object.values(this.systemsDict)) {
-            system.addEntity(id, components);
+            system.addEntity(id, components, this.entities);
         }
     }
 

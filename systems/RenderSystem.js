@@ -8,11 +8,11 @@ class RenderSystem extends System {
         this.layers = {};
 
         this.offset = [0,0];  // absolute offset of the rendering, used to pan the 'camera'
-        this.tempOffset = [100,0];  // resets after every update, used for e.g. camera shake
+        this.tempOffset = [0,0];  // resets after every update, used for e.g. camera shake
 
     }
 
-    addEntity(id, components) {
+    addEntity(id, components, entities) {
 
         if (!(components[ShapeComponent]   || components[TextRenderComponent]) ||
             !(components[PhysicsComponent] || components[TransformComponent])) {
@@ -20,12 +20,13 @@ class RenderSystem extends System {
         }
 
         if (super.addEntity(id, components)) {
-            const c = components;
+            const layer = ParentComponent.getInheritedValue(id, entities, RenderComponent, 'layer'),
+                  c = components;
             this.entities[id] = c;
-            if (!this.layers[c[RenderComponent].layer]) {
-                this.layers[c[RenderComponent].layer] = {}
+            if (!this.layers[layer]) {
+                this.layers[layer] = {}
             } 
-            this.layers[c[RenderComponent].layer][id] = c;
+            this.layers[layer][id] = c;
             
             return true;  // entity added
         }
@@ -45,8 +46,6 @@ class RenderSystem extends System {
 
         const canvas = document.getElementsByTagName('canvas')[0];
         const ctx = canvas.getContext('2d', {alpha: false});
-
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
         
         for (const layer of Object.keys(this.layers).sort()) {
             for (const entityID of Object.keys(this.layers[layer])) {
@@ -61,6 +60,27 @@ class RenderSystem extends System {
 
                 if (!ParentComponent.getInheritedValue(entityID, entities, RenderComponent, 'render')) {
                     continue;
+                }
+
+                let fillStr = '',
+                    strokeStr = '';
+
+                const fillObj = ParentComponent.getInheritedValue(entityID, entities, RenderComponent, 'fill');
+                if (!fillObj) {
+                    // skip
+                }else if (fillObj.r != undefined) {  // rgb
+                    fillStr = 'rgb(' + fillObj.r + ',' + fillObj.g + ','  + fillObj.b + ',' + (fillObj.a != undefined ? fillObj.a : '1') + ')';
+                } else if (fillObj.h != undefined) {  // hsl
+                    fillStr = 'hsl(' + fillObj.h + ',' + fillObj.s + '%,' + fillObj.l + '%,' + (fillObj.a != undefined ? fillObj.a : '1') + ')';
+                }
+
+                const strokeObj = ParentComponent.getInheritedValue(entityID, entities, RenderComponent, 'stroke');
+                if (!strokeObj) {
+                    // skip
+                } else if (strokeObj.r != undefined) {  // rgb
+                    strokeStr = 'rgb(' + strokeObj.r + ',' + strokeObj.g + ','  + strokeObj.b + ',' + (strokeObj.a != undefined ? strokeObj.a : '1') + ')';
+                } else if (strokeObj.h != undefined) {  // hsl
+                    strokeStr = 'hsl(' + strokeObj.h + ',' + strokeObj.s + '%,' + strokeObj.l + '%,' + (strokeObj.a != undefined ? strokeObj.a : '1') + ')';
                 }
 
                 ctx.save();
@@ -81,8 +101,8 @@ class RenderSystem extends System {
                 ctx.globalAlpha = ParentComponent.getInheritedValue(entityID, entities, RenderComponent, 'opacity');
                 ctx.lineWidth = ParentComponent.getInheritedValue(entityID, entities, RenderComponent, 'strokeWidth');
                 
-                ctx.strokeStyle = ParentComponent.getInheritedValue(entityID, entities, RenderComponent, 'stroke');
-                ctx.fillStyle = ParentComponent.getInheritedValue(entityID, entities, RenderComponent, 'fill');
+                ctx.strokeStyle = strokeStr;
+                ctx.fillStyle = fillStr;
 
                 if (shapeC) {
 
@@ -124,10 +144,10 @@ class RenderSystem extends System {
                             ctx.arc(0, 0, w, 0, 2*Math.PI, false);    
                         }
     
-                        if (renderC.fill) {
+                        if (fillStr) {
                             ctx.fill();
                         }
-                        if (renderC.stroke) {
+                        if (strokeStr) {
                             ctx.stroke();
                         }
 
@@ -153,10 +173,10 @@ class RenderSystem extends System {
                     // base y offset is 0.5h as text renders using the y coord of the bottom of the text
                     ctx.translate((-0.5 + textC.propOffset[0])*w, (textC.propOffset[1])*h);                    
 
-                    if (renderC.fill) {
+                    if (fillStr) {
                         ctx.fillText(textC.text, 0, 0);
                     }
-                    if (renderC.stroke) {
+                    if (strokeStr) {
                         ctx.strokeText(textC.text, 0, 0);
                     }
 

@@ -21,6 +21,7 @@ class JumpSystem extends System {
 
     update(dt, entities) {
 
+        const cantJumpIds = Object.keys(this.entities);
         for(let i = 0; i < this.world.narrowphase.contactEquations.length; i++){
             
             const c = this.world.narrowphase.contactEquations[i];
@@ -36,13 +37,18 @@ class JumpSystem extends System {
                 continue;
             }
             
+            const jumpComp = this.entities[jumpBody.id][JumpComponent];
             if ((jumpBody == c.bodyA && c.normalA[1] == 1) || 
                 (jumpBody == c.bodyB && c.normalA[1] == -1)) {
-                this.entities[jumpBody.id][JumpComponent].canJump = true;
-                this.entities[jumpBody.id][JumpComponent].remainingBoost = this.entities[jumpBody.id][JumpComponent].totalBoost;
+                cantJumpIds.splice(cantJumpIds.indexOf(jumpBody.id), 1);
+                jumpComp.didJump = false;
+                jumpComp.canJump = true;
+                jumpComp.remainingBoost = this.entities[jumpBody.id][JumpComponent].totalBoost;
             }
 
         }
+
+        cantJumpIds.forEach((id) => this.entities[id][JumpComponent].canJump = false);
 
         
         for (const jumpRequest of this.jumpRequests) {
@@ -54,8 +60,9 @@ class JumpSystem extends System {
 
             if (jumpC.canJump) {
                 physC.body.velocity[1] = -jumpC.initialStrength;
+                jumpC.didJump = true;
                 jumpC.canJump = false;
-            } else {
+            } else if (jumpC.didJump) {
                 let boost;
                 if (jumpC.remainingBoost < jumpC.boostRate) {
                     boost = jumpC.remainingBoost;

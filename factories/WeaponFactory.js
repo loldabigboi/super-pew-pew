@@ -5,7 +5,9 @@ class WeaponFactory {
         const w = 18, h = 6;
 
         const c = {};
-        c[RenderComponent] = new RenderComponent(entityID, 'red', 'black', 2, GameScene.WEAPON_LAYER);
+        c[RenderComponent] = new RenderComponent(entityID, {
+            fill: {r:255,g:0,b:0}
+        }, GameScene.WEAPON_LAYER);
         c[ShapeComponent] = new ShapeComponent(entityID, p2.Shape.BOX, {width: w, height: h}, [w/2, 0], Offsets.NONE, 0);
         c[ParentComponent] = new ParentComponent(entityID, parentID, Offsets.NONE, Offsets.NONE);
         c[TransformComponent] = new TransformComponent(entityID, Offsets.NONE, 0);
@@ -21,7 +23,9 @@ class WeaponFactory {
         const w = 20, h = 6;
 
         const c = {};
-        c[RenderComponent] = new RenderComponent(entityID, 'orange', 'black', 2, GameScene.WEAPON_LAYER);
+        c[RenderComponent] = new RenderComponent(entityID, {
+            fill: {r:255,g:165,b:0}
+        }, GameScene.WEAPON_LAYER);
         c[ShapeComponent] = new ShapeComponent(entityID, p2.Shape.BOX, {width: w, height: h}, [w/2, 0], Offsets.NONE, 0);
         c[ParentComponent] = new ParentComponent(entityID, parentID, Offsets.NONE, Offsets.NONE);
         c[TransformComponent] = new TransformComponent(entityID, Offsets.NONE, 0);
@@ -39,7 +43,9 @@ class WeaponFactory {
         const w = 20, h = 8;
 
         const c = {};
-        c[RenderComponent] = new RenderComponent(entityID, 'green', 'black', 2, GameScene.WEAPON_LAYER);
+        c[RenderComponent] = new RenderComponent(entityID, {
+            fill: {r:0,g:128,b:0}
+        }, GameScene.WEAPON_LAYER);
         c[ShapeComponent] = new ShapeComponent(entityID, p2.Shape.BOX, {width: w, height: h}, [w/2, 0], Offsets.NONE, 0);
         c[ParentComponent] = new ParentComponent(entityID, parentID, Offsets.NONE, Offsets.NONE);
         c[TransformComponent] = new TransformComponent(entityID, Offsets.NONE, 0);
@@ -57,7 +63,9 @@ class WeaponFactory {
         const w = 30, h = 16;
 
         const c = {};
-        c[RenderComponent] = new RenderComponent(entityID, 'purple', 'black', 2, GameScene.WEAPON_LAYER);
+        c[RenderComponent] = new RenderComponent(entityID, {
+            fill: {r:128,g:0,b:128}
+        }, GameScene.WEAPON_LAYER);
         c[ShapeComponent] = new ShapeComponent(entityID, p2.Shape.BOX, {width: w, height: h}, [w/4, 0], Offsets.NONE, 0);
         c[ParentComponent] = new ParentComponent(entityID, parentID, [0, 4], Offsets.NONE);
         c[TransformComponent] = new TransformComponent(entityID, Offsets.NONE, 0);
@@ -73,7 +81,9 @@ class WeaponFactory {
     static createExplosion(entityID, position, initSize, dSize, maxSize) {
 
         const c = {};
-        c[RenderComponent] = new RenderComponent(entityID, 'rgba(255, 205, 54, 0.8)', undefined, 1, GameScene.WEAPON_LAYER);
+        c[RenderComponent] = new RenderComponent(entityID, {
+            fill: {r:255,g:213,b:46,a:0.35}
+        }, GameScene.WEAPON_LAYER);
         c[ShapeComponent] = new ShapeComponent(entityID, p2.Shape.CIRCLE, {radius: initSize}, Offsets.NONE, Offsets.NONE, 0, ShapeComponent.GROUPS.PROJ,
             ShapeComponent.MASKS.PROJ, 0);
         c[ContactDamageComponent] = new ContactDamageComponent(entityID, 100, Infinity, undefined, -1);
@@ -93,7 +103,9 @@ class WeaponFactory {
         const w = 40, h = 15;
 
         const c = {};
-        c[RenderComponent] = new RenderComponent(entityID, 'cyan', 'black', 2, GameScene.WEAPON_LAYER);
+        c[RenderComponent] = new RenderComponent(entityID, {
+            fill: {r:0,g:255,b:255}
+        }, GameScene.WEAPON_LAYER);
         c[ShapeComponent] = new ShapeComponent(entityID, p2.Shape.BOX, {width: w, height: h}, [0, 0], Offsets.NONE, 0);
         c[ParentComponent] = new ParentComponent(entityID, parentID, [0, -7], Offsets.NONE);
         c[TransformComponent] = new TransformComponent(entityID, Offsets.NONE, 0);
@@ -122,7 +134,8 @@ class WeaponFactory {
                 speed: 8, 
                 damping: 0.1,
                 speedVariance: 4,
-                dRadius: 0.5
+                dRadius: 0.5,
+                lifetime: 1500
             }, 12, angle-Math.PI/4, angle+Math.PI/4, (obj) => {
                 obj.components[ShapeComponent].shape.radius += -5 + Math.random()*10;
             });
@@ -142,7 +155,9 @@ class WeaponFactory {
         const w = 32, h = 18;
 
         const c = {};
-        c[RenderComponent] = new RenderComponent(entityID, 'pink', 'black', 2, GameScene.WEAPON_LAYER);
+        c[RenderComponent] = new RenderComponent(entityID, {
+            fill: {r:255,g:192,b:203}
+        }, GameScene.WEAPON_LAYER);
         c[ShapeComponent] = new ShapeComponent(entityID, p2.Shape.BOX, {width: w, height: h}, [0, 0], Offsets.NONE, 0);
         c[TransformComponent] = new TransformComponent(entityID, Offsets.NONE, 0);
         c[ParentComponent] = new ParentComponent(entityID, parentID, [0, 5], Offsets.NONE);

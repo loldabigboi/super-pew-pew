@@ -10,9 +10,13 @@ class LoopCallbackComponent extends Component {
      * @param {*} id 
      * @param {*} callback Takes the dictionary of components for this entity and dt as input (components, dt).
      */
-    constructor(id, callback) {
+    constructor(id, callback, loopsBetween=1) {
+
         super(id);
         this.callback = callback;
+        this.loopsBetween = loopsBetween;  // number of loops between calls
+        this.currLoops = 0;
+        
     }
 
 }

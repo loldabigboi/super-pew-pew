@@ -61,17 +61,6 @@ class ProjectileWeaponSystem extends System {
 
             }
 
-            // const trackC = c[TrackingComponent];
-            // if (projWeapC.kickback != 0 && trackC) {
-            //     const trackedEntityC = entities[trackC.trackingID];
-            //     const trackedPhysC = trackedEntityC[PhysicsComponent];
-            //     if (trackedPhysC) {  // apply kickback force to tracked body
-            //         let dVel = []
-            //         p2.vec2.rotate(dVel, [-projWeapC.kickback, 0], transC.angle);
-            //         trackedPhysC.body.applyImpulse(dVel);
-            //     }
-            // }
-
             const groups = ShapeComponent.GROUPS,
                   masks = ShapeComponent.MASKS;
 
@@ -109,7 +98,9 @@ class ProjectileWeaponSystem extends System {
                 componentsDict[ProjectileComponent] = new ProjectileComponent(projID, projWeapC.pMaxBounces, projWeapC.pCallbacks.onCreation, projWeapC.pCallbacks.onBounce,
                     projWeapC.pCallbacks.onDeath);
                 componentsDict[HealthComponent] = new HealthComponent(projID, projWeapC.pPenetrationDepth, projWeapC.pCallbacks.onHit, projWeapC.pCallbacks.onDeath);
-                componentsDict[RenderComponent] = new RenderComponent(projID, 'black', 'black');
+                componentsDict[RenderComponent] = new RenderComponent(projID, {
+                    fill: {r:255,g:255,b:255}
+                }, GameScene.PROJ_LAYER);
 
                 projWeapC.onFire({
                     id: entityID,

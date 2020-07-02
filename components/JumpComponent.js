@@ -8,6 +8,7 @@ class JumpComponent extends Component {
         this.totalBoost = totalBoost;
         this.remainingBoost = totalBoost;
         this.boostRate = boostRate;
+        this.didJump = false;
         this.canJump = false;
 
     }

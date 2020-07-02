@@ -28,27 +28,42 @@ class MainMenuScene extends Scene {
 
         const canvas = document.getElementsByTagName('canvas')[0];
 
+        const backgroundID = Entity.GENERATE_ID();
+        const backgroundC = {};
+        backgroundC[TransformComponent] = new TransformComponent(backgroundID, [canvas.width/2, canvas.height/2], 0);
+        backgroundC[ShapeComponent] = new ShapeComponent(backgroundID, p2.Shape.BOX, {width: canvas.width, height: canvas.height}, [0,0], [0,0], -1);
+        backgroundC[RenderComponent] = new RenderComponent(backgroundID, {
+            fill: {r:0,g:0,b:0,a:0.1}
+        }, -1);
+        this.addEntity(backgroundID, backgroundC);
+
         const titleTextID = Entity.GENERATE_ID();
         const titleTextC = {};
         titleTextC[TransformComponent] = new TransformComponent(titleTextID, [canvas.width/2, 200], 0);
         titleTextC[TextRenderComponent] = new TextRenderComponent(titleTextID, 'super pew pew', {fontFamily: 'cursive', fontSize: 56});
-        titleTextC[RenderComponent] = new RenderComponent(titleTextID, 'purple', 'orange', 2);
-        titleTextC[LoopCallbackComponent] = [new LoopCallbackComponent(titleTextID,
-            CallbackFactory.createFnAttributeModifier(Math.sin, titleTextC[TransformComponent], ['position', '1'], 4, 0.069)
-        ), new LoopCallbackComponent(titleTextID, 
-            CallbackFactory.createFnAttributeModifier(Math.sin, titleTextC[TransformComponent], ['angle'], 0.1, 0.03)
-        ), new LoopCallbackComponent(titleTextID,
-            CallbackFactory.createFnAttributeModifier(Math.sin, titleTextC[TextRenderComponent], ['fontSize'], 5, 0.05)
-        )]
+        titleTextC[RenderComponent] = new RenderComponent(titleTextID, {
+            fill: {h:0,s:100,l:50}
+        });
+        
+        const yCallback = CallbackFactory.createFnAttributeModifier(Math.sin, titleTextC[TransformComponent], ['position', '1'], 4, 0.069),
+              rotCallback = CallbackFactory.createFnAttributeModifier(Math.sin, titleTextC[TransformComponent], ['angle'], 0.1, 0.03),
+              fontCallback = CallbackFactory.createFnAttributeModifier(Math.sin, titleTextC[TextRenderComponent], ['fontSize'], 5, 0.05);
+
+        titleTextC[LoopCallbackComponent] = [new LoopCallbackComponent(titleTextID, () => {
+            yCallback();
+            rotCallback();
+            fontCallback();
+            titleTextC[RenderComponent].fill.h += 1.5;
+        })];
         this.addEntity(titleTextID, titleTextC);
 
         const buttonID = Entity.GENERATE_ID();
-        const buttonC = ButtonFactory.createSimpleButton(buttonID, 0, {
-            fill: 'red'
+        const buttonC = GUIFactory.createSimpleButton(buttonID, 0, {
+            fill: {r:255,g:0,b:0},
         }, {
-            fill: 'blue'
+            fill: {r:0,g:0,b:255},
         }, {
-            fill: 'lightgreen'
+            fill: {r:0,g:255,b:0},
         });
         buttonC[MouseInteractableComponent].listeners.mouseup.push(() => this.game.changeScene(new GameScene(this.game)));
         buttonC[TransformComponent] = new TransformComponent(buttonID, [canvas.width/2, 350], 0);
@@ -59,7 +74,9 @@ class MainMenuScene extends Scene {
         const textC = {};
         textC[TransformComponent] = new TransformComponent(buttonTextID, [0,0], 0);
         textC[ParentComponent] = new ParentComponent(buttonTextID, buttonID, [0,0], [0,0]);
-        textC[RenderComponent] = new RenderComponent(buttonTextID, 'white', 'white', 1, 3);
+        textC[RenderComponent] = new RenderComponent(buttonTextID, {
+            fill: {r:255,g:255,b:255}
+        }, {}, 1, 3);
         textC[TextRenderComponent] = new TextRenderComponent(buttonTextID, 'play', {fontSize: 28, fontFamily: 'cursive'});
         this.addEntity(buttonTextID, textC);
 

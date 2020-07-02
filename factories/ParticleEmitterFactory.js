@@ -26,7 +26,12 @@ class ParticleEmitterFactory {
                 damping: options.damping
             }, [particleC[ShapeComponent]]);
 
-            particleC[RenderComponent] = new RenderComponent(particleID, options.fill || 'lightgrey', options.stroke, 1, GameScene.WEAPON_LAYER);
+            particleC[RenderComponent] = new RenderComponent(particleID, {
+                    fill: options.fill || {r:255,g:255,b:255}, 
+                    stroke: options.stroke || {},
+                    strokeWidth: options.strokeWidth,
+                    opacity: options.opacity || 1
+            }, GameScene.WEAPON_LAYER);
 
             const lifeVariance = options.lifetimeVariance || 0;
             particleC[DelayedCallbackComponent] = [new DelayedCallbackComponent(particleID, 

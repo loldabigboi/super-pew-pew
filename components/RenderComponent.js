@@ -1,17 +1,27 @@
 class RenderComponent extends Component {
 
-    constructor(entityID, fill, stroke, strokeWidth=1, layer=0, isStatic=false, opacity=1) {
+    constructor(entityID, style, layer=0, isStatic=false) {
 
         super(entityID);
 
-        this.fill = fill;
-        this.stroke = stroke;
-        this.strokeWidth = strokeWidth;
+        this.style = style;
         this.layer = layer;
-        this.opacity = opacity;
 
-        this.isStatic = isStatic;  // whether this entity is affected by the RenderSystem offset
-        this.render = true;  // flag indicating whether this 
+        this.render = true;  // flag indicating whether this entity should be rendered
+        this.isStatic = isStatic;
+
+    }
+
+    set style(newStyle) {
+
+        this.fill = newStyle.fill || this.fill || {};
+        this.stroke = newStyle.stroke || this.stroke || {};
+
+        this.strokeWidth = newStyle.strokeWidth || this.strokeWidth || 0;
+        this.opacity = newStyle.opacity || this.opacity || 1;
+
+        this.shadowBlur = newStyle.shadowBlur || this.shadowBlur || 0;
+        this.shadowColour = newStyle.shadowColour || this.shadowColour;
 
     }
 
