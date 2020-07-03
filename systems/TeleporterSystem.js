@@ -39,7 +39,12 @@ class TeleporterSystem extends System {
                 }
                 physC.body.position = teleC.targetPosition.slice();
                 physC.body.interpolatedPosition = physC.body.position.slice();
-                teleC.onTeleport(id, entities[id]);
+                teleC.onTeleport({
+                    teleID: entityID,
+                    otherID: id,
+                    components: entities[entityID],
+                    otherComponents: entities[id]
+                });
             }
 
         }

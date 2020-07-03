@@ -37,42 +37,47 @@ class MainMenuScene extends Scene {
         }, -1);
         this.addEntity(backgroundID, backgroundC);
 
-        const titleBgID = Entity.GENERATE_ID();
-        const titleBgC = {};
-        titleBgC[TransformComponent] = new TransformComponent(titleBgID, [canvas.width/2, 200], 0);
-        titleBgC[RenderComponent] = new RenderComponent(titleBgID, {
+        const titleID = Entity.GENERATE_ID();
+        const titleC = {};
+        titleC[TransformComponent] = new TransformComponent(titleID, [canvas.width/2, 200], 0);
+        titleC[RenderComponent] = new RenderComponent(titleID, {
             stroke: {h:0,s:100,l:50},
             strokeWidth: 3,
+            shadowBlur: 2,
+            shadowColor: 'stroke'
         });
-        titleBgC[TextRenderComponent] = new TextRenderComponent(titleBgID, 'Super Pew Pew', {
+        titleC[TextRenderComponent] = new TextRenderComponent(titleID, 'Super Pew Pew', {
             fontFamily: 'ArcadeIn',
             fontSize: 100
         });
 
-        const yCallback = CallbackFactory.createFnAttributeModifier(Math.sin, titleBgC[TransformComponent], ['position', '1'], 4, 0.069),
-        rotCallback = CallbackFactory.createFnAttributeModifier(Math.sin, titleBgC[TransformComponent], ['angle'], 0.1, 0.03),
-        fontCallback = CallbackFactory.createFnAttributeModifier(Math.sin, titleBgC[TextRenderComponent], ['fontSize'], 5, 0.05);
+        const yCallback = CallbackFactory.createFnAttributeModifier(Math.sin, titleC[TransformComponent], ['position', '1'], 4, 0.069),
+        rotCallback = CallbackFactory.createFnAttributeModifier(Math.sin, titleC[TransformComponent], ['angle'], 0.1, 0.03),
+        fontCallback = CallbackFactory.createFnAttributeModifier(Math.sin, titleC[TextRenderComponent], ['fontSize'], 5, 0.05);
 
-        titleBgC[LoopCallbackComponent] = [new LoopCallbackComponent(titleBgID, () => {
+        titleC[LoopCallbackComponent] = [new LoopCallbackComponent(titleID, () => {
             yCallback();
             rotCallback();
             fontCallback();
-            titleBgC[RenderComponent].stroke.h += 1.5;
+            titleC[RenderComponent].stroke.h += 1.5;
         })];
 
-        this.addEntity(titleBgID, titleBgC);
+        this.addEntity(titleID, titleC);
 
 
         const buttonID = Entity.GENERATE_ID();
         const buttonC = GUIFactory.createSimpleButton(buttonID, 0, {
-            fill: {r:255,g:255,b:255},
-            stroke: {},
-            fontSize: 72
+            stroke: {r:255,g:255,b:255},
+            strokeWidth: 2,
+            fontSize: 72,
+            shadowBlur: 1,
+            shadowColor: 'stroke'
         }, {
-            fontSize: 86,
-            stroke: {h:0,s:100,l:50}
+            fontSize: 76,
+            stroke: {r:100,g:255,b:100}
         }, {
-            fill: {r:225,g:225,b:225}
+            fontSize: 68,
+            stroke: {r:100,g:200,b:100}
         });
         buttonC[MouseInteractableComponent].listeners.mouseup.push(() => this.game.changeScene(new GameScene(this.game)));
         buttonC[TransformComponent] = new TransformComponent(buttonID, [canvas.width/2, 350], 0);

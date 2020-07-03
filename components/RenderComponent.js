@@ -21,7 +21,7 @@ class RenderComponent extends Component {
         this.opacity = newStyle.opacity || this.opacity || 1;
 
         this.shadowBlur = newStyle.shadowBlur || this.shadowBlur || 0;
-        this.shadowColour = newStyle.shadowColour || this.shadowColour;
+        this.shadowColor = newStyle.shadowColor || this.shadowColor;
 
     }
 

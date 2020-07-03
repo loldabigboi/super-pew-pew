@@ -62,26 +62,8 @@ class RenderSystem extends System {
                     continue;
                 }
 
-                let fillStr = '',
-                    strokeStr = '';
-
-                const fillObj = ParentComponent.getInheritedValue(entityID, entities, RenderComponent, 'fill');
-                if (!fillObj) {
-                    // skip
-                }else if (fillObj.r != undefined) {  // rgb
-                    fillStr = 'rgb(' + fillObj.r + ',' + fillObj.g + ','  + fillObj.b + ',' + (fillObj.a != undefined ? fillObj.a : '1') + ')';
-                } else if (fillObj.h != undefined) {  // hsl
-                    fillStr = 'hsl(' + fillObj.h + ',' + fillObj.s + '%,' + fillObj.l + '%,' + (fillObj.a != undefined ? fillObj.a : '1') + ')';
-                }
-
-                const strokeObj = ParentComponent.getInheritedValue(entityID, entities, RenderComponent, 'stroke');
-                if (!strokeObj) {
-                    // skip
-                } else if (strokeObj.r != undefined) {  // rgb
-                    strokeStr = 'rgb(' + strokeObj.r + ',' + strokeObj.g + ','  + strokeObj.b + ',' + (strokeObj.a != undefined ? strokeObj.a : '1') + ')';
-                } else if (strokeObj.h != undefined) {  // hsl
-                    strokeStr = 'hsl(' + strokeObj.h + ',' + strokeObj.s + '%,' + strokeObj.l + '%,' + (strokeObj.a != undefined ? strokeObj.a : '1') + ')';
-                }
+                let fillStr = RenderSystem.toColorString(renderC.fill),
+                    strokeStr = RenderSystem.toColorString(renderC.stroke);
 
                 ctx.save();
 
@@ -92,6 +74,17 @@ class RenderSystem extends System {
                         ctx.filter = 'blur(' + amt + 'px)';
                     }  
 
+                }
+
+                if (renderC.shadowBlur) {
+                    ctx.shadowBlur = renderC.shadowBlur;
+                    if (renderC.shadowColor == 'stroke') {
+                        ctx.shadowColor = strokeStr;
+                    } else if (renderC.shadowColor == 'fill') {
+                        ctx.shadowColor = fillStr;
+                    } else {
+                        ctx.shadowColor = RenderSystem.toColorString(renderC.shadowColor);
+                    }
                 }
 
                 if (!ParentComponent.getInheritedValue(entityID, entities, RenderComponent, 'isStatic')) {
@@ -139,14 +132,17 @@ class RenderSystem extends System {
                     if (shapeC.type == p2.Shape.BOX) {
                         w = shape.width;
                         h = shape.height;
-                    } else {
+                    } else if (shapeC.type == p2.Shape.CIRCLE) {
                         w = shape.radius;
                         h = shape.radius;
+                    } else if (shapeC.type == p2.Shape.LINE) {
+                        w = shape.length;
+                        h = 0;
                     }
         
                     let pos = ParentComponent.getAbsolutePosition(entityID, entities, [0,0]);
                     const offset = [shapeC.flatOffset[0] + shapeC.propOffset[0]*w, 
-                                    shapeC.flatOffset[1] + shapeC.propOffset[1]*h]
+                                    shapeC.flatOffset[1] + shapeC.propOffset[1]*h];
 
                     ctx.translate(pos[0], pos[1]);
                     ctx.translate(-offset[0], -offset[1])
@@ -169,6 +165,10 @@ class RenderSystem extends System {
                         } else if (shapeC.type === p2.Shape.CIRCLE) {
                             ctx.beginPath();
                             ctx.arc(0, 0, w, 0, 2*Math.PI, false);    
+                        } else if (shapeC.type === p2.Shape.LINE) {
+                            ctx.beginPath();
+                            ctx.moveTo(-w/2, 0);
+                            ctx.lineTo(w/2, 0);
                         }
     
                         if (fillStr) {
@@ -188,6 +188,23 @@ class RenderSystem extends System {
             }
         }
         this.tempOffset = [0,0];
+
+    }
+
+    static toColorString(colourObj) {
+
+        if (!colourObj) {
+            return '';
+        }
+
+        let colourStr;
+        if (colourObj.r != undefined) {  // rgb
+            colourStr = 'rgb(' + colourObj.r + ',' + colourObj.g + ','  + colourObj.b + ',' + (colourObj.a != undefined ? colourObj.a : '1') + ')';
+        } else if (colourObj.h != undefined) {  // hsl
+            colourStr = 'hsl(' + colourObj.h + ',' + colourObj.s + '%,' + colourObj.l + '%,' + (colourObj.a != undefined ? colourObj.a : '1') + ')';
+        }
+
+        return colourStr;
 
     }
 

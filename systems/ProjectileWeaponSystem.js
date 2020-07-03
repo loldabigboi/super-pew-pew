@@ -99,7 +99,9 @@ class ProjectileWeaponSystem extends System {
                     projWeapC.pCallbacks.onDeath);
                 componentsDict[HealthComponent] = new HealthComponent(projID, projWeapC.pPenetrationDepth, projWeapC.pCallbacks.onHit, projWeapC.pCallbacks.onDeath);
                 componentsDict[RenderComponent] = new RenderComponent(projID, {
-                    fill: {r:255,g:255,b:255}
+                    fill: {r:255,g:255,b:255},
+                    shadowBlur: 5,
+                    shadowColor: 'fill'
                 }, GameScene.PROJ_LAYER);
 
                 projWeapC.onFire({

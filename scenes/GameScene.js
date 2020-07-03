@@ -173,7 +173,7 @@ class GameScene extends Scene {
         this.backgroundC[TransformComponent] = new TransformComponent(this.backgroundID, [canvas.width/2, canvas.height/2], 0);
         this.backgroundC[ShapeComponent] = new ShapeComponent(this.backgroundID, p2.Shape.BOX, {width: 1200, height: 659}, [0,0], [0,0], 0);
         this.backgroundC[RenderComponent] = new RenderComponent(this.backgroundID, {
-            fill: {r:0,g:0,b:0,a:0.2}
+            fill: {r:0,g:0,b:0,a:0.25}
         }, GameScene.BACKGROUND_LAYER, true);
         
         this.addEntity(this.backgroundID, this.backgroundC);
@@ -187,17 +187,18 @@ class GameScene extends Scene {
         const fpsCounterID = Entity.GENERATE_ID();
         const fpsCounterC = {};
         fpsCounterC[TransformComponent] = new TransformComponent(this.scoreTextID, [25, 25], 0);
-        fpsCounterC[TextRenderComponent] = new TextRenderComponent(this.scoreTextID, 'FPS: 60', {
+        fpsCounterC[TextRenderComponent] = new TextRenderComponent(this.scoreTextID, '60', {
             fontFamily: 'ArcadeIn', 
-            fontSize: 32,
+            fontSize: 48,
             propOffset: [0.5, 0]
         });
         fpsCounterC[RenderComponent] = new RenderComponent(this.scoreTextID, {
-            fill: {r:255,g:255,b:255}
+            stroke: {r:255,g:255,b:255},
+            strokeWidth: 1
         }, GameScene.GAME_OVERLAY_LAYER, true);
         fpsCounterC[LoopCallbackComponent] = [new LoopCallbackComponent(fpsCounterID, (obj) => {
-            const fps = (obj.dt / 0.1666666667) * 60;
-            fpsCounterC[TextRenderComponent].text = "FPS: " + fps.toFixed(0);
+            const fps = (0.1666666667 / obj.dt) * 60;
+            fpsCounterC[TextRenderComponent].text = fps.toFixed(0);
         }, 30)];
         this.addEntity(fpsCounterID, fpsCounterC);
 
@@ -207,10 +208,13 @@ class GameScene extends Scene {
         this.scoreTextC[TransformComponent] = new TransformComponent(this.scoreTextID, [canvas.width/2, 50], 0);
         this.scoreTextC[TextRenderComponent] = new TextRenderComponent(this.scoreTextID, '0', {
             fontFamily: 'ArcadeIn', 
-            fontSize: 72
+            fontSize: 96,
         });
         this.scoreTextC[RenderComponent] = new RenderComponent(this.scoreTextID, {
-            fill: {r:255,g:255,b:255}
+            stroke: {r:255,g:255,b:255},
+            shadowBlur: 5,
+            shadowColor: 'stroke',
+            strokeWidth: 2
         }, GameScene.GAME_OVERLAY_LAYER, true);
         this.scoreTextC[LoopCallbackComponent] = [];
         this.addEntity(this.scoreTextID, this.scoreTextC);
@@ -246,6 +250,8 @@ class GameScene extends Scene {
         this.scorePopupTextC = {};
         this.scorePopupTextC[RenderComponent] = new RenderComponent(this.scorePopupTextID, {
             stroke: {h:0,s:100,l:50}, 
+            shadowBlur: 2,
+            shadowColor: 'stroke',
             strokeWidth: 3
         }, GameScene.OVERLAY_LAYER, 'inherit');
         this.scorePopupTextC[RenderComponent].render = 'inherit'
@@ -269,14 +275,17 @@ class GameScene extends Scene {
 
         const playAgainID = Entity.GENERATE_ID();
         const playAgainC = GUIFactory.createSimpleButton(playAgainID, GameScene.OVERLAY_LAYER, {
-            fill: {r:255,g:255,b:255}, 
-            stroke: {h:0,s:100,l:0},
-            fontSize: 64
+            stroke: {r:255,g:255,b:255}, 
+            fontSize: 72,
+            strokeWidth: 2,
+            shadowBlur: 1,
+            shadowColor: 'stroke'
         }, {
-            stroke: {h:0,s:100,l:50},
-            fontSize: 72
+            stroke: {r:100,g:255,b:100},
+            fontSize: 76
         }, {
-            fill: {r:225,g:225,b:225}
+            fontSize: 68,
+            stroke: {r:50,g:225,b:50}
         });
         playAgainC[MouseInteractableComponent].listeners.mouseup.push(() => {
             
@@ -300,28 +309,28 @@ class GameScene extends Scene {
         playAgainC[RenderComponent].isStatic = 'inherit';
         playAgainC[RenderComponent].render = 'inherit';
         playAgainC[TextRenderComponent] = new TextRenderComponent(playAgainID, 'Play again', {
-            fontSize: 64,
+            fontSize: 72,
             fontFamily: 'ArcadeIn'
         });
-        playAgainC[ShapeComponent] = new ShapeComponent(playAgainID, p2.Shape.BOX, {width: 270, height: 30}, [0,0], [0,0], 0);
+        playAgainC[ShapeComponent] = new ShapeComponent(playAgainID, p2.Shape.BOX, {width: 330, height: 30}, [0,0], [0,0], 0);
         playAgainC[ParentComponent] = new ParentComponent(playAgainID, this.scorePopupID, [0, 0], [0,0], Callbacks.DELETE_ENTITY);
         playAgainC[TransformComponent] = new TransformComponent(playAgainID, [0, 60], 0);
-        playAgainC[LoopCallbackComponent] = [new LoopCallbackComponent(playAgainID, () => {
-            playAgainC[RenderComponent].stroke.h += 1;
-        })];
 
         this.addEntity(playAgainID, playAgainC);
 
         const quitID = Entity.GENERATE_ID();
         const quitC = GUIFactory.createSimpleButton(quitID, GameScene.OVERLAY_LAYER, {
-            fill: {r:255,g:255,b:255}, 
-            stroke: {r:0,g:0,b:0},
-            fontSize: 64
+            stroke: {r:255,g:255,b:255}, 
+            strokeWidth: 2,
+            fontSize: 72,
+            shadowBlur: 1,
+            shadowColor: 'stroke'
         }, {
             stroke: {r:255,g:0,b:0},
-            fontSize: 72
+            fontSize: 80
         }, {
-            fill: {r:225,g:225,b:225}
+            fontSize: 68,
+            stroke: {r:240,g:0,b:0}
         });
         quitC[MouseInteractableComponent].listeners.mouseup.push(() => {      
             this.game.changeScene(new MainMenuScene(this.game));
@@ -330,7 +339,7 @@ class GameScene extends Scene {
         quitC[RenderComponent].isStatic = 'inherit';
         quitC[RenderComponent].render = 'inherit';
         quitC[TextRenderComponent] = new TextRenderComponent(quitID, 'Quit', {
-            fontSize: 64,
+            fontSize: 72,
             fontFamily: 'ArcadeIn'
         })
         quitC[ShapeComponent] = new ShapeComponent(quitID, p2.Shape.BOX, {width: 140, height: 30}, [0,0], [0,0], 0);
@@ -345,58 +354,108 @@ class GameScene extends Scene {
 
         const canvas = document.getElementsByTagName("canvas")[0];
 
-        let w = 8, h = canvas.height;
-
-        const groups = ShapeComponent.GROUPS,
-              masks = ShapeComponent.MASKS;
-
-        // add platforms to contain sides of arena
+        const middleY = canvas.height/2 + 50;
+        const sidePlatformWidth = 250;
 
         let entityID = Entity.GENERATE_ID();
-        let compDict = PlatformFactory.createPlatform(entityID, w, h, [w/2, h/2], 0);
+        let compDict = PlatformFactory.createPlatform(entityID, [canvas.width/2-50, -100], [canvas.width/2-50, 20]);
         this.addEntity(entityID, compDict);
 
         entityID = Entity.GENERATE_ID();
-        compDict = PlatformFactory.createPlatform(entityID, w, h, [canvas.width - w/2, h/2], 0);
-        this.addEntity(entityID, compDict);
-
-        // add boxes to contain bottom and top with hole in middle
-        w = canvas.width/2 - 59;
-        h = 8;
-
-        entityID = Entity.GENERATE_ID();
-        compDict = PlatformFactory.createPlatform(entityID, w, h, [w/2-1, h/2 -1 ], 0);
+        compDict = PlatformFactory.createPlatform(entityID, [canvas.width/2-50, 20], [20, 20]);
         this.addEntity(entityID, compDict);
 
         entityID = Entity.GENERATE_ID();
-        compDict = PlatformFactory.createPlatform(entityID, w, h, [canvas.width - w/2+1, h/2 - 1], 0);
+        compDict = PlatformFactory.createPlatform(entityID, [20,20], [20, middleY-10]);
         this.addEntity(entityID, compDict);
 
         entityID = Entity.GENERATE_ID();
-        compDict = PlatformFactory.createPlatform(entityID, w, h, [w/2-1, canvas.height - h/2 + 1], 0);
+        compDict = PlatformFactory.createPlatform(entityID, [20, middleY-10], [20 + sidePlatformWidth, middleY-10]);
         this.addEntity(entityID, compDict);
-        this.platformIDs.push(entityID);
 
         entityID = Entity.GENERATE_ID();
-        compDict = PlatformFactory.createPlatform(entityID, w, h, [canvas.width - w/2+1, canvas.height - h/2 + 1], 0);
+        compDict = PlatformFactory.createPlatform(entityID, [20 + sidePlatformWidth, middleY-10], [20 + sidePlatformWidth, middleY+10]);
         this.addEntity(entityID, compDict);
-        this.platformIDs.push(entityID);
 
-        const positionArray = [
-            [canvas.width/2, canvas.height-125],
-            [124, 325],
-            [canvas.width-124, 325],
-            [canvas.width/2, 175]
-        ];
-        const widthArray = [
-            400, 250, 250, 400
-        ];
+        entityID = Entity.GENERATE_ID();
+        compDict = PlatformFactory.createPlatform(entityID, [20 + sidePlatformWidth, middleY+10], [20, middleY+10]);
+        this.addEntity(entityID, compDict);
 
-        for (let i = 0; i < positionArray.length; i++) {
-            entityID = Entity.GENERATE_ID();
-            compDict = PlatformFactory.createPlatform(entityID, widthArray[i], 20, positionArray[i], 0);
-            this.addEntity(entityID, compDict);
-            this.platformIDs.push(entityID);
+        entityID = Entity.GENERATE_ID();
+        compDict = PlatformFactory.createPlatform(entityID, [20, middleY+10], [20, canvas.height-20]);
+        this.addEntity(entityID, compDict);
+
+        entityID = Entity.GENERATE_ID();
+        compDict = PlatformFactory.createPlatform(entityID, [20, canvas.height-20], [canvas.width/2-50, canvas.height-20]);
+        this.addEntity(entityID, compDict);
+
+        entityID = Entity.GENERATE_ID();
+        compDict = PlatformFactory.createPlatform(entityID, [canvas.width/2-50, canvas.height-20], [canvas.width/2-50, canvas.height]);
+        this.addEntity(entityID, compDict);
+
+        entityID = Entity.GENERATE_ID();
+        compDict = PlatformFactory.createPlatform(entityID, [canvas.width/2+50, canvas.height], [canvas.width/2+50, canvas.height-20]);
+        this.addEntity(entityID, compDict);
+
+        entityID = Entity.GENERATE_ID();
+        compDict = PlatformFactory.createPlatform(entityID, [canvas.width/2+50, canvas.height-20], [canvas.width-20, canvas.height-20]);
+        this.addEntity(entityID, compDict);
+
+        entityID = Entity.GENERATE_ID();
+        compDict = PlatformFactory.createPlatform(entityID, [canvas.width-20, canvas.height-20], [canvas.width-20, middleY+10]);
+        this.addEntity(entityID, compDict);
+
+        entityID = Entity.GENERATE_ID();
+        compDict = PlatformFactory.createPlatform(entityID, [canvas.width-20, middleY+10], [canvas.width-20 - sidePlatformWidth, middleY+10]);
+        this.addEntity(entityID, compDict);
+
+        entityID = Entity.GENERATE_ID();
+        compDict = PlatformFactory.createPlatform(entityID, [canvas.width-20 - sidePlatformWidth, middleY+10], [canvas.width-20 - sidePlatformWidth, middleY-10]);
+        this.addEntity(entityID, compDict);
+
+        entityID = Entity.GENERATE_ID();
+        compDict = PlatformFactory.createPlatform(entityID, [canvas.width-20 - sidePlatformWidth, middleY-10], [canvas.width-20, middleY-10]);
+        this.addEntity(entityID, compDict);
+
+        entityID = Entity.GENERATE_ID();
+        compDict = PlatformFactory.createPlatform(entityID, [canvas.width-20, middleY-10], [canvas.width-20, 20]);
+        this.addEntity(entityID, compDict);
+
+        entityID = Entity.GENERATE_ID();
+        compDict = PlatformFactory.createPlatform(entityID, [canvas.width-20, 20], [canvas.width/2+50, 20]);
+        this.addEntity(entityID, compDict);
+
+        entityID = Entity.GENERATE_ID();
+        compDict = PlatformFactory.createPlatform(entityID, [canvas.width/2+50, 20], [canvas.width/2+50, -100]);
+        this.addEntity(entityID, compDict);
+
+        const w = canvas.width/2 - 59,
+              h = 20;
+
+        const x = canvas.width/2,
+              yArr = [middleY - 125, middleY + 125];
+
+        for (let i = 0; i < yArr.length; i++) {
+            const y = yArr[i];
+
+            const verts = [
+                [x - w/2, y - h/2],
+                [x + w/2, y - h/2],
+                [x + w/2, y + h/2],
+                [x - w/2, y + h/2]
+            ];
+
+            for (let i = 0; i < verts.length; i++) {
+
+                const start = p2.vec2.copy([], verts[i]);
+                const end = p2.vec2.copy([], verts[(i+1)%verts.length]);
+
+                entityID = Entity.GENERATE_ID();
+                compDict = PlatformFactory.createPlatform(entityID, start, end);
+                this.addEntity(entityID, compDict);
+
+            }
+            
         }
 
     }
@@ -416,9 +475,21 @@ class GameScene extends Scene {
         const phyComp = new PhysicsComponent(entityID,  {
             mass: 0,
             collisionResponse: false, 
-            position: [canvas.width/2, canvas.height + 100],
+            position: [canvas.width/2, canvas.height + 50],
         }, [shapeComp]);
-        const teleComp = new TeleporterComponent(entityID, [canvas.width/2, 0]);
+        const teleComp = new TeleporterComponent(entityID, [canvas.width/2, 0], (obj) => {
+            const c = obj.otherComponents;
+            if (c[BasicEnemyAIComponent] && !c[BasicEnemyAIComponent].enraged) {
+                c[BasicEnemyAIComponent].speed *= 1.25;
+                c[BasicEnemyAIComponent].enraged = true;
+            } else if (c[FlyingEnemyAIComponent] && !c[FlyingEnemyAIComponent].enraged) {
+                c[FlyingEnemyAIComponent].speed *= 1.5;
+                c[FlyingEnemyAIComponent].enraged = true;
+            } else {
+                return;
+            }
+            c[RenderComponent].fill = {r:255,g:0,b:0};
+        });
         const componentsDict = {};
         componentsDict[ShapeComponent] = shapeComp;
         componentsDict[TeleporterComponent] = teleComp;
@@ -444,7 +515,9 @@ class GameScene extends Scene {
             fixedRotation: true
         }, [shapeComp]);
         const renComp = new RenderComponent(entityID, {
-            fill: {h:0,s:100,l:50}
+            fill: {h:0,s:100,l:50},
+            shadowBlur: 25,
+            shadowColor: 'fill'
         }, GameScene.WEAPON_LAYER);
         const componentsDict = {};
         componentsDict[ShapeComponent] = shapeComp;
@@ -463,18 +536,23 @@ class GameScene extends Scene {
 
     repositionWeaponCrate() {
 
-        let newPlatformI = Math.floor(Math.random() * this.platformIDs.length);
-        while (newPlatformI == this.lastPlatformI) {
-            newPlatformI = Math.floor(Math.random() * this.platformIDs.length);
+        const canvas = document.getElementsByTagName('canvas')[0];
+        const crateSpawnLines = [
+            [[50, 200], [250, 200]],
+            [[canvas.width-250, 200], [canvas.width-50, 200]],
+            [[canvas.width/2+50, 500], [canvas.width-50, 500]],
+            [[50, 500], [canvas.width/2-50, 500]],
+            [[300, 100], [canvas.width/2-85, 100]],
+            [[canvas.width/2+85, 100], [canvas.width - 300, 100]],
+            [[300, 350], [canvas.width-300, 350]]
+        ];
+        let currCrateSpawnLines = crateSpawnLines;
+        if (this.prevSpawnLine) {
+            currCrateSpawnLines = crateSpawnLines.filter((spawnLine) => spawnLine != this.prevSpawnLine);
         }
-        this.lastPlatformI = newPlatformI;
-
-        const platform = this.entities[this.platformIDs[newPlatformI]];
-
-        const platformBody = platform[PhysicsComponent].body;
-        const w = platformBody.shapes[0].width;
-        this.weaponCrate[PhysicsComponent].body.position = [platformBody.position[0] + (-w/2 + Math.random() * w) * 0.75,
-                                                            platformBody.position[1] - 75];
+        this.prevSpawnLine = currCrateSpawnLines[Math.floor(Math.random() * currCrateSpawnLines.length)];
+        const pos = p2.vec2.add([], this.prevSpawnLine[0], p2.vec2.scale([], p2.vec2.sub([], this.prevSpawnLine[1], this.prevSpawnLine[0]), Math.random()));
+        this.weaponCrate[PhysicsComponent].body.position = pos;
 
     }
 
@@ -488,8 +566,8 @@ class GameScene extends Scene {
         ['fontSize'], 50, 0.25, -1.7);
         const rotCallback = CallbackFactory.createFnAttributeModifier(Math.sin, this.scoreTextC[TransformComponent], 
         ['angle'], 0.2, 0.55, -Math.PI);
-        this.scoreTextC[RenderComponent].fill = {h:0,s:100,l:50};
-        const hueCallback = CallbackFactory.createFnAttributeModifier(Math.sin, this.scoreTextC[RenderComponent], ['fill', 'h'], 90, 0.275);
+        this.scoreTextC[RenderComponent].stroke = {h:0,s:100,l:50};
+        const hueCallback = CallbackFactory.createFnAttributeModifier(Math.sin, this.scoreTextC[RenderComponent], ['stroke', 'h'], 90, 0.275);
         this.scoreTextC[LoopCallbackComponent].push(
             new LoopCallbackComponent(this.scoreTextID, CallbackFactory.attachSelfDestructThreshold(sizeCallback, 
                 this.scoreTextC[LoopCallbackComponent], 'x', 2))
@@ -501,7 +579,7 @@ class GameScene extends Scene {
         this.scoreTextC[LoopCallbackComponent].push(
             new LoopCallbackComponent(this.scoreTextID, CallbackFactory.attachSelfDestructThreshold(hueCallback, 
                 this.scoreTextC[LoopCallbackComponent], 'x', Math.PI, true, () => {
-                    this.scoreTextC[RenderComponent].fill = {r:255,g:255,b:255};
+                    this.scoreTextC[RenderComponent].stroke = {r:255,g:255,b:255};
                 }))
         );
 
@@ -510,21 +588,24 @@ class GameScene extends Scene {
         const wepTextC = {};
         wepTextC[TransformComponent] = new TransformComponent(wepTextID, p2.vec2.copy([], this.weaponCrate[PhysicsComponent].body.position), 0);
         wepTextC[RenderComponent] = new RenderComponent(wepTextID, {
-            fill: {h:0,s:100,l:50}
+            stroke: {r:255,g:255,b:255},
+            strokeWeight: 1,
+            shadowBlur: 1,
+            shadowColor: 'stroke'
         });
 
-         let wepText= this.weaponNames[this.weapons.indexOf(this.nextWeapon)];
+        let wepText= this.weaponNames[this.weapons.indexOf(this.nextWeapon)];
         wepTextC[TextRenderComponent] = new TextRenderComponent(wepTextID, wepText, {
-            fontSize: 36,
+            fontSize: 48,
             fontFamily: 'ArcadeIn'
         });
 
         let callback = CallbackFactory.createFnAttributeModifier(CallbackFactory.createEaseInFn(2), 
             wepTextC[TransformComponent], ['position', '1'], -35, 0.018);
         wepTextC[LoopCallbackComponent] = [
-            new LoopCallbackComponent(wepTextID, () => {
-                wepTextC[RenderComponent].fill.h += 3;
-            })
+            // new LoopCallbackComponent(wepTextID, () => {
+            //     wepTextC[RenderComponent].fill.h += 3;
+            // })
         ];
         wepTextC[LoopCallbackComponent].push(new LoopCallbackComponent(wepTextID, CallbackFactory.attachSelfDestructThreshold(
             callback, wepTextC[LoopCallbackComponent], 'x', 1, false
@@ -560,7 +641,7 @@ class GameScene extends Scene {
             groups.PLAYER, masks.PLAYER, g.ENEMY | g.PICKUP, GameScene.CHARACTER_MATERIAL)
         const phyComp = new PhysicsComponent(entityID, {
             mass: 100, 
-            position: [canvas.width/2, canvas.height/2],
+            position: [canvas.width/2, canvas.height/2+50],
             fixedRotation: true,
             gravityScale: 2
         }, [shapeComp]);

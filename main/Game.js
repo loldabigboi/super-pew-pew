@@ -13,14 +13,7 @@ class Game {
     }
 
     loadResources() {
-        ResourceManager.loadImages([{
-            id: 'reg_enemy', 
-            src: 'res/reg_enemy.png'
-        },
-        {
-            id: 'background', 
-            src: 'res/background.jpg'
-        }], () => this.run(Date.now()));
+        this.run(Date.now());
     }
 
     addScene(scene) {

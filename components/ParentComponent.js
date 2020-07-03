@@ -36,9 +36,12 @@ class ParentComponent extends Component {
                 if (shapeC.type == p2.Shape.BOX) {
                     w = shapeC.shape.width;
                     h = shapeC.shape.height; 
-                } else {
+                } else if (shapeC.type == p2.Shape.CIRCLE) {
                     w = shapeC.shape.radius;
                     h = shapeC.shape.radius;
+                } else if (shapeC.type == p2.Shape.LINE) {
+                    w = shapeC.shape.length;
+                    h = 0;
                 }
                 if (propOffset) {
                     p2.vec2.add(offset, offset, [(propOffset[0]-shapeC.propOffset[0])*w, 
@@ -62,6 +65,8 @@ class ParentComponent extends Component {
                         } else if (parentShapeC.type == p2.Shape.CIRCLE) {
                             p2.vec2.add(pos, pos, [parentShapeC.shape.radius * pComp.propOffset[0], 
                                 parentShapeC.shape.radius * pComp.propOffset[1]]);
+                        } else if (parentShapeC.type == p2.Shape.LINE) {
+                            p2.vec2.add(pos, pos, [parentShapeC.shape.length * pComp.propOffset[0]]);
                         }
                     }
 
