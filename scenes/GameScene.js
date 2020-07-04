@@ -138,6 +138,7 @@ class GameScene extends Scene {
 
     update(dt) {
 
+        StatsManager.addTimePlayed(dt*100);
 
         this.firing = false;
         if (!this.currWeapon[WeaponComponent].semiAuto && InputManager.mouse.down) {
@@ -753,7 +754,7 @@ class GameScene extends Scene {
             this.highscoreTextC[TextRenderComponent].text = 'NEW HIGHSCORE';
         } else {
             this.highscoreTextC[RenderComponent].fill.l = 100;
-            this.highscoreTextC[TextRenderComponent].text = `${prevHighscore - this.score.value} points to your highscore`;
+            this.highscoreTextC[TextRenderComponent].text = `${StatsManager.getHighscore() - this.score.value} points to your highscore`;
         }
         
         const callback = CallbackFactory.createFnAttributeModifier(CallbackFactory.createEaseInOutFn(1.25),

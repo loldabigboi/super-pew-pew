@@ -50,8 +50,13 @@ class StatsManager {
     }
 
     static addTimePlayed(time) {
-        const curr = parseInt(localStorage.getItem('time_played') || 0);
+        const curr = parseInt(localStorage.getItem('playtime') || 0);
         localStorage.setItem('playtime', curr+time)
+    }
+
+    static getTimePlayed() {
+        return parseInt(localStorage.getItem('playtime') || 0);
+
     }
 
 }

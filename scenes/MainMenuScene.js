@@ -39,7 +39,7 @@ class MainMenuScene extends Scene {
 
         const titleID = Entity.GENERATE_ID();
         const titleC = {};
-        titleC[TransformComponent] = new TransformComponent(titleID, [canvas.width/2, 200], 0);
+        titleC[TransformComponent] = new TransformComponent(titleID, [canvas.width/2, 170], 0);
         titleC[RenderComponent] = new RenderComponent(titleID, {
             fill: {h:0,s:100,l:50},
             strokeWidth: 3,
@@ -65,8 +65,8 @@ class MainMenuScene extends Scene {
         this.addEntity(titleID, titleC);
 
 
-        const buttonID = Entity.GENERATE_ID();
-        const buttonC = GUIFactory.createSimpleButton(buttonID, 0, {
+        const playID = Entity.GENERATE_ID();
+        const playC = GUIFactory.createSimpleButton(playID, 0, {
             stroke: {r:255,g:255,b:255},
             strokeWidth: 2,
             fontSize: 72,
@@ -79,19 +79,47 @@ class MainMenuScene extends Scene {
             fontSize: 68,
             stroke: {r:100,g:200,b:100}
         });
-        buttonC[MouseInteractableComponent].listeners.mouseup.push(() => this.game.changeScene(new GameScene(this.game)));
-        buttonC[TransformComponent] = new TransformComponent(buttonID, [canvas.width/2, 350], 0);
-        buttonC[ShapeComponent] = new ShapeComponent(buttonID, p2.Shape.BOX, {width: 140, height: 35}, [0,0], [0,0], 0);
-        buttonC[TextRenderComponent] = new TextRenderComponent(buttonID, 'PLAY', {
+        playC[MouseInteractableComponent].listeners.mouseup.push(() => this.game.changeScene(new GameScene(this.game)));
+        playC[TransformComponent] = new TransformComponent(playID, [canvas.width/2, 300], 0);
+        playC[ShapeComponent] = new ShapeComponent(playID, p2.Shape.BOX, {width: 140, height: 35}, [0,0], [0,0], 0);
+        playC[TextRenderComponent] = new TextRenderComponent(playID, 'PLAY', {
             fontSize: 72, 
             fontFamily: 'ArcadeIn'
         });
-        buttonC[LoopCallbackComponent] = [new LoopCallbackComponent(buttonID, () => {
-            if (buttonC[RenderComponent].stroke.h != undefined) {
-                buttonC[RenderComponent].stroke.h += 3;
+        playC[LoopCallbackComponent] = [new LoopCallbackComponent(playID, () => {
+            if (playC[RenderComponent].stroke.h != undefined) {
+                playC[RenderComponent].stroke.h += 3;
             }
         })]
-        this.addEntity(buttonID, buttonC);
+        this.addEntity(playID, playC);
+
+        const statsID = Entity.GENERATE_ID();
+        const statsC = GUIFactory.createSimpleButton(statsID, 0, {
+            stroke: {r:255,g:255,b:255},
+            strokeWidth: 2,
+            fontSize: 64,
+            shadowBlur: 1,
+            shadowColor: 'stroke'
+        }, {
+            fontSize: 68,
+            stroke: {r:100,g:255,b:255}
+        }, {
+            fontSize: 60,
+            stroke: {r:100,g:200,b:200}
+        });
+        statsC[MouseInteractableComponent].listeners.mouseup.push(() => this.game.changeScene(new StatsScene(this.game)));
+        statsC[TransformComponent] = new TransformComponent(statsID, [canvas.width/2, 375], 0);
+        statsC[ShapeComponent] = new ShapeComponent(statsID, p2.Shape.BOX, {width: 140, height: 35}, [0,0], [0,0], 0);
+        statsC[TextRenderComponent] = new TextRenderComponent(statsID, 'STATS', {
+            fontSize: 72, 
+            fontFamily: 'ArcadeIn'
+        });
+        statsC[LoopCallbackComponent] = [new LoopCallbackComponent(statsID, () => {
+            if (statsC[RenderComponent].stroke.h != undefined) {
+                statsC[RenderComponent].stroke.h += 3;
+            }
+        })]
+        this.addEntity(statsID, statsC);
         
     }
 
