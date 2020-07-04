@@ -91,20 +91,20 @@ class ParentComponent extends Component {
     static getInheritedValue(entityID, entities, componentConstructor, attributeName) {
 
         let currID = entityID;
-        while (entities[currID][ParentComponent]) {
-            if (entities[currID][componentConstructor] &&
-                entities[currID][componentConstructor][attributeName] == 'inherit') {
-                currID = entities[currID][ParentComponent].parentID;
+        while (entities[currID]) {
+            if (entities[currID][componentConstructor]) {
+                const val = entities[currID][componentConstructor][attributeName];
+                if (val !== undefined && val !== 'inherit') {
+                    return val;
+                }
+            }
+
+            if (!entities[currID][ParentComponent]) {
+                throw new Error(`Critical inheritance error: no parent found in hierarchy with value for ${componentConstructor}#${attributeName}`);
             } else {
-                break;
+                currID = entities[currID][ParentComponent].parentID;
             }
         }
-
-        if (entities[currID][componentConstructor][attributeName] == 'inherit') {
-            console.log(`WARNING: inheritance does not fully propagate for ${attributeName}.`);
-        }
-        return entities[currID][componentConstructor][attributeName];
-
 
     }
 

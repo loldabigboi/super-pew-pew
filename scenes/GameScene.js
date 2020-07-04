@@ -186,15 +186,14 @@ class GameScene extends Scene {
 
         const fpsCounterID = Entity.GENERATE_ID();
         const fpsCounterC = {};
-        fpsCounterC[TransformComponent] = new TransformComponent(this.scoreTextID, [25, 25], 0);
+        fpsCounterC[TransformComponent] = new TransformComponent(this.scoreTextID, [35, 40], 0);
         fpsCounterC[TextRenderComponent] = new TextRenderComponent(this.scoreTextID, '60', {
             fontFamily: 'ArcadeIn', 
-            fontSize: 48,
+            fontSize: 36,
             propOffset: [0.5, 0]
         });
         fpsCounterC[RenderComponent] = new RenderComponent(this.scoreTextID, {
-            stroke: {r:255,g:255,b:255},
-            strokeWidth: 1
+            fill: {r:255,g:255,b:255},
         }, GameScene.GAME_OVERLAY_LAYER, true);
         fpsCounterC[LoopCallbackComponent] = [new LoopCallbackComponent(fpsCounterID, (obj) => {
             const fps = (0.1666666667 / obj.dt) * 60;
@@ -211,9 +210,9 @@ class GameScene extends Scene {
             fontSize: 96,
         });
         this.scoreTextC[RenderComponent] = new RenderComponent(this.scoreTextID, {
-            stroke: {r:255,g:255,b:255},
-            shadowBlur: 5,
-            shadowColor: 'stroke',
+            fill: {r:255,g:255,b:255},
+            shadowBlur: 2,
+            shadowColor: 'fill',
             strokeWidth: 2
         }, GameScene.GAME_OVERLAY_LAYER, true);
         this.scoreTextC[LoopCallbackComponent] = [];
@@ -246,32 +245,59 @@ class GameScene extends Scene {
 
         this.addEntity(this.scorePopupID, this.scorePopupC);
 
+        const scorePopupContainerID = Entity.GENERATE_ID();
+        const scorePopupContainerC = {};
+        scorePopupContainerC[TransformComponent] = new TransformComponent(scorePopupContainerID, [0, -100], 0);
+        scorePopupContainerC[ParentComponent] = new ParentComponent(scorePopupContainerID, this.scorePopupID, [0,0], [0,0]);
+        scorePopupContainerC[LoopCallbackComponent] = [new LoopCallbackComponent(scorePopupContainerC,
+            CallbackFactory.createFnAttributeModifier(Math.sin, scorePopupContainerC[TransformComponent], ['position', '1'], 4, 0.02)
+        ), new LoopCallbackComponent(scorePopupContainerID, 
+            CallbackFactory.createFnAttributeModifier(Math.sin, scorePopupContainerC[TransformComponent], ['angle'], 0.1, 0.015)
+        )];
+
+        this.addEntity(scorePopupContainerID, scorePopupContainerC);
+
         this.scorePopupTextID = Entity.GENERATE_ID();
         this.scorePopupTextC = {};
         this.scorePopupTextC[RenderComponent] = new RenderComponent(this.scorePopupTextID, {
-            stroke: {h:0,s:100,l:50}, 
-            shadowBlur: 2,
-            shadowColor: 'stroke',
-            strokeWidth: 3
+            fill: {r:255,g:0,b:0}, 
+            shadowBlur: 5,
+            shadowColor: 'fill',
         }, GameScene.OVERLAY_LAYER, 'inherit');
         this.scorePopupTextC[RenderComponent].render = 'inherit'
         this.scorePopupTextC[TextRenderComponent] = new TextRenderComponent(this.scorePopupTextID, 'You died with 0 points', {
             fontSize: 86,
             fontFamily: 'ArcadeIn'
         });
-        this.scorePopupTextC[ParentComponent] = new ParentComponent(this.scorePopupTextID, this.scorePopupID, [0, 0], [0,0], Callbacks.DELETE_ENTITY);
-        this.scorePopupTextC[TransformComponent] = new TransformComponent(this.scorePopupTextID, [0, -100], 0);
-        this.scorePopupTextC[LoopCallbackComponent] = [new LoopCallbackComponent(this.scorePopupTextID,
-            CallbackFactory.createFnAttributeModifier(Math.sin, this.scorePopupTextC[TransformComponent], ['position', '1'], 4, 0.02)
-        ), new LoopCallbackComponent(this.scorePopupTextID, 
-            CallbackFactory.createFnAttributeModifier(Math.sin, this.scorePopupTextC[TransformComponent], ['angle'], 0.1, 0.015)
-        ), new LoopCallbackComponent(this.scorePopupTextID,
-            CallbackFactory.createFnAttributeModifier(Math.sin, this.scorePopupTextC[TextRenderComponent], ['fontSize'], 3, 0.05)
-        ), new LoopCallbackComponent(this.scorePopupTextID, () => {
-            this.scorePopupTextC[RenderComponent].stroke.h += 1;
-        })]
+        this.scorePopupTextC[ParentComponent] = new ParentComponent(this.scorePopupTextID, scorePopupContainerID, [0, 0], [0,0]);
+        this.scorePopupTextC[TransformComponent] = new TransformComponent(this.scorePopupTextID, [0, 0], 'inherit');
+        this.scorePopupTextC[LoopCallbackComponent] = [
+            new LoopCallbackComponent(this.scorePopupTextID,
+                CallbackFactory.createFnAttributeModifier(Math.sin, this.scorePopupTextC[TextRenderComponent], ['fontSize'], 3, 0.05))
+        ];
 
         this.addEntity(this.scorePopupTextID, this.scorePopupTextC);
+
+        this.highscoreTextID = Entity.GENERATE_ID();
+        this.highscoreTextC = {};
+        this.highscoreTextC[RenderComponent] = new RenderComponent(this.highscoreTextID, {
+            fill: {h:0,s:100,l:100},
+            shadowBlur: 1,
+            shadowColor: 'fill',
+            strokeWidth: 1
+        }, GameScene.OVERLAY_LAYER, 'inherit');
+        this.highscoreTextC[RenderComponent].render = 'inherit'
+        this.highscoreTextC[TextRenderComponent] = new TextRenderComponent(this.highscoreTextID, '0 points to your highscore', {
+            fontSize: 40,
+            fontFamily: 'ArcadeIn'
+        });
+        this.highscoreTextC[TransformComponent] = new TransformComponent(this.highscoreTextID, [0, 50], 'inherit');
+        this.highscoreTextC[ParentComponent] = new ParentComponent(this.highscoreTextID, scorePopupContainerID, [0, 0], [0, 0]);
+        this.highscoreTextC[LoopCallbackComponent] = [new LoopCallbackComponent(this.highscoreTextID, () => {
+            this.highscoreTextC[RenderComponent].fill.h += 4;
+        })];
+
+        this.addEntity(this.highscoreTextID, this.highscoreTextC);
 
         const playAgainID = Entity.GENERATE_ID();
         const playAgainC = GUIFactory.createSimpleButton(playAgainID, GameScene.OVERLAY_LAYER, {
@@ -566,8 +592,8 @@ class GameScene extends Scene {
         ['fontSize'], 50, 0.25, -1.7);
         const rotCallback = CallbackFactory.createFnAttributeModifier(Math.sin, this.scoreTextC[TransformComponent], 
         ['angle'], 0.2, 0.55, -Math.PI);
-        this.scoreTextC[RenderComponent].stroke = {h:0,s:100,l:50};
-        const hueCallback = CallbackFactory.createFnAttributeModifier(Math.sin, this.scoreTextC[RenderComponent], ['stroke', 'h'], 90, 0.275);
+        this.scoreTextC[RenderComponent].fill = {h:0,s:100,l:50};
+        const hueCallback = CallbackFactory.createFnAttributeModifier((x) => x, this.scoreTextC[RenderComponent], ['fill', 'h'], 360, 0.1);
         this.scoreTextC[LoopCallbackComponent].push(
             new LoopCallbackComponent(this.scoreTextID, CallbackFactory.attachSelfDestructThreshold(sizeCallback, 
                 this.scoreTextC[LoopCallbackComponent], 'x', 2))
@@ -578,8 +604,8 @@ class GameScene extends Scene {
         );
         this.scoreTextC[LoopCallbackComponent].push(
             new LoopCallbackComponent(this.scoreTextID, CallbackFactory.attachSelfDestructThreshold(hueCallback, 
-                this.scoreTextC[LoopCallbackComponent], 'x', Math.PI, true, () => {
-                    this.scoreTextC[RenderComponent].stroke = {r:255,g:255,b:255};
+                this.scoreTextC[LoopCallbackComponent], 'x', 1, true, () => {
+                    this.scoreTextC[RenderComponent].fill = {r:255,g:255,b:255};
                 }))
         );
 
@@ -588,15 +614,14 @@ class GameScene extends Scene {
         const wepTextC = {};
         wepTextC[TransformComponent] = new TransformComponent(wepTextID, p2.vec2.copy([], this.weaponCrate[PhysicsComponent].body.position), 0);
         wepTextC[RenderComponent] = new RenderComponent(wepTextID, {
-            stroke: {r:255,g:255,b:255},
-            strokeWeight: 1,
-            shadowBlur: 1,
-            shadowColor: 'stroke'
+            fill: {r:255,g:255,b:255},
+            shadowBlur: 2,
+            shadowColor: 'fill'
         });
 
         let wepText= this.weaponNames[this.weapons.indexOf(this.nextWeapon)];
         wepTextC[TextRenderComponent] = new TextRenderComponent(wepTextID, wepText, {
-            fontSize: 48,
+            fontSize: 36,
             fontFamily: 'ArcadeIn'
         });
 
@@ -646,20 +671,7 @@ class GameScene extends Scene {
             gravityScale: 2
         }, [shapeComp]);
         p2.vec2.copy(phyComp.body.previousPosition, phyComp.body.position);
-        const healthComp = new HealthComponent(entityID, 1, (obj) => {
-            Callbacks.DELETE_ENTITY(obj);
-            this.scorePopupC[RenderComponent].render = true;
-            this.scorePopupC[MouseInteractableComponent].interactable = true;
-            const txt = 'You died with ' + this.score.value + ' point' + (this.score.value != 1 ? 's' : '');
-            this.scorePopupTextC[TextRenderComponent].text = txt;
-            
-            const callback = CallbackFactory.createFnAttributeModifier(CallbackFactory.createEaseInOutFn(1.25),
-                this.scorePopupC[RenderComponent], ['fill', 'a'], 0.65, 0.02);
-            this.scorePopupC[LoopCallbackComponent].push(
-                new LoopCallbackComponent(this.scorePopupID, 
-                    CallbackFactory.attachSelfDestructThreshold(callback, this.scorePopupC[LoopCallbackComponent], 'x', 1, false))
-            );
-        });
+        const healthComp = new HealthComponent(entityID, 1, (obj) => this.onPlayerDeath(obj));
         const jumpComp = new JumpComponent(entityID, 75, 50, 5);
         const contactComp = new ContactDamageComponent(entityID, 1, Infinity, undefined, groups.PICKUP);
 
@@ -721,6 +733,33 @@ class GameScene extends Scene {
              }
         })];
         this.addEntity(bowID, bowC);
+
+    }
+
+    onPlayerDeath(obj) {
+
+        Callbacks.DELETE_ENTITY(obj);
+        this.scorePopupC[RenderComponent].render = true;
+        this.scorePopupC[MouseInteractableComponent].interactable = true;
+        const txt = 'You died with ' + this.score.value + ' point' + (this.score.value != 1 ? 's' : '');
+        this.scorePopupTextC[TextRenderComponent].text = txt;
+
+        const prevHighscore = localStorage.getItem('highscore') || 0;
+        if (this.score.value > prevHighscore) {
+            localStorage.setItem('highscore', this.score.value);
+            this.highscoreTextC[RenderComponent].fill.l = 50;
+            this.highscoreTextC[TextRenderComponent].text = 'NEW HIGHSCORE';
+        } else {
+            this.highscoreTextC[RenderComponent].fill.l = 100;
+            this.highscoreTextC[TextRenderComponent].text = `${prevHighscore - this.score.value} points to your highscore`;
+        }
+        
+        const callback = CallbackFactory.createFnAttributeModifier(CallbackFactory.createEaseInOutFn(1.25),
+            this.scorePopupC[RenderComponent], ['fill', 'a'], 0.65, 0.02);
+        this.scorePopupC[LoopCallbackComponent].push(
+            new LoopCallbackComponent(this.scorePopupID, 
+                CallbackFactory.attachSelfDestructThreshold(callback, this.scorePopupC[LoopCallbackComponent], 'x', 1, false))
+        );
 
     }
 

@@ -44,6 +44,9 @@ class JumpSystem extends System {
                 jumpComp.didJump = false;
                 jumpComp.canJump = true;
                 jumpComp.remainingBoost = this.entities[jumpBody.id][JumpComponent].totalBoost;
+            } else if ((jumpBody == c.bodyA && c.normalA[1] == -1) || 
+                       (jumpBody == c.bodyB && c.normalA[1] == 1)) {
+                jumpComp.remainingBoost = 0;
             }
 
         }

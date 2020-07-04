@@ -41,10 +41,10 @@ class MainMenuScene extends Scene {
         const titleC = {};
         titleC[TransformComponent] = new TransformComponent(titleID, [canvas.width/2, 200], 0);
         titleC[RenderComponent] = new RenderComponent(titleID, {
-            stroke: {h:0,s:100,l:50},
+            fill: {h:0,s:100,l:50},
             strokeWidth: 3,
             shadowBlur: 2,
-            shadowColor: 'stroke'
+            shadowColor: 'fill'
         });
         titleC[TextRenderComponent] = new TextRenderComponent(titleID, 'Super Pew Pew', {
             fontFamily: 'ArcadeIn',
@@ -59,7 +59,7 @@ class MainMenuScene extends Scene {
             yCallback();
             rotCallback();
             fontCallback();
-            titleC[RenderComponent].stroke.h += 1.5;
+            titleC[RenderComponent].fill.h += 1.5;
         })];
 
         this.addEntity(titleID, titleC);

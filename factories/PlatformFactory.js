@@ -24,7 +24,6 @@ class PlatformFactory {
         componentsDict[ShapeComponent] = shapeComp;
         componentsDict[RenderComponent] = renComp;
         componentsDict[PhysicsComponent] = phyComp;
-        console.log(phyComp);
         return componentsDict;
 
     }
