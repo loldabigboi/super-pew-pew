@@ -71,6 +71,8 @@ class ProjectileWeaponSystem extends System {
             });
 
             for (let i = 0; i < weapC.attCount; i++) {
+                StatsManager.addShotFired();
+
                 const componentsDict = {};
                 const projID = Entity.GENERATE_ID();
 

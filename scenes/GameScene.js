@@ -584,6 +584,8 @@ class GameScene extends Scene {
 
     pickupWeaponCrate() {
 
+        StatsManager.addCratePickup();
+
         const canvas = document.getElementsByTagName('canvas')[0];
 
         this.score.value++;
@@ -738,15 +740,15 @@ class GameScene extends Scene {
 
     onPlayerDeath(obj) {
 
+        StatsManager.addDeath();
+
         Callbacks.DELETE_ENTITY(obj);
         this.scorePopupC[RenderComponent].render = true;
         this.scorePopupC[MouseInteractableComponent].interactable = true;
         const txt = 'You died with ' + this.score.value + ' point' + (this.score.value != 1 ? 's' : '');
         this.scorePopupTextC[TextRenderComponent].text = txt;
 
-        const prevHighscore = localStorage.getItem('highscore') || 0;
-        if (this.score.value > prevHighscore) {
-            localStorage.setItem('highscore', this.score.value);
+        if (StatsManager.setHighscore(this.score.value)) {
             this.highscoreTextC[RenderComponent].fill.l = 50;
             this.highscoreTextC[TextRenderComponent].text = 'NEW HIGHSCORE';
         } else {

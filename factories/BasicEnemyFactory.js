@@ -16,6 +16,7 @@ class BasicEnemyFactory {
         const healthComp = new HealthComponent(entityID, health, undefined, (obj) => {
             
             Callbacks.DELETE_ENTITY(obj);
+            StatsManager.addEnemyKill();
 
             const c = obj.components;
 
